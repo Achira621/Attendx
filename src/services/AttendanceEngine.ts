@@ -115,6 +115,7 @@ export class AttendanceEngine {
         faceProof: face as unknown as Record<string, unknown>,
         livenessProof: liveness as unknown as Record<string, unknown>,
         durationMs: Date.now() - startTime,
+        clientIp,
       });
 
       return {
@@ -123,6 +124,7 @@ export class AttendanceEngine {
         stage: "ATTENDANCE_ACCEPTED",
         verifiedAt: commitResult.record.verifiedAt.toISOString(),
         attendanceId: commitResult.record.id,
+        isDuplicate: commitResult.isDuplicate,
       };
     } catch (err: unknown) {
       console.error("[AttendanceEngine] Unexpected internal error during verification:", err);
@@ -141,7 +143,7 @@ export class AttendanceEngine {
     payload: AttendancePayload,
     code: FailureCode,
     startTime: number,
-    _clientIp?: string
+    clientIp?: string
   ): Promise<VerificationResult> {
     const failureDef = getFailureDefinition(code);
 
@@ -161,6 +163,7 @@ export class AttendanceEngine {
           : "SYSTEM_ERROR",
       failureCode: code,
       durationMs: Date.now() - startTime,
+      clientIp,
     }).catch(() => {});
 
     return {

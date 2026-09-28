@@ -5,6 +5,8 @@ import { TeacherLiveSessionConsole } from "@/components/dashboard/TeacherLiveSes
 import { StudentAttendanceFlow } from "@/components/verification/StudentAttendanceFlow";
 import { AcousticDiagnosticLab } from "@/components/verification/AcousticDiagnosticLab";
 import { FaceDiagnosticLab } from "@/components/verification/FaceDiagnosticLab";
+import { LoginModal } from "@/components/auth/LoginModal";
+import { useAuth } from "@/context/AuthContext";
 import {
   LayoutDashboard,
   Smartphone,
@@ -14,18 +16,28 @@ import {
   FileText,
   Activity,
   CheckCircle2,
+  LogIn,
+  LogOut,
+  User,
+  GraduationCap,
 } from "lucide-react";
 
 type ActiveTab = "teacher" | "student" | "acoustic_lab" | "face_lab" | "architecture";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>("teacher");
+  const { user, logout, loading } = useAuth();
+  const [selectedTab, setSelectedTab] = useState<ActiveTab | null>(null);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  // Derive active tab based on explicit user navigation or current role
+  const activeTab: ActiveTab = selectedTab ?? (user?.role === "STUDENT" ? "student" : "teacher");
+  const setActiveTab = (tab: ActiveTab) => setSelectedTab(tab);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col">
       {/* Top Application Bar */}
       <header className="border-b border-zinc-800 bg-zinc-900/60 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-sm">
               <ShieldCheck className="h-5 w-5" />
@@ -41,7 +53,7 @@ export default function Home() {
           </div>
 
           {/* Navigation Tabs */}
-          <nav className="hidden md:flex items-center gap-1 bg-zinc-950 p-1 rounded-lg border border-zinc-800">
+          <nav className="hidden lg:flex items-center gap-1 bg-zinc-950 p-1 rounded-lg border border-zinc-800">
             <button
               onClick={() => setActiveTab("teacher")}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md font-medium transition-all ${
@@ -103,17 +115,48 @@ export default function Home() {
             </button>
           </nav>
 
-          {/* Quick Hardware Status Indicator */}
-          <div className="flex items-center gap-2">
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-mono text-zinc-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              Web Audio / Video API Ready
-            </span>
+          {/* User Auth Profile & Controls */}
+          <div className="flex items-center gap-2.5">
+            {loading ? (
+              <div className="h-7 w-20 bg-zinc-800/60 animate-pulse rounded-lg" />
+            ) : user ? (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-zinc-800/80 border border-zinc-700/60 text-xs">
+                  {user.role === "TEACHER" ? (
+                    <User className="h-3.5 w-3.5 text-blue-400" />
+                  ) : (
+                    <GraduationCap className="h-3.5 w-3.5 text-emerald-400" />
+                  )}
+                  <div className="flex flex-col text-left">
+                    <span className="font-medium text-zinc-100 text-[11px] leading-tight">{user.name}</span>
+                    <span className="text-[9px] font-mono text-zinc-400 leading-tight">
+                      {user.role === "STUDENT" ? user.rollNumber : "Faculty"}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => logout()}
+                  title="Sign Out"
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition"
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsLoginModalOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs shadow-xs transition"
+              >
+                <LogIn className="h-3.5 w-3.5" />
+                Sign In
+              </button>
+            )}
           </div>
         </div>
 
         {/* Mobile Navigation Row */}
-        <div className="md:hidden flex items-center justify-around border-t border-zinc-800/80 px-2 py-1.5 overflow-x-auto">
+        <div className="lg:hidden flex items-center justify-around border-t border-zinc-800/80 px-2 py-1.5 overflow-x-auto">
           <button
             onClick={() => setActiveTab("teacher")}
             className={`p-2 text-xs font-medium rounded ${
@@ -136,7 +179,7 @@ export default function Home() {
               activeTab === "acoustic_lab" ? "text-blue-400 font-semibold" : "text-zinc-400"
             }`}
           >
-            Acoustic Lab
+            Acoustic
           </button>
           <button
             onClick={() => setActiveTab("face_lab")}
@@ -152,7 +195,7 @@ export default function Home() {
               activeTab === "architecture" ? "text-blue-400 font-semibold" : "text-zinc-400"
             }`}
           >
-            System
+            Architecture
           </button>
         </div>
       </header>
@@ -239,6 +282,13 @@ export default function Home() {
       <footer className="border-t border-zinc-800/60 py-4 px-6 text-center text-[11px] text-zinc-500">
         Attendex Attendance Platform • Complies with strict architectural fault-tolerance and UX design rules.
       </footer>
+
+      {/* Authentication Modal */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onSuccess={() => setIsLoginModalOpen(false)}
+      />
     </div>
   );
 }

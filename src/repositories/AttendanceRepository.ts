@@ -22,6 +22,7 @@ export interface LogAttemptParams {
   faceProof?: Record<string, unknown>;
   livenessProof?: Record<string, unknown>;
   durationMs?: number;
+  clientIp?: string;
 }
 
 export class AttendanceRepository {
@@ -106,6 +107,7 @@ export class AttendanceRepository {
           faceProof: params.faceProof as Prisma.InputJsonValue | undefined,
           livenessProof: params.livenessProof as Prisma.InputJsonValue | undefined,
           durationMs: params.durationMs,
+          clientIp: params.clientIp,
         },
       });
     } catch (err) {

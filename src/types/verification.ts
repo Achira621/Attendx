@@ -151,4 +151,5 @@ export interface VerificationResult {
   verifiedAt?: string;
   attendanceId?: string;
   studentName?: string;
+  isDuplicate?: boolean;
 }
