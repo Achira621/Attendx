@@ -4,7 +4,7 @@
   "crons": [
     {
       "path": "/api/v1/workers/outbox",
-      "schedule": "*/1 * * * *"
+      "schedule": "0 0 * * *"
     }
   ],
   "headers": [
