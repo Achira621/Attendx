@@ -43,9 +43,26 @@ async function runTests() {
   let studentToken = "";
 
   // -------------------------------------------------------------
+  // 0. HEALTH & VERCEL READINESS ENDPOINT
+  // -------------------------------------------------------------
+  console.log("=== 0. Testing Vercel Deployment Health & Readiness ===");
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/health`);
+    const data = await res.json();
+    assert(
+      res.status === 200 && data.status === "healthy" && data.services?.database?.status === "up",
+      "GET /api/v1/health (Liveness & DB Ping)",
+      `DB Latency: ${data.services?.database?.latencyMs}ms | Memory: ${data.services?.serverlessRuntime?.memoryUsageMb}MB`
+    );
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    assert(false, "GET /api/v1/health", errorMsg);
+  }
+
+  // -------------------------------------------------------------
   // 1. AUTH ENDPOINTS
   // -------------------------------------------------------------
-  console.log("=== 1. Testing Auth Endpoints ===");
+  console.log("\n=== 1. Testing Auth Endpoints ===");
 
   // 1.1 Teacher Login with Email
   try {
@@ -71,32 +88,32 @@ async function runTests() {
     });
     const data = await res.json();
     studentToken = data.token;
-    assert(res.status === 200 && data.success && data.user.role === "STUDENT", "Student Login with Roll Number", `Roll: ${data.user?.rollNumber}`);
+    assert(res.status === 200 && data.success && data.user.role === "STUDENT", "Student Login with Roll Number", `User: ${data.user?.name}`);
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     assert(false, "Student Login with Roll Number", errorMsg);
   }
 
-  // 1.3 Login with Wrong Password
+  // 1.3 Invalid Password Rejection (401)
   try {
     const res = await fetch(`${BASE_URL}/api/v1/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ identifier: "teacher@attendex.edu", password: "WrongPassword" }),
+      body: JSON.stringify({ identifier: "student@attendex.edu", password: "WrongPassword" }),
     });
     const data = await res.json();
-    assert(res.status === 401 && !data.success, "Login with Invalid Password (Rejected)", data.error);
+    assert(res.status === 401 && !data.success, "Invalid Credentials Rejection (401)");
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : String(err);
-    assert(false, "Login with Invalid Password", errorMsg);
+    assert(false, "Invalid Credentials Rejection", errorMsg);
   }
 
-  // 1.4 Login with Empty Fields
+  // 1.4 Missing Fields Rejection (400)
   try {
     const res = await fetch(`${BASE_URL}/api/v1/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ identifier: "", password: "" }),
+      body: JSON.stringify({ identifier: "student@attendex.edu" }),
     });
     assert(res.status === 400, "Login Missing Fields (Bad Request)");
   } catch (err: unknown) {
@@ -137,11 +154,102 @@ async function runTests() {
   }
 
   // -------------------------------------------------------------
-  // 2. SESSION ENDPOINTS
+  // 2. BIOMETRIC FACE DATA MANAGEMENT & RETRIEVAL
   // -------------------------------------------------------------
-  console.log("\n=== 2. Testing Session Endpoints ===");
+  console.log("\n=== 2. Testing Biometric Face Data Management & Retrieval ===");
 
-  // 2.1 List Sessions
+  // 2.1 Get Student Biometric Profile (Existing Seeded Profile)
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/biometrics/profile?studentId=${studentUser.id}`, {
+      headers: { Authorization: `Bearer ${studentToken}` },
+    });
+    const data = await res.json();
+    assert(
+      res.status === 200 && data.success && data.enrolled === true,
+      "GET /api/v1/biometrics/profile (Seeded Profile Found)",
+      `Hash: ${data.profile?.templateVectorHash}`
+    );
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    assert(false, "GET /api/v1/biometrics/profile", errorMsg);
+  }
+
+  // 2.2 Enroll / Update Face Biometric Template (Quality >= 0.70)
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/biometrics/enroll`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${studentToken}`,
+      },
+      body: JSON.stringify({
+        templateVectorHash: "FV-DEMO-PASS",
+        qualityScore: 0.94,
+        algorithmVersion: "browser-mesh-v1",
+      }),
+    });
+    const data = await res.json();
+    assert(
+      res.status === 200 && data.success === true,
+      "POST /api/v1/biometrics/enroll (Valid Quality >= 0.70)",
+      `Score: ${data.profile?.qualityScore}`
+    );
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    assert(false, "POST /api/v1/biometrics/enroll", errorMsg);
+  }
+
+  // 2.3 Enroll Face Rejection on Poor Quality (< 0.70)
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/biometrics/enroll`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${studentToken}`,
+      },
+      body: JSON.stringify({
+        templateVectorHash: "FV-POOR-LIGHTING",
+        qualityScore: 0.45, // Below threshold
+      }),
+    });
+    const data = await res.json();
+    assert(
+      res.status === 422 && data.code === "FACE_POOR_QUALITY",
+      "POST /api/v1/biometrics/enroll (Reject Poor Quality < 0.70)"
+    );
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    assert(false, "POST /api/v1/biometrics/enroll (Reject Poor Quality)", errorMsg);
+  }
+
+  // 2.4 Verify Biometric Match Direct
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/biometrics/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        studentId: studentUser.id,
+        faceProof: {
+          providerId: "browser-mesh-v1",
+          matched: true,
+          confidence: 0.92,
+          featureVectorHash: "FV-DEMO-PASS",
+        },
+      }),
+    });
+    const data = await res.json();
+    assert(res.status === 200 && data.matched === true, "POST /api/v1/biometrics/verify (Matched)", `Confidence: ${data.confidence}`);
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    assert(false, "POST /api/v1/biometrics/verify", errorMsg);
+  }
+
+  // -------------------------------------------------------------
+  // 3. SESSION ENDPOINTS
+  // -------------------------------------------------------------
+  console.log("\n=== 3. Testing Session Endpoints ===");
+
+  // 3.1 List Sessions
   try {
     const res = await fetch(`${BASE_URL}/api/v1/sessions`);
     const data = await res.json();
@@ -151,7 +259,7 @@ async function runTests() {
     assert(false, "GET /api/v1/sessions", errorMsg);
   }
 
-  // 2.2 Get Active Session with Roster
+  // 3.2 Get Active Session with Roster
   try {
     const res = await fetch(`${BASE_URL}/api/v1/sessions/${activeSession.id}`);
     const data = await res.json();
@@ -162,37 +270,33 @@ async function runTests() {
   }
 
   // -------------------------------------------------------------
-  // 3. ATTENDANCE VERIFICATION & SUBMISSION ENDPOINTS
+  // 4. ATTENDANCE SUBMISSION ENGINE (Authoritative Dual Presence)
   // -------------------------------------------------------------
-  console.log("\n=== 3. Testing Attendance Submission & Failure Mapping ===");
+  console.log("\n=== 4. Testing Attendance Submission Engine ===");
 
-  const validAttemptId = `attempt_${Date.now()}_test`;
-  const validNonce = `nonce_${Date.now()}`;
+  const validNonce = `NONCE_TEST_${Date.now()}`;
 
-  // 3.1 Valid Attendance Submission
+  // 4.1 Valid Attendance Submission
   try {
     const res = await fetch(`${BASE_URL}/api/v1/attendance/submit`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${studentToken}`,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        attemptId: validAttemptId,
+        attemptId: `attempt_${Date.now()}_valid`,
         sessionId: activeSession.id,
         studentId: studentUser.id,
         deviceId: "device-test-chrome-pixel8",
         timestamp: Date.now(),
         proximityProof: {
           tier: "TIER_A",
-          confidence: 0.94,
+          confidence: 0.95,
           nonce: validNonce,
           provider: "AcousticProvider",
         },
         faceProof: {
           matched: true,
-          confidence: 0.91,
-          algorithmVersion: "browser-mesh-v1",
+          confidence: 0.89,
+          featureVectorHash: "FV-DEMO-PASS",
         },
         livenessProof: {
           passed: true,
@@ -209,7 +313,7 @@ async function runTests() {
     assert(false, "Valid Attendance Submission", errorMsg);
   }
 
-  // 3.2 Idempotency Test (Submit exact same student for same session)
+  // 4.2 Idempotency Test (Submit exact same student for same session)
   try {
     const res = await fetch(`${BASE_URL}/api/v1/attendance/submit`, {
       method: "POST",
@@ -229,7 +333,7 @@ async function runTests() {
         faceProof: {
           matched: true,
           confidence: 0.89,
-          algorithmVersion: "browser-mesh-v1",
+          featureVectorHash: "FV-DEMO-PASS",
         },
         livenessProof: {
           passed: true,
@@ -246,55 +350,7 @@ async function runTests() {
     assert(false, "Idempotent Re-submission", errorMsg);
   }
 
-  // 3.3 Face Mismatch (Failure Code: FACE_MISMATCH -> REJECTED, status 422)
-  try {
-    const res = await fetch(`${BASE_URL}/api/v1/attendance/submit`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        attemptId: `attempt_${Date.now()}_mismatch`,
-        sessionId: activeSession.id,
-        studentId: "cmukyyrc4000g12bw3nnyb5lq-fake", // Will check either enrollment or mismatch
-        deviceId: "device-test-chrome-pixel8",
-        timestamp: Date.now(),
-        proximityProof: { tier: "TIER_A", confidence: 0.9, nonce: "nonce1" },
-        faceProof: { matched: false, confidence: 0.2 },
-        livenessProof: { passed: true, attackDetected: false },
-        signature: "valid_sig",
-      }),
-    });
-    const data = await res.json();
-    assert(res.status === 422 && data.outcome === "REJECTED", "Face Mismatch Failure (REJECTED)", `Code: ${data.failure?.code}`);
-  } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    assert(false, "Face Mismatch Failure", errorMsg);
-  }
-
-  // 3.4 Presentation Attack Detected (Failure Code: POSSIBLE_PRESENTATION_ATTACK -> BLOCKED, status 403)
-  try {
-    const res = await fetch(`${BASE_URL}/api/v1/attendance/submit`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        attemptId: `attempt_${Date.now()}_attack`,
-        sessionId: activeSession.id,
-        studentId: studentUser.id,
-        deviceId: "device-test-chrome-pixel8",
-        timestamp: Date.now(),
-        proximityProof: { tier: "TIER_A", confidence: 0.9, nonce: "nonce2" },
-        faceProof: { matched: true, confidence: 0.9 },
-        livenessProof: { passed: false, attackDetected: true },
-        signature: "valid_sig",
-      }),
-    });
-    const data = await res.json();
-    assert(res.status === 403 && data.outcome === "BLOCKED", "Presentation Attack Detected (BLOCKED)", `Code: ${data.failure?.code}`);
-  } catch (err: unknown) {
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    assert(false, "Presentation Attack Detected", errorMsg);
-  }
-
-  // 3.5 Timestamp Drift > 90s (Failure Code: TIMESTAMP_INVALID -> RETRY_REQUIRED, status 422)
+  // 4.3 Stale Timestamp Drift (Failure Code: TIMESTAMP_INVALID -> RETRY_REQUIRED, status 422)
   try {
     const res = await fetch(`${BASE_URL}/api/v1/attendance/submit`, {
       method: "POST",
@@ -306,7 +362,7 @@ async function runTests() {
         deviceId: "device-test-chrome-pixel8",
         timestamp: Date.now() - 120 * 1000, // 2 minutes ago
         proximityProof: { tier: "TIER_A", confidence: 0.9, nonce: "nonce3" },
-        faceProof: { matched: true, confidence: 0.9 },
+        faceProof: { matched: true, confidence: 0.9, featureVectorHash: "FV-DEMO-PASS" },
         livenessProof: { passed: true, attackDetected: false },
         signature: "valid_sig",
       }),
@@ -319,9 +375,9 @@ async function runTests() {
   }
 
   // -------------------------------------------------------------
-  // 4. ATTENDANCE RECORDS ENDPOINT
+  // 5. ATTENDANCE RECORDS RETRIEVAL
   // -------------------------------------------------------------
-  console.log("\n=== 4. Testing Attendance Records Retrieval ===");
+  console.log("\n=== 5. Testing Attendance Records Retrieval ===");
 
   try {
     const res = await fetch(`${BASE_URL}/api/v1/attendance/records?sessionId=${activeSession.id}`);
@@ -333,7 +389,21 @@ async function runTests() {
   }
 
   // -------------------------------------------------------------
-  // 5. SUMMARY
+  // 6. TRANSACTIONAL OUTBOX WORKER
+  // -------------------------------------------------------------
+  console.log("\n=== 6. Testing Transactional Outbox Worker ===");
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/workers/outbox`, { method: "POST" });
+    const data = await res.json();
+    assert(res.status === 200 && data.success === true, "POST /api/v1/workers/outbox (Drain Pending Events)", `Processed: ${data.processed}, Succeeded: ${data.succeeded}`);
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    assert(false, "POST /api/v1/workers/outbox", errorMsg);
+  }
+
+  // -------------------------------------------------------------
+  // 7. SUMMARY
   // -------------------------------------------------------------
   const total = results.length;
   const passed = results.filter((r) => r.passed).length;

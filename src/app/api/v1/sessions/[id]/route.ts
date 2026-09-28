@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SessionRepository } from "@/repositories/SessionRepository";
 import { getAuthUserFromRequest } from "@/lib/auth/jwt";
+import { SessionCache } from "@/lib/cache/sessionCache";
+
+export const dynamic = "force-dynamic";
+export const maxDuration = 15;
 
 export async function GET(
   req: NextRequest,
@@ -17,7 +21,14 @@ export async function GET(
       return NextResponse.json({ success: false, error: "Session not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, session });
+    return NextResponse.json(
+      { success: true, session },
+      {
+        headers: {
+          "Cache-Control": "private, no-cache, no-store, must-revalidate",
+        },
+      }
+    );
   } catch (error) {
     console.error("[GET /api/v1/sessions/[id]] Error:", error);
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
@@ -62,6 +73,9 @@ export async function PATCH(
           { status: 400 }
         );
     }
+
+    // Invalidate cached session so student submissions immediately see new status
+    SessionCache.invalidate(id);
 
     return NextResponse.json({ success: true, session: updatedSession });
   } catch (error: unknown) {

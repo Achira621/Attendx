@@ -1,8 +1,9 @@
-import { prisma } from "@/lib/db/prisma";
 import { AttendanceRepository } from "@/repositories/AttendanceRepository";
 import { getFailureDefinition } from "@/lib/verification/failureRegistry";
 import { AttendancePayload, VerificationResult, FailureCode } from "@/types/verification";
 import { SessionStatus, ProximityTier } from "@prisma/client";
+import { SessionCache } from "@/lib/cache/sessionCache";
+import { BiometricService } from "@/services/BiometricService";
 
 export class AttendanceEngine {
   /**
@@ -15,17 +16,8 @@ export class AttendanceEngine {
     const startTime = Date.now();
 
     try {
-      // 1. Session Validation
-      const session = await prisma.attendanceSession.findUnique({
-        where: { id: payload.sessionId },
-        include: {
-          course: {
-            include: {
-              enrollments: true,
-            },
-          },
-        },
-      });
+      // 1. Session Validation using high-speed SessionCache
+      const session = await SessionCache.getSessionWithEnrollments(payload.sessionId);
 
       if (!session) {
         return this.createFailureResult(payload, "SESSION_NOT_FOUND", startTime, clientIp);
@@ -40,7 +32,7 @@ export class AttendanceEngine {
       }
 
       // 2. Student Enrollment Validation
-      const isEnrolled = session.course.enrollments.some((e) => e.studentId === payload.studentId);
+      const isEnrolled = session.enrolledStudentIds.has(payload.studentId);
       if (!isEnrolled) {
         return this.createFailureResult(payload, "STUDENT_NOT_ENROLLED", startTime, clientIp);
       }
@@ -66,7 +58,7 @@ export class AttendanceEngine {
         return this.createFailureResult(payload, "PROXIMITY_VERIFICATION_FAILED", startTime, clientIp);
       }
 
-      // 5. Face Biometric Proof Validation
+      // 5. Face Biometric Proof Validation against Enrolled Profile
       const face = payload.faceProof;
       if (!face || !face.matched) {
         return this.createFailureResult(payload, "FACE_MISMATCH", startTime, clientIp);
@@ -74,6 +66,15 @@ export class AttendanceEngine {
 
       if (face.confidence < 0.65) {
         return this.createFailureResult(payload, "FACE_CONFIDENCE_INSUFFICIENT", startTime, clientIp);
+      }
+
+      // Check biometric profile match in database
+      const biometricCheck = await BiometricService.verifyFaceMatch(payload.studentId, face);
+      if (!biometricCheck.matched) {
+        if (biometricCheck.failureReason === "FACE_NOT_ENROLLED") {
+          return this.createFailureResult(payload, "FACE_NOT_ENROLLED", startTime, clientIp);
+        }
+        return this.createFailureResult(payload, "FACE_MISMATCH", startTime, clientIp);
       }
 
       // 6. Liveness Proof Validation
@@ -94,12 +95,14 @@ export class AttendanceEngine {
       const proximityTierPrisma =
         prox.tier === "TIER_A" ? ProximityTier.TIER_A : prox.tier === "TIER_B" ? ProximityTier.TIER_B : ProximityTier.TIER_C;
 
+      const combinedConfidence = Number(((prox.confidence + face.confidence) / 2).toFixed(2));
+
       const commitResult = await AttendanceRepository.recordAttendanceTransactional({
         sessionId: payload.sessionId,
         studentId: payload.studentId,
         deviceId: payload.deviceId,
         proximityTier: proximityTierPrisma,
-        confidence: Number(((prox.confidence + face.confidence) / 2).toFixed(2)),
+        confidence: combinedConfidence,
         attemptNonce: prox.nonce,
         idempotencyKey: payload.attemptId,
       });

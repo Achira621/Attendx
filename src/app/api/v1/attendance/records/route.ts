@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AttendanceRepository } from "@/repositories/AttendanceRepository";
 
+export const dynamic = "force-dynamic";
+export const maxDuration = 10;
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -11,7 +14,14 @@ export async function GET(req: NextRequest) {
     }
 
     const records = await AttendanceRepository.getSessionRecords(sessionId);
-    return NextResponse.json({ success: true, count: records.length, records });
+    return NextResponse.json(
+      { success: true, count: records.length, records },
+      {
+        headers: {
+          "Cache-Control": "private, no-cache, no-store, must-revalidate",
+        },
+      }
+    );
   } catch (error) {
     console.error("[GET /api/v1/attendance/records] Error:", error);
     return NextResponse.json({ success: false, error: "Failed to fetch attendance records" }, { status: 500 });

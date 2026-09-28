@@ -4,6 +4,9 @@ import { SessionRepository } from "@/repositories/SessionRepository";
 import { getAuthUserFromRequest } from "@/lib/auth/jwt";
 import { ProximityTier, SessionStatus } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+export const maxDuration = 15;
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -44,7 +47,14 @@ export async function GET(req: NextRequest) {
       take: 20,
     });
 
-    return NextResponse.json({ success: true, sessions });
+    return NextResponse.json(
+      { success: true, sessions },
+      {
+        headers: {
+          "Cache-Control": "private, no-cache, no-store, must-revalidate",
+        },
+      }
+    );
   } catch (error) {
     console.error("[GET /api/v1/sessions] Error:", error);
     return NextResponse.json({ success: false, error: "Failed to fetch sessions." }, { status: 500 });

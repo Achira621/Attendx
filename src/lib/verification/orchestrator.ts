@@ -8,6 +8,7 @@ import {
   FailureCode,
 } from "@/types/verification";
 import { getFailureDefinition } from "./failureRegistry";
+import { OfflineSyncQueue } from "@/lib/offline/syncQueue";
 
 export interface VerificationContext {
   sessionId: string;
@@ -56,11 +57,14 @@ export class VerificationOrchestrator {
     };
   }
 
+  /**
+   * Evaluates proofs and submits to authoritative backend API
+   */
   public async evaluateFinalSubmission(): Promise<VerificationResult> {
     this.attemptCount++;
     this.currentStage = 'FINAL_VALIDATION';
 
-    // 1. Validate Session & Student
+    // 1. Validate Session & Student Pre-Conditions
     if (!this.context.sessionId) {
       return this.failWithCode('SESSION_NOT_FOUND');
     }
@@ -92,8 +96,7 @@ export class VerificationOrchestrator {
       return this.failWithCode('LIVENESS_FAILED');
     }
 
-    // 5. Build signed payload and commit acceptance
-    this.currentStage = 'ATTENDANCE_ACCEPTED';
+    // 5. Build signed payload
     const timestamp = Date.now();
     const payload: AttendancePayload = {
       attemptId: `att_${timestamp}_${Math.random().toString(36).substring(2, 7)}`,
@@ -107,14 +110,45 @@ export class VerificationOrchestrator {
       signature: `SIG_ED25519_${Math.random().toString(36).substring(2, 16)}`,
     };
 
-    return {
-      attemptId: payload.attemptId,
-      outcome: 'ACCEPTED',
-      stage: 'ATTENDANCE_ACCEPTED',
-      verifiedAt: new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-      attendanceId: `REC-${timestamp.toString(36).toUpperCase()}`,
-      studentName: this.context.studentName,
-    };
+    // 6. Submit to authoritative backend endpoint
+    try {
+      const response = await fetch("/api/v1/attendance/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const serverResult = (await response.json()) as VerificationResult;
+
+      if (serverResult.outcome === "ACCEPTED") {
+        this.currentStage = "ATTENDANCE_ACCEPTED";
+      }
+
+      return {
+        ...serverResult,
+        studentName: this.context.studentName,
+      };
+    } catch {
+      // 7. Offline Resilience: If network drops, enqueue in IndexedDB for Background Sync
+      console.warn("[VerificationOrchestrator] Network unreachable. Buffering to offline queue...");
+      try {
+        await OfflineSyncQueue.enqueue(payload);
+      } catch (queueErr) {
+        console.error("[VerificationOrchestrator] Failed to enqueue offline record:", queueErr);
+      }
+
+      const failureDef = getFailureDefinition("NETWORK_UNAVAILABLE");
+      return {
+        attemptId: payload.attemptId,
+        outcome: "SYSTEM_ERROR",
+        stage: "FINAL_VALIDATION",
+        failure: {
+          ...failureDef,
+          userMessage: "Network unavailable. Your cryptographically verified proof has been saved offline and will automatically sync when connected.",
+        },
+        studentName: this.context.studentName,
+      };
+    }
   }
 
   public reset(): void {
