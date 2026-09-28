@@ -135,4 +135,37 @@ export class AttendanceRepository {
       orderBy: { verifiedAt: "asc" },
     });
   }
+
+  /**
+   * Retrieve attendance records for a specific student
+   */
+  public static async getStudentRecords(studentId: string, limit = 15) {
+    return await prisma.attendanceRecord.findMany({
+      where: { studentId },
+      include: {
+        session: {
+          include: {
+            course: {
+              select: {
+                id: true,
+                code: true,
+                name: true,
+                department: true,
+              },
+            },
+            classroom: {
+              select: {
+                id: true,
+                name: true,
+                roomNumber: true,
+                building: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { verifiedAt: "desc" },
+      take: limit,
+    });
+  }
 }

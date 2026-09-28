@@ -11,13 +11,28 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const statusParam = searchParams.get("status");
+    const studentIdParam = searchParams.get("studentId");
+
+    const authUser = await getAuthUserFromRequest(req);
+    const effectiveStudentId = studentIdParam || (authUser?.role === "STUDENT" ? authUser.id : null);
 
     const whereClause: Record<string, unknown> = {};
     if (statusParam && Object.values(SessionStatus).includes(statusParam as SessionStatus)) {
       whereClause.status = statusParam;
     }
 
-    const sessions = await prisma.attendanceSession.findMany({
+    // If student, only return sessions for courses the student is enrolled in
+    if (effectiveStudentId) {
+      whereClause.course = {
+        enrollments: {
+          some: {
+            studentId: effectiveStudentId,
+          },
+        },
+      };
+    }
+
+    const rawSessions = await prisma.attendanceSession.findMany({
       where: whereClause,
       include: {
         course: {
@@ -37,18 +52,39 @@ export async function GET(req: NextRequest) {
             name: true,
             roomNumber: true,
             building: true,
+            beaconFrequencyHz: true,
           },
         },
         _count: {
           select: { records: true },
         },
+        records: effectiveStudentId
+          ? {
+              where: { studentId: effectiveStudentId },
+              select: {
+                id: true,
+                status: true,
+                verifiedAt: true,
+                confidence: true,
+              },
+            }
+          : false,
       },
       orderBy: { createdAt: "desc" },
       take: 20,
     });
 
+    const sessions = rawSessions.map((s) => {
+      const studentRecord = effectiveStudentId && Array.isArray(s.records) && s.records.length > 0 ? s.records[0] : null;
+      return {
+        ...s,
+        hasAttended: !!studentRecord,
+        attendanceRecord: studentRecord,
+      };
+    });
+
     return NextResponse.json(
-      { success: true, sessions },
+      { success: true, count: sessions.length, sessions },
       {
         headers: {
           "Cache-Control": "private, no-cache, no-store, must-revalidate",

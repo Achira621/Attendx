@@ -8,9 +8,26 @@ import { VerificationResult, ProximityProof } from "@/types/verification";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, ShieldAlert, Radio, ArrowRight, RotateCcw, Clock, MapPin, UserCheck } from "lucide-react";
+import { CheckCircle2, ShieldAlert, Radio, ArrowRight, RotateCcw, MapPin, UserCheck } from "lucide-react";
 
-export function StudentAttendanceFlow() {
+import { useAuth } from "@/context/AuthContext";
+
+export interface StudentAttendanceFlowProps {
+  session?: {
+    id: string;
+    courseCode: string;
+    courseName: string;
+    classroomName: string;
+    roomNumber: string;
+    beaconFrequencyHz?: number;
+    ephemeralSecret?: string;
+  };
+  onSuccess?: () => void;
+  onCancel?: () => void;
+}
+
+export function StudentAttendanceFlow({ session, onSuccess, onCancel }: StudentAttendanceFlowProps) {
+  const { user } = useAuth();
   const [step, setStep] = useState<"IDLE" | "PROXIMITY" | "FACE" | "RESULT">("IDLE");
   const [proximityStatus, setProximityStatus] = useState<"LISTENING" | "DETECTED" | "TIMEOUT">("LISTENING");
   const [faceStatus, setFaceStatus] = useState<"WAITING" | "ALIGNING" | "CONFIRMING">("WAITING");
@@ -38,19 +55,30 @@ export function StudentAttendanceFlow() {
     }
   }, []);
 
-  // Initialize orchestrator with demo student session
+  // Initialize orchestrator with real student credentials & session
   useEffect(() => {
+    const effectiveStudentId = user?.id || "std_varad_001";
+    const effectiveStudentName = user?.name || "Varad Dalvi";
+    const effectiveSessionId = session?.id || "sess_cs302_2026";
+    const deviceId = typeof window !== "undefined"
+      ? (localStorage.getItem("attendex_device_id") || (() => {
+          const id = "dev_" + Math.random().toString(36).substring(2, 10);
+          try { localStorage.setItem("attendex_device_id", id); } catch {}
+          return id;
+        })())
+      : "dev_browser";
+
     orchestratorRef.current = new VerificationOrchestrator({
-      sessionId: "sess_cs302_2026",
-      studentId: "std_varad_001",
-      studentName: "Varad Kulkarni",
-      deviceId: "dev_pixel8_pk7",
+      sessionId: effectiveSessionId,
+      studentId: effectiveStudentId,
+      studentName: effectiveStudentName,
+      deviceId,
     });
 
     return () => {
       cleanupHardware();
     };
-  }, [cleanupHardware]);
+  }, [user, session, cleanupHardware]);
 
   const transitionToFaceScan = useCallback(async () => {
     setStep("FACE");
@@ -180,21 +208,38 @@ export function StudentAttendanceFlow() {
     setResult(null);
   };
 
+  const courseCode = session?.courseCode || "CS-302";
+  const courseName = session?.courseName || "Distributed Systems";
+  const classroomDisplay = session?.classroomName
+    ? `${session.classroomName}${session.roomNumber ? ` (${session.roomNumber})` : ""}`
+    : "Room 402, Hall A";
+  const beaconFreq = session?.beaconFrequencyHz ? `${(session.beaconFrequencyHz / 1000).toFixed(2)} kHz` : "18.75 kHz";
+
   return (
     <div className="max-w-[420px] mx-auto w-full">
       {/* Session Header Card */}
       <div className="mb-4 p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 text-left">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Course Session</span>
-          <Badge variant="success" className="text-[10px]">Active Now</Badge>
+          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Active Course Session</span>
+          <div className="flex items-center gap-2">
+            <Badge variant="success" className="text-[10px]">Active Now</Badge>
+            {onCancel && (
+              <button
+                onClick={onCancel}
+                className="text-xs text-zinc-400 hover:text-zinc-200 px-2 py-0.5 rounded hover:bg-zinc-800 transition"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </div>
-        <h3 className="text-base font-semibold text-zinc-100 mt-1">CS-302: Distributed Systems</h3>
+        <h3 className="text-base font-semibold text-zinc-100 mt-1">{courseCode}: {courseName}</h3>
         <div className="flex items-center gap-3 text-xs text-zinc-400 mt-2">
           <span className="flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5 text-zinc-500" /> Room 402, Edge Hall
+            <MapPin className="h-3.5 w-3.5 text-zinc-500" /> {classroomDisplay}
           </span>
           <span className="flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5 text-zinc-500" /> 09:00 – 10:15 AM
+            <Radio className="h-3.5 w-3.5 text-blue-400" /> {beaconFreq}
           </span>
         </div>
       </div>
@@ -390,7 +435,14 @@ export function StudentAttendanceFlow() {
                 </div>
               </div>
 
-              <Button onClick={handleReset} variant="secondary" className="w-full">
+              <Button
+                onClick={() => {
+                  if (onSuccess) onSuccess();
+                  else handleReset();
+                }}
+                variant="secondary"
+                className="w-full"
+              >
                 Done
               </Button>
             </div>

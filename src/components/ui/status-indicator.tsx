@@ -7,6 +7,7 @@ export type AttendanceStatusType =
   | "RETRY_REQUIRED"
   | "REJECTED"
   | "BLOCKED"
+  | "SYSTEM_ERROR"
   | "NOT_MARKED";
 
 interface StatusIndicatorProps {
@@ -52,6 +53,13 @@ export function StatusIndicator({ status, label, className, size = "md" }: Statu
       bg: "bg-red-950/60",
       textCol: "text-red-400",
       border: "border-red-800/50",
+    },
+    SYSTEM_ERROR: {
+      symbol: "⚠",
+      text: "System Error",
+      bg: "bg-red-950/60",
+      textCol: "text-red-300",
+      border: "border-red-800/40",
     },
     NOT_MARKED: {
       symbol: "○",
