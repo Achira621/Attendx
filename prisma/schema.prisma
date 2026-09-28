@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum SessionStatus {
+  CREATED
+  ACTIVE
+  GRACE_PERIOD
+  CLOSED
+  ARCHIVED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  RETRY_REQUIRED
+  REJECTED
+  BLOCKED
+  SYSTEM_ERROR
+}
+
+enum ProximityTier {
+  TIER_A
+  TIER_B
+  TIER_C
+}
+
+enum OutboxStatus {
+  PENDING
+  PUBLISHED
+  FAILED
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String
+  role         Role          @default(STUDENT)
+  rollNumber   String?       @unique
+  department   String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  coursesTaught Course[]      @relation("TeacherCourses")
+  enrollments   Enrollment[]
+  attendance    AttendanceRecord[]
+  attempts      VerificationAttempt[]
+  biometricProfile StudentBiometricProfile?
+  devices       DeviceRegistration[]
+
+  @@index([role])
+}
+
+model DeviceRegistration {
+  id              String   @id @default(cuid())
+  userId          String
+  deviceId        String   @unique
+  deviceModel     String?
+  publicKey       String?  // WebAuthn or Ed25519 public key
+  isTrusted       Boolean  @default(true)
+  registeredAt    DateTime @default(now())
+  lastActiveAt    DateTime @default(now())
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  code        String   @unique // e.g. CS-302
+  name        String   // e.g. Distributed Systems
+  department  String
+  teacherId   String
+  createdAt   DateTime @default(now())
+
+  teacher     User     @relation("TeacherCourses", fields: [teacherId], references: [id])
+  enrollments Enrollment[]
+  sessions    AttendanceSession[]
+
+  @@index([teacherId])
+}
+
+model Enrollment {
+  id         String   @id @default(cuid())
+  courseId   String
+  studentId  String
+  enrolledAt DateTime @default(now())
+
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student    User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, studentId])
+  @@index([courseId])
+  @@index([studentId])
+}
+
+model Classroom {
+  id                 String   @id @default(cuid())
+  name               String   // e.g. Hall A
+  building           String
+  roomNumber         String
+  latitude           Float?
+  longitude          Float?
+  radiusMeters       Float?   @default(30.0)
+  expectedWifiBssid  String?
+  beaconFrequencyHz  Int      @default(18750)
+  createdAt          DateTime @default(now())
+
+  sessions           AttendanceSession[]
+}
+
+model AttendanceSession {
+  id                    String        @id @default(cuid())
+  courseId              String
+  classroomId           String
+  teacherId             String
+  status                SessionStatus @default(CREATED)
+  startTime             DateTime?
+  endTime               DateTime?
+  graceEndTime          DateTime?
+  ephemeralSecret       String        // Seed for acoustic/rotating challenge
+  proximityTierRequired ProximityTier @default(TIER_A)
+  maxAttempts           Int           @default(3)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  course                Course        @relation(fields: [courseId], references: [id])
+  classroom             Classroom     @relation(fields: [classroomId], references: [id])
+  records               AttendanceRecord[]
+  attempts              VerificationAttempt[]
+
+  @@index([courseId])
+  @@index([status])
+  @@index([teacherId])
+}
+
+model AttendanceRecord {
+  id                String           @id @default(cuid())
+  sessionId         String
+  studentId         String
+  deviceId          String
+  status            AttendanceStatus @default(PRESENT)
+  proximityTierUsed ProximityTier
+  confidence        Float            @default(1.0)
+  attemptNonce      String
+  idempotencyKey    String           @unique
+  verifiedAt        DateTime         @default(now())
+
+  session           AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  student           User              @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, studentId])
+  @@index([sessionId])
+  @@index([studentId])
+  @@index([status])
+}
+
+model VerificationAttempt {
+  id             String           @id @default(cuid())
+  sessionId      String
+  studentId      String
+  deviceId       String
+  stage          String
+  outcome        AttendanceStatus
+  failureCode    String?
+  proximityProof Json?
+  faceProof      Json?
+  livenessProof  Json?
+  durationMs     Int?
+  clientIp       String?
+  createdAt      DateTime         @default(now())
+
+  session        AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  student        User              @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([studentId])
+  @@index([createdAt])
+}
+
+model StudentBiometricProfile {
+  id                  String   @id @default(cuid())
+  studentId           String   @unique
+  templateVectorHash  String   // SHA-256 hash / quantized representation, NOT raw pixels
+  qualityScore        Float
+  algorithmVersion    String   @default("browser-mesh-v1")
+  enrolledAt          DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  student             User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model OutboxEvent {
+  id            String       @id @default(cuid())
+  eventType     String       // e.g. ATTENDANCE_ACCEPTED, SESSION_STARTED
+  aggregateType String       // e.g. AttendanceRecord, AttendanceSession
+  aggregateId   String
+  payload       Json
+  status        OutboxStatus @default(PENDING)
+  retryCount    Int          @default(0)
+  createdAt     DateTime     @default(now())
+  publishedAt   DateTime?
+
+  @@index([status, createdAt])
+}
