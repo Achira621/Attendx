@@ -98,6 +98,55 @@ export class BiometricService {
   }
 
   /**
+   * Compare two perceptual face feature vectors
+   * Returns similarity between 0.0 and 1.0
+   */
+  public static compareFaceVectors(
+    vectorA: string,
+    vectorB: string
+  ): { similarity: number; isMatch: boolean } {
+    if (!vectorA || !vectorB) {
+      return { similarity: 0, isMatch: false };
+    }
+
+    // Support demo/testing bypass strings
+    if (vectorA.startsWith("FV-DEMO") || vectorB.startsWith("FV-DEMO") || vectorB.includes("mock_vector")) {
+      return { similarity: 0.95, isMatch: true };
+    }
+
+    if (vectorA === vectorB) {
+      return { similarity: 1.0, isMatch: true };
+    }
+
+    const hexA = vectorA.replace(/^(FBV|FV)-/, "");
+    const hexB = vectorB.replace(/^(FBV|FV)-/, "");
+
+    const len = Math.min(hexA.length, hexB.length);
+    if (len < 16) {
+      return { similarity: 0, isMatch: false };
+    }
+
+    let diffSum = 0;
+    for (let i = 0; i < len; i++) {
+      const valA = parseInt(hexA[i], 16);
+      const valB = parseInt(hexB[i], 16);
+      if (!isNaN(valA) && !isNaN(valB)) {
+        diffSum += Math.abs(valA - valB);
+      } else {
+        diffSum += 8;
+      }
+    }
+
+    const maxDiff = len * 15;
+    const similarity = Math.max(0, Math.min(1, 1 - diffSum / maxDiff));
+
+    return {
+      similarity: Number(similarity.toFixed(3)),
+      isMatch: similarity >= 0.72,
+    };
+  }
+
+  /**
    * Verify an incoming face proof against the enrolled profile
    */
   public static async verifyFaceMatch(
@@ -106,7 +155,7 @@ export class BiometricService {
   ): Promise<VerificationCheckResult> {
     const profile = await this.getProfile(studentId);
 
-    if (!profile) {
+    if (!profile || profile.templateVectorHash.startsWith("mock_vector")) {
       return {
         matched: false,
         confidence: 0,
@@ -116,29 +165,22 @@ export class BiometricService {
 
     // If the client submitted a feature vector hash
     if (faceProof.featureVectorHash) {
-      // In production with quantized hashes or vector distance:
-      // Exact hash matching or normalized distance metric
-      const isDirectMatch = faceProof.featureVectorHash === profile.templateVectorHash;
-      
-      // Also allow simulated/demo passes if prefixed with FV-DEMO or test hashes
-      const isDemoMatch =
-        faceProof.featureVectorHash.startsWith("FV-DEMO") ||
-        profile.templateVectorHash.startsWith("FV-DEMO");
+      const comparison = this.compareFaceVectors(
+        faceProof.featureVectorHash,
+        profile.templateVectorHash
+      );
 
-      if (isDirectMatch || isDemoMatch) {
+      if (comparison.isMatch) {
         return {
           matched: true,
-          confidence: Math.max(faceProof.confidence, profile.qualityScore),
+          confidence: Number(Math.max(faceProof.confidence, comparison.similarity).toFixed(2)),
         };
       }
-    }
 
-    // Fallback: If faceProof has high confidence from client-side verification model
-    // and matched flag is set by on-device model against provisioned enrollment key
-    if (faceProof.matched && faceProof.confidence >= 0.70) {
       return {
-        matched: true,
-        confidence: Number(((faceProof.confidence + profile.qualityScore) / 2).toFixed(2)),
+        matched: false,
+        confidence: comparison.similarity,
+        failureReason: "FACE_MISMATCH",
       };
     }
 

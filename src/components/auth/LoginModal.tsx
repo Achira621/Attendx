@@ -2,7 +2,21 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { ShieldCheck, UserCheck, GraduationCap, Lock, Mail, AlertCircle, Loader2, X } from "lucide-react";
+import {
+  ShieldCheck,
+  UserCheck,
+  GraduationCap,
+  Lock,
+  Mail,
+  AlertCircle,
+  Loader2,
+  X,
+  User,
+  Building2,
+  Hash,
+  UserPlus,
+  LogIn,
+} from "lucide-react";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -11,15 +25,27 @@ interface LoginModalProps {
 }
 
 export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
-  const { login, quickLogin } = useAuth();
+  const { login, register, quickLogin } = useAuth();
+  const [tab, setTab] = useState<"LOGIN" | "REGISTER">("LOGIN");
+
+  // Sign In fields
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+
+  // Registration fields
+  const [regName, setRegName] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+  const [regRole, setRegRole] = useState<"STUDENT" | "TEACHER">("STUDENT");
+  const [regRollNumber, setRegRollNumber] = useState("");
+  const [regDepartment, setRegDepartment] = useState("Computer Science & Engineering");
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!identifier || !password) {
       setError("Please provide your institutional email/roll number and password.");
@@ -40,6 +66,40 @@ export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
     }
   };
 
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!regName || !regEmail || !regPassword) {
+      setError("Name, email, and password are required.");
+      return;
+    }
+
+    if (regRole === "STUDENT" && !regRollNumber) {
+      setError("Student roll number is required (e.g. CS-2026-005).");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    const result = await register({
+      name: regName,
+      email: regEmail,
+      password: regPassword,
+      role: regRole,
+      rollNumber: regRole === "STUDENT" ? regRollNumber : undefined,
+      department: regDepartment,
+    });
+
+    setLoading(false);
+
+    if (result.success) {
+      onSuccess?.();
+      onClose();
+    } else {
+      setError(result.error || "Registration failed.");
+    }
+  };
+
   const handleQuickLogin = async (role: "TEACHER" | "STUDENT") => {
     setLoading(true);
     setError(null);
@@ -54,8 +114,8 @@ export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="relative w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-6 space-y-5 text-zinc-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="relative w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-6 space-y-4 text-zinc-100">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
@@ -63,8 +123,8 @@ export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-white tracking-tight">Institutional Sign In</h2>
-              <p className="text-xs text-zinc-400">Authenticate your Attendex academic identity</p>
+              <h2 className="text-base font-semibold text-white tracking-tight">Attendex Identity Portal</h2>
+              <p className="text-xs text-zinc-400">Institutional dual-factor presence access</p>
             </div>
           </div>
           <button
@@ -72,6 +132,41 @@ export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
             className="p-1 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition"
           >
             <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Tab Switcher: Sign In vs Create Account */}
+        <div className="grid grid-cols-2 p-1 bg-zinc-950 rounded-xl border border-zinc-800 text-xs">
+          <button
+            type="button"
+            onClick={() => {
+              setTab("LOGIN");
+              setError(null);
+            }}
+            className={`py-1.5 rounded-lg font-medium transition flex items-center justify-center gap-1.5 ${
+              tab === "LOGIN"
+                ? "bg-zinc-800 text-white shadow-xs"
+                : "text-zinc-400 hover:text-zinc-200"
+            }`}
+          >
+            <LogIn className="h-3.5 w-3.5" />
+            Sign In
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setTab("REGISTER");
+              setError(null);
+            }}
+            className={`py-1.5 rounded-lg font-medium transition flex items-center justify-center gap-1.5 ${
+              tab === "REGISTER"
+                ? "bg-zinc-800 text-white shadow-xs"
+                : "text-zinc-400 hover:text-zinc-200"
+            }`}
+          >
+            <UserPlus className="h-3.5 w-3.5" />
+            Create Account
           </button>
         </div>
 
@@ -83,51 +178,178 @@ export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
           </div>
         )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3.5">
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-zinc-300">Institutional Email or Roll Number</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
-              <input
-                type="text"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="teacher@attendex.edu or CS-2026-001"
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
-                required
-              />
+        {/* TAB 1: SIGN IN */}
+        {tab === "LOGIN" && (
+          <form onSubmit={handleLoginSubmit} className="space-y-3.5">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-zinc-300">Institutional Email or Roll Number</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                <input
+                  type="text"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  placeholder="student@attendex.edu or CS-2026-001"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition"
+                  required
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-zinc-300">Password</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
-                required
-              />
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-zinc-300">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition"
+                  required
+                />
+              </div>
             </div>
-          </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full mt-2 py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-xs flex items-center justify-center gap-2 transition disabled:opacity-50"
-          >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign In to Attendex"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-2 py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-xs flex items-center justify-center gap-2 transition disabled:opacity-50"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign In to Attendex"}
+            </button>
+          </form>
+        )}
+
+        {/* TAB 2: CREATE NEW USER */}
+        {tab === "REGISTER" && (
+          <form onSubmit={handleRegisterSubmit} className="space-y-3">
+            {/* Role Picker */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-zinc-300">Account Role</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRegRole("STUDENT")}
+                  className={`p-2 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 transition ${
+                    regRole === "STUDENT"
+                      ? "border-emerald-500 bg-emerald-500/10 text-emerald-300"
+                      : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700"
+                  }`}
+                >
+                  <GraduationCap className="h-3.5 w-3.5" />
+                  Student
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRegRole("TEACHER")}
+                  className={`p-2 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 transition ${
+                    regRole === "TEACHER"
+                      ? "border-blue-500 bg-blue-500/10 text-blue-300"
+                      : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700"
+                  }`}
+                >
+                  <User className="h-3.5 w-3.5" />
+                  Faculty
+                </button>
+              </div>
+            </div>
+
+            {/* Full Name */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-zinc-300">Full Legal Name</label>
+              <div className="relative">
+                <User className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                <input
+                  type="text"
+                  value={regName}
+                  onChange={(e) => setRegName(e.target.value)}
+                  placeholder="e.g. Rohan Sharma"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Email */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-zinc-300">Institutional Email</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                <input
+                  type="email"
+                  value={regEmail}
+                  onChange={(e) => setRegEmail(e.target.value)}
+                  placeholder="rohan@attendex.edu"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Roll Number (Students only) */}
+            {regRole === "STUDENT" && (
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-zinc-300">Roll Number</label>
+                <div className="relative">
+                  <Hash className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                  <input
+                    type="text"
+                    value={regRollNumber}
+                    onChange={(e) => setRegRollNumber(e.target.value)}
+                    placeholder="e.g. CS-2026-005"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition"
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Department */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-zinc-300">Academic Department</label>
+              <div className="relative">
+                <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                <input
+                  type="text"
+                  value={regDepartment}
+                  onChange={(e) => setRegDepartment(e.target.value)}
+                  placeholder="Computer Science & Engineering"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-zinc-300">Secure Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                <input
+                  type="password"
+                  value={regPassword}
+                  onChange={(e) => setRegPassword(e.target.value)}
+                  placeholder="At least 6 characters"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition"
+                  required
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-2 py-2 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-medium text-xs flex items-center justify-center gap-2 transition disabled:opacity-50"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Complete Registration"}
+            </button>
+          </form>
+        )}
 
         {/* Quick Demo Identities */}
         <div className="pt-3 border-t border-zinc-800/80 space-y-2">
           <div className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider text-center">
-            Or test with verified seeded identities
+            Or test with verified demo identities
           </div>
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -138,7 +360,7 @@ export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
             >
               <div className="flex items-center gap-1.5 text-blue-400 font-semibold text-[11px]">
                 <UserCheck className="h-3.5 w-3.5" />
-                Teacher Console
+                Faculty
               </div>
               <span className="text-[10px] text-zinc-400">Dr. Evelyn Reed</span>
             </button>
@@ -151,7 +373,7 @@ export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
             >
               <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px]">
                 <GraduationCap className="h-3.5 w-3.5" />
-                Student PWA
+                Student
               </div>
               <span className="text-[10px] text-zinc-400">Varad Dalvi (CS-2026-001)</span>
             </button>

@@ -18,7 +18,9 @@ import {
   Calendar,
   ScanFace,
   ArrowRight,
+  Camera,
 } from "lucide-react";
+import { FaceEnrollmentModal } from "@/components/biometrics/FaceEnrollmentModal";
 
 interface ActiveSessionData {
   id: string;
@@ -83,6 +85,7 @@ export function StudentDashboard() {
   const [attendanceHistory, setAttendanceHistory] = useState<AttendanceHistoryRecord[]>([]);
   const [selectedSessionForFlow, setSelectedSessionForFlow] = useState<ActiveSessionData | null>(null);
   const [isVerifyingModalOpen, setIsVerifyingModalOpen] = useState(false);
+  const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
   const [lastCheckedTime, setLastCheckedTime] = useState<Date>(new Date());
   const [isChecking, setIsChecking] = useState(false);
 
@@ -222,6 +225,30 @@ export function StudentDashboard() {
           </Button>
         </div>
       </div>
+
+      {/* FACE REGISTRATION CALLOUT IF NOT ENROLLED */}
+      {!biometricProfile && (
+        <div className="p-4 rounded-xl border border-amber-500/40 bg-amber-500/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5 text-amber-200">
+            <ScanFace className="h-5 w-5 text-amber-400 shrink-0" />
+            <div>
+              <p className="font-semibold text-zinc-100">Face Registration Required</p>
+              <p className="text-zinc-400 text-[11px]">
+                Each student login requires an enrolled biometric face template to verify classroom attendance.
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={() => setIsEnrollModalOpen(true)}
+            className="text-xs shrink-0 gap-1.5 shadow-md shadow-blue-500/20"
+          >
+            <Camera className="h-3.5 w-3.5" />
+            Enroll Face Now
+          </Button>
+        </div>
+      )}
 
       {/* ACTIVE ATTENDANCE SESSIONS SECTION */}
       <div className="space-y-3">
@@ -386,6 +413,16 @@ export function StudentDashboard() {
             <p className="text-[11px] text-zinc-500 leading-tight">
               Raw biometric pixels are never sent or stored on the server. Only quantized vector assertions are verified.
             </p>
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsEnrollModalOpen(true)}
+              className="w-full text-xs gap-1.5 border-zinc-700 bg-zinc-800/60 hover:bg-zinc-800 hover:text-white"
+            >
+              <Camera className="h-3.5 w-3.5 text-blue-400" />
+              {biometricProfile ? "Re-enroll Face Template" : "Enroll Face Template"}
+            </Button>
           </Card>
         </div>
 
@@ -480,6 +517,16 @@ export function StudentDashboard() {
           </div>
         </div>
       )}
+
+      {/* BIOMETRIC FACE ENROLLMENT MODAL */}
+      <FaceEnrollmentModal
+        isOpen={isEnrollModalOpen}
+        onClose={() => setIsEnrollModalOpen(false)}
+        onSuccess={() => {
+          setIsEnrollModalOpen(false);
+          fetchBiometricProfile();
+        }}
+      />
     </div>
   );
 }

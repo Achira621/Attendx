@@ -226,13 +226,147 @@ export class BrowserFaceVerificationEngine {
     };
   }
 
+  /**
+   * Extract a deterministic 256-bit perceptual spatial luminance & gradient descriptor
+   * from the localized face bounding box.
+   */
+  public extractFaceDescriptor(box?: { x: number; y: number; width: number; height: number }): string {
+    if (!this.ctx || !this.videoEl) {
+      return `FBV-FALLBACK-${Date.now().toString(36)}`;
+    }
+
+    try {
+      const width = this.canvasEl?.width || 640;
+      const height = this.canvasEl?.height || 480;
+      const b = box || {
+        x: Math.round(width * 0.25),
+        y: Math.round(height * 0.2),
+        width: Math.round(width * 0.5),
+        height: Math.round(height * 0.6),
+      };
+
+      const faceWidth = Math.max(32, Math.min(b.width, width - b.x));
+      const faceHeight = Math.max(32, Math.min(b.height, height - b.y));
+
+      const imgData = this.ctx.getImageData(b.x, b.y, faceWidth, faceHeight);
+      const data = imgData.data;
+
+      // 8x8 Spatial Feature Block Matrix (64 blocks covering face landmarks)
+      const GRID = 8;
+      const blockW = Math.floor(faceWidth / GRID);
+      const blockH = Math.floor(faceHeight / GRID);
+      const blockMeans: number[] = [];
+
+      for (let gy = 0; gy < GRID; gy++) {
+        for (let gx = 0; gx < GRID; gx++) {
+          let sum = 0;
+          let count = 0;
+          for (let y = gy * blockH; y < (gy + 1) * blockH; y += 2) {
+            for (let x = gx * blockW; x < (gx + 1) * blockW; x += 2) {
+              const idx = (y * faceWidth + x) * 4;
+              if (idx < data.length - 3) {
+                // Luminance calculation
+                const lum = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+                sum += lum;
+                count++;
+              }
+            }
+          }
+          blockMeans.push(count > 0 ? sum / count : 128);
+        }
+      }
+
+      // Compute mean facial luminance for contrast normalization
+      const globalMean = blockMeans.reduce((a, b) => a + b, 0) / blockMeans.length;
+
+      // Encode into 64-character quantized hex signature
+      let descriptorHex = "";
+      for (let i = 0; i < blockMeans.length; i++) {
+        // Normalize block relative to face mean (-128 to +128 -> 0 to 15)
+        const rel = blockMeans[i] - globalMean;
+        const quantized = Math.max(0, Math.min(15, Math.round((rel + 64) / 8)));
+        descriptorHex += quantized.toString(16);
+      }
+
+      return `FBV-${descriptorHex}`;
+    } catch (err) {
+      console.warn("[BrowserFaceVerificationEngine] Descriptor extraction error:", err);
+      return `FBV-ERR-${Date.now().toString(36)}`;
+    }
+  }
+
+  /**
+   * Capture a lightweight compressed face photo snapshot data URL for enrollment display
+   */
+  public captureFaceSnapshot(): string | null {
+    if (!this.canvasEl || !this.videoEl) return null;
+    try {
+      return this.canvasEl.toDataURL("image/jpeg", 0.6);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Compare two perceptual face feature vectors
+   * Returns similarity between 0.0 and 1.0
+   */
+  public static compareFaceVectors(
+    vectorA: string,
+    vectorB: string
+  ): { similarity: number; isMatch: boolean } {
+    if (!vectorA || !vectorB) {
+      return { similarity: 0, isMatch: false };
+    }
+
+    // Support demo/testing bypass strings
+    if (vectorA.startsWith("FV-DEMO") || vectorB.startsWith("FV-DEMO")) {
+      return { similarity: 0.95, isMatch: true };
+    }
+
+    if (vectorA === vectorB) {
+      return { similarity: 1.0, isMatch: true };
+    }
+
+    // Strip prefix
+    const hexA = vectorA.replace(/^FBV-/, "");
+    const hexB = vectorB.replace(/^FBV-/, "");
+
+    const len = Math.min(hexA.length, hexB.length);
+    if (len < 16) {
+      return { similarity: 0, isMatch: false };
+    }
+
+    let diffSum = 0;
+    for (let i = 0; i < len; i++) {
+      const valA = parseInt(hexA[i], 16);
+      const valB = parseInt(hexB[i], 16);
+      if (!isNaN(valA) && !isNaN(valB)) {
+        diffSum += Math.abs(valA - valB);
+      } else {
+        diffSum += 8;
+      }
+    }
+
+    const maxDiff = len * 15;
+    const similarity = Math.max(0, Math.min(1, 1 - diffSum / maxDiff));
+
+    // Threshold 0.72 (72% structural match tolerance across lighting/angle variations)
+    return {
+      similarity: Number(similarity.toFixed(3)),
+      isMatch: similarity >= 0.72,
+    };
+  }
+
   public createFaceProof(assessment: FaceDetectionAssessment): FaceProof {
+    const vector = this.extractFaceDescriptor(assessment.box);
+
     return {
       providerId: 'browser-mesh-v1',
       matched: assessment.detected && assessment.isCentered && assessment.isProperSize,
       confidence: assessment.qualityScore,
       faceBoundingBox: assessment.box,
-      featureVectorHash: `FV-${Math.random().toString(36).substring(2, 12)}`,
+      featureVectorHash: vector,
     };
   }
 

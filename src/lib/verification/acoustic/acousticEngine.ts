@@ -1,17 +1,16 @@
 import { ProximityProof, ProximityTier } from "@/types/verification";
 
 export interface AcousticBeaconConfig {
-  frequency: number; // In Hz, e.g. 18750 (near-ultrasound) or 15000 (audible fallback)
+  frequency: number; // In Hz, e.g. 18750 (near-ultrasound) or 16500 (clean high acoustic)
   pulseDurationMs: number;
   intervalMs: number;
   mode: 'ultrasonic' | 'audible_fallback';
   token: string;
+  gainLevel?: number; // 0.01 to 0.12 (default: 0.05 to prevent laptop speaker buzz)
 }
 
 export class AcousticEmitter {
   private audioCtx: AudioContext | null = null;
-  private oscillator: OscillatorNode | null = null;
-  private gainNode: GainNode | null = null;
   private isEmitting = false;
   private timer: number | null = null;
 
@@ -46,24 +45,32 @@ export class AcousticEmitter {
   private emitSinglePulse(): void {
     if (!this.audioCtx) return;
 
-    const now = this.audioCtx.currentTime;
-    const osc = this.audioCtx.createOscillator();
-    const gain = this.audioCtx.createGain();
+    try {
+      const now = this.audioCtx.currentTime;
+      const osc = this.audioCtx.createOscillator();
+      const gain = this.audioCtx.createGain();
 
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(this.config.frequency, now);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(this.config.frequency, now);
 
-    // Smooth envelope attack and release to prevent audible click artifacts
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.2, now + 0.05);
-    gain.gain.setValueAtTime(0.2, now + (this.config.pulseDurationMs / 1000) - 0.05);
-    gain.gain.linearRampToValueAtTime(0, now + (this.config.pulseDurationMs / 1000));
+      // Low gain with smooth exponential attack/decay prevents speaker clipping and buzzing
+      const peakGain = Math.min(0.12, Math.max(0.01, this.config.gainLevel ?? 0.05));
+      const pulseDurationSec = this.config.pulseDurationMs / 1000;
+      const rampTime = Math.min(0.08, pulseDurationSec / 4);
 
-    osc.connect(gain);
-    gain.connect(this.audioCtx.destination);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(peakGain, now + rampTime);
+      gain.gain.setValueAtTime(peakGain, now + pulseDurationSec - rampTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + pulseDurationSec);
 
-    osc.start(now);
-    osc.stop(now + (this.config.pulseDurationMs / 1000));
+      osc.connect(gain);
+      gain.connect(this.audioCtx.destination);
+
+      osc.start(now);
+      osc.stop(now + pulseDurationSec);
+    } catch (err) {
+      console.warn("[AcousticEmitter] Pulse emit error:", err);
+    }
   }
 
   public updateConfig(newConfig: Partial<AcousticBeaconConfig>): void {
@@ -99,16 +106,17 @@ export class AcousticReceiver {
 
   constructor(
     private targetFrequency: number = 18750,
-    private bandwidthHz: number = 300,
-    private detectionThreshold: number = 35 // dB SNR above ambient noise floor
+    private bandwidthHz: number = 500, // 500 Hz window tolerance for clock drift
+    private detectionThreshold: number = 10 // 10 dB SNR above noise floor (tuned for mobile phone mics)
   ) {}
 
   public async startListening(
     onDetect: (proof: ProximityProof) => void,
-    onSpectrum?: (spectrum: Uint8Array, peakFreq: number, detected: boolean) => void
+    onSpectrum?: (spectrum: Uint8Array, peakFreq: number, detected: boolean, snr: number) => void
   ): Promise<void> {
     if (this.isListening) return;
 
+    // Mobile mic constraints: request raw audio without aggressive speech low-pass filters
     this.mediaStream = await navigator.mediaDevices.getUserMedia({
       audio: {
         echoCancellation: false,
@@ -126,7 +134,7 @@ export class AcousticReceiver {
     const source = this.audioCtx.createMediaStreamSource(this.mediaStream);
     this.analyser = this.audioCtx.createAnalyser();
     this.analyser.fftSize = 2048;
-    this.analyser.smoothingTimeConstant = 0.6;
+    this.analyser.smoothingTimeConstant = 0.5;
     source.connect(this.analyser);
 
     this.isListening = true;
@@ -136,10 +144,10 @@ export class AcousticReceiver {
     const nyquist = sampleRate / 2;
 
     const targetBin = Math.round((this.targetFrequency / nyquist) * bufferLength);
-    const binWindow = Math.max(1, Math.round((this.bandwidthHz / nyquist) * bufferLength));
+    const binWindow = Math.max(2, Math.round((this.bandwidthHz / nyquist) * bufferLength));
 
     let consecutiveHits = 0;
-    const REQUIRED_HITS = 3;
+    const REQUIRED_HITS = 2; // Fast detection: 2 consecutive frames (~30ms)
 
     const analyze = () => {
       if (!this.isListening || !this.analyser) return;
@@ -149,8 +157,8 @@ export class AcousticReceiver {
       // Compute ambient baseline noise floor around high-frequency band (excluding target)
       let noiseSum = 0;
       let noiseCount = 0;
-      const startBin = Math.max(0, targetBin - binWindow * 4);
-      const endBin = Math.min(bufferLength - 1, targetBin + binWindow * 4);
+      const startBin = Math.max(0, targetBin - binWindow * 5);
+      const endBin = Math.min(bufferLength - 1, targetBin + binWindow * 5);
 
       for (let i = startBin; i <= endBin; i++) {
         if (Math.abs(i - targetBin) > binWindow) {
@@ -158,7 +166,7 @@ export class AcousticReceiver {
           noiseCount++;
         }
       }
-      const baselineNoise = noiseCount > 0 ? noiseSum / noiseCount : 10;
+      const baselineNoise = noiseCount > 0 ? noiseSum / noiseCount : 8;
 
       // Find max signal in target band window
       let peakSignal = 0;
@@ -173,13 +181,15 @@ export class AcousticReceiver {
       }
 
       const peakFreq = Math.round((peakBin / bufferLength) * nyquist);
-      const snr = peakSignal - baselineNoise;
-      const detected = snr >= this.detectionThreshold && peakSignal > 40;
+      const snr = Math.max(0, peakSignal - baselineNoise);
+
+      // Detection condition: signal rises above local high-frequency noise floor
+      const detected = snr >= this.detectionThreshold && peakSignal >= 12;
 
       if (detected) {
         consecutiveHits++;
         if (consecutiveHits >= REQUIRED_HITS) {
-          const confidence = Math.min(1.0, 0.7 + (snr / 100));
+          const confidence = Math.min(1.0, 0.75 + (snr / 60));
           const proof: ProximityProof = {
             providerId: 'acoustic',
             tier: 'TIER_A' as ProximityTier,
@@ -196,14 +206,14 @@ export class AcousticReceiver {
             },
           };
           onDetect(proof);
-          consecutiveHits = 0; // reset after dispatch
+          consecutiveHits = 0;
         }
       } else {
         consecutiveHits = Math.max(0, consecutiveHits - 1);
       }
 
       if (onSpectrum) {
-        onSpectrum(dataArray, peakFreq, detected);
+        onSpectrum(dataArray, peakFreq, detected, Math.round(snr));
       }
 
       this.animationFrameId = requestAnimationFrame(analyze);

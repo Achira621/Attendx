@@ -7,6 +7,14 @@ interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
   login: (identifier: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (params: {
+    name: string;
+    email: string;
+    password: string;
+    role: "STUDENT" | "TEACHER";
+    rollNumber?: string;
+    department?: string;
+  }) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   quickLogin: (role: "TEACHER" | "STUDENT") => Promise<{ success: boolean; error?: string }>;
 }
@@ -65,6 +73,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const register = async (params: {
+    name: string;
+    email: string;
+    password: string;
+    role: "STUDENT" | "TEACHER";
+    rollNumber?: string;
+    department?: string;
+  }) => {
+    try {
+      const res = await fetch("/api/v1/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(params),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success && data.user) {
+        setUser(data.user);
+        return { success: true };
+      }
+      return { success: false, error: data.error || "Registration failed." };
+    } catch {
+      return { success: false, error: "Network error during registration." };
+    }
+  };
+
   const logout = async () => {
     try {
       await fetch("/api/v1/auth/logout", { method: "POST" });
@@ -82,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, quickLogin }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, quickLogin }}>
       {children}
     </AuthContext.Provider>
   );

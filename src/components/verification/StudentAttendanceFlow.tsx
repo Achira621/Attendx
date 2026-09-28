@@ -138,7 +138,9 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel }: StudentA
 
   const startAcousticScan = useCallback(async () => {
     try {
-      const receiver = new AcousticReceiver(18750, 350, 25);
+      const targetFrequency = session?.beaconFrequencyHz || 18750;
+      // High-sensitivity mobile parameters: 500 Hz drift window, 10 dB SNR threshold
+      const receiver = new AcousticReceiver(targetFrequency, 500, 10);
       acousticReceiverRef.current = receiver;
 
       await receiver.startListening((proof: ProximityProof) => {
@@ -153,7 +155,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel }: StudentA
     } catch {
       setProximityStatus("TIMEOUT");
     }
-  }, [transitionToFaceScan]);
+  }, [session, transitionToFaceScan]);
 
   const handleStartVerification = () => {
     setStep("PROXIMITY");
