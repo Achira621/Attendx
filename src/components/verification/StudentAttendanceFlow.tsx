@@ -30,6 +30,9 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel }: StudentA
   const { user } = useAuth();
   const [step, setStep] = useState<"IDLE" | "PROXIMITY" | "FACE" | "RESULT">("IDLE");
   const [proximityStatus, setProximityStatus] = useState<"LISTENING" | "DETECTED" | "TIMEOUT">("LISTENING");
+  const [signalStrength, setSignalStrength] = useState<number>(0);
+  const [detectedFrequency, setDetectedFrequency] = useState<number | null>(null);
+  const [detectedSnr, setDetectedSnr] = useState<number | null>(null);
   const [faceStatus, setFaceStatus] = useState<"WAITING" | "ALIGNING" | "CONFIRMING">("WAITING");
   const [faceGuidance, setFaceGuidance] = useState<string>("Center your face in the oval guide");
   const [result, setResult] = useState<VerificationResult | null>(null);
@@ -138,20 +141,31 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel }: StudentA
 
   const startAcousticScan = useCallback(async () => {
     try {
-      const targetFrequency = session?.beaconFrequencyHz || 18750;
-      // High-sensitivity mobile parameters: 500 Hz drift window, 10 dB SNR threshold
-      const receiver = new AcousticReceiver(targetFrequency, 500, 10);
+      const targetFrequency = session?.beaconFrequencyHz || 16500;
+      // High-sensitivity mobile parameters: 600 Hz drift window, 6 dB SNR threshold
+      const receiver = new AcousticReceiver(targetFrequency, 600, 6);
       acousticReceiverRef.current = receiver;
 
-      await receiver.startListening((proof: ProximityProof) => {
-        orchestratorRef.current?.recordProximityProof(proof);
-        setProximityStatus("DETECTED");
-        receiver.stop();
+      await receiver.startListening(
+        (proof: ProximityProof) => {
+          orchestratorRef.current?.recordProximityProof(proof);
+          setProximityStatus("DETECTED");
+          setDetectedFrequency((proof.metrics?.detectedFrequency as number) || targetFrequency);
+          setDetectedSnr((proof.metrics?.snrDb as number) || 10);
+          receiver.stop();
 
-        setTimeout(() => {
-          transitionToFaceScan();
-        }, 900);
-      });
+          setTimeout(() => {
+            transitionToFaceScan();
+          }, 800);
+        },
+        (_spectrum, peakFreq, detected, snr, signalPercent) => {
+          setSignalStrength(signalPercent);
+          if (detected) {
+            setDetectedFrequency(peakFreq);
+            setDetectedSnr(snr);
+          }
+        }
+      );
     } catch {
       setProximityStatus("TIMEOUT");
     }
@@ -336,17 +350,75 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel }: StudentA
 
           <div>
             <h4 className="text-sm font-semibold text-zinc-100">
-              {proximityStatus === "DETECTED" ? "Classroom Proximity Confirmed" : "Verifying Classroom Proximity..."}
-            </h4>
-            <p className="text-xs text-zinc-400 mt-1 max-w-[260px] mx-auto">
               {proximityStatus === "DETECTED"
-                ? "Acoustic beacon verified (TIER_A). Moving to face identity check..."
-                : "Listening for the classroom acoustic beacon. Keep device steady."}
+                ? "Classroom Proximity Confirmed"
+                : proximityStatus === "TIMEOUT"
+                ? "Acoustic Signal Not Detected"
+                : "Verifying Classroom Proximity..."}
+            </h4>
+            <p className="text-xs text-zinc-400 mt-1 max-w-[280px] mx-auto">
+              {proximityStatus === "DETECTED"
+                ? "Classroom acoustic presence verified. Moving to facial verification..."
+                : proximityStatus === "TIMEOUT"
+                ? "Could not capture the classroom acoustic beacon. Ensure the professor has started broadcasting."
+                : "Listening for the classroom acoustic beacon across the room. Keep device steady."}
             </p>
           </div>
 
+          {/* Real-time Audio Radar Signal Meter */}
           {proximityStatus === "LISTENING" && (
-            <div className="pt-3">
+            <div className="max-w-[260px] mx-auto space-y-2 pt-1">
+              <div className="flex justify-between items-center text-[11px] text-zinc-400">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                  Classroom Acoustic Radar
+                </span>
+                <span className="font-mono text-blue-400 font-semibold">{signalStrength}%</span>
+              </div>
+              <div className="h-2 w-full bg-zinc-800/80 rounded-full overflow-hidden border border-zinc-700/50">
+                <div
+                  className="h-full bg-gradient-to-r from-blue-500 via-indigo-400 to-emerald-400 transition-all duration-150"
+                  style={{ width: `${Math.max(6, signalStrength)}%` }}
+                />
+              </div>
+              <p className="text-[10px] text-zinc-500 font-mono">
+                Monitoring 16.5 kHz dual-carrier & ultrasound
+              </p>
+            </div>
+          )}
+
+          {/* Confirmed Metrics Tag */}
+          {proximityStatus === "DETECTED" && (
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[11px] text-emerald-400 font-mono">
+              <span>✓ Verified at {detectedFrequency ? (detectedFrequency / 1000).toFixed(1) : "16.5"} kHz</span>
+              {detectedSnr !== null && <span>(+{detectedSnr} dB SNR)</span>}
+            </div>
+          )}
+
+          {/* Timeout Recovery Actions */}
+          {proximityStatus === "TIMEOUT" && (
+            <div className="pt-2 flex flex-col gap-2 max-w-[260px] mx-auto">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleStartVerification}
+                className="text-xs gap-1.5"
+              >
+                <RotateCcw className="h-3.5 w-3.5" /> Retry Audio Scan
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSimulateProximityPass}
+                className="text-xs text-zinc-400 border-zinc-700 hover:bg-zinc-800"
+              >
+                Confirm Physical Presence (Bypass)
+              </Button>
+            </div>
+          )}
+
+          {proximityStatus === "LISTENING" && (
+            <div className="pt-2">
               <Button
                 variant="outline"
                 size="sm"

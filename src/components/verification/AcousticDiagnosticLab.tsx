@@ -57,7 +57,7 @@ export function AcousticDiagnosticLab() {
   const handleStartReceiver = async () => {
     try {
       setReceiverError(null);
-      receiverRef.current = new AcousticReceiver(receiverFreq, 350, 30);
+      receiverRef.current = new AcousticReceiver(receiverFreq, 500, 6);
 
       await receiverRef.current.startListening(
         (proof) => {

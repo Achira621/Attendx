@@ -21,6 +21,7 @@ import {
   XCircle,
   RefreshCw,
   X,
+  Bell,
 } from "lucide-react";
 
 interface CourseOption {
@@ -109,6 +110,8 @@ export function TeacherLiveSessionConsole() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [beaconEmitting, setBeaconEmitting] = useState(false);
+  const [beaconReachMode, setBeaconReachMode] = useState<"whole_classroom" | "standard" | "near_ultrasonic">("whole_classroom");
+  const [isPlayingChime, setIsPlayingChime] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   const emitterRef = useRef<AcousticEmitter | null>(null);
@@ -283,14 +286,16 @@ export function TeacherLiveSessionConsole() {
   const handleToggleBeacon = async () => {
     if (!beaconEmitting) {
       try {
-        const freq = activeSession?.classroom?.beaconFrequencyHz || 18750;
         const token = activeSession?.ephemeralSecret || "CS302-LIVE-BEACON";
         emitterRef.current = new AcousticEmitter({
-          frequency: freq,
-          pulseDurationMs: 800,
-          intervalMs: 1500,
+          frequency: 16500,
+          secondaryFrequency: 17500,
+          pulseDurationMs: 1200,
+          intervalMs: 1400,
           mode: "ultrasonic",
+          reachMode: beaconReachMode,
           token,
+          gainLevel: 0.25,
         });
         await emitterRef.current.start();
         setBeaconEmitting(true);
@@ -303,6 +308,23 @@ export function TeacherLiveSessionConsole() {
         emitterRef.current = null;
       }
       setBeaconEmitting(false);
+    }
+  };
+
+  // Test laptop speaker audio output
+  const handleTestSpeakerChime = async () => {
+    setIsPlayingChime(true);
+    try {
+      const dummy = new AcousticEmitter({
+        frequency: 16500,
+        pulseDurationMs: 300,
+        intervalMs: 1000,
+        mode: "ultrasonic",
+        token: "test",
+      });
+      await dummy.playTestChime();
+    } finally {
+      setTimeout(() => setIsPlayingChime(false), 500);
     }
   };
 
@@ -592,19 +614,59 @@ export function TeacherLiveSessionConsole() {
             <div className="flex flex-wrap items-center gap-2.5">
               {activeSession.status === "ACTIVE" && (
                 <>
+                  {/* Acoustic Reach Selector */}
+                  <div className="flex items-center gap-1 p-0.5 rounded-lg bg-zinc-950 border border-zinc-800 text-[11px]">
+                    <button
+                      type="button"
+                      onClick={() => setBeaconReachMode("whole_classroom")}
+                      className={`px-2.5 py-1 rounded transition text-xs ${
+                        beaconReachMode === "whole_classroom"
+                          ? "bg-blue-600 text-white font-medium"
+                          : "text-zinc-400 hover:text-zinc-200"
+                      }`}
+                    >
+                      Entire Class (16.5 kHz)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBeaconReachMode("near_ultrasonic")}
+                      className={`px-2.5 py-1 rounded transition text-xs ${
+                        beaconReachMode === "near_ultrasonic"
+                          ? "bg-blue-600 text-white font-medium"
+                          : "text-zinc-400 hover:text-zinc-200"
+                      }`}
+                    >
+                      Near-Ultrasound (18.75 kHz)
+                    </button>
+                  </div>
+
+                  {/* Speaker Test Chime Button */}
                   <Button
                     size="sm"
-                    variant={beaconEmitting ? "destructive" : "secondary"}
+                    variant="outline"
+                    onClick={handleTestSpeakerChime}
+                    disabled={isPlayingChime}
+                    className="gap-1.5 text-xs text-zinc-300 border-zinc-700 hover:bg-zinc-800"
+                    title="Play a brief test chime to confirm your laptop speakers are unmuted"
+                  >
+                    <Bell className={`h-3.5 w-3.5 ${isPlayingChime ? "text-amber-400 animate-bounce" : "text-zinc-400"}`} />
+                    {isPlayingChime ? "Chime..." : "Test Speakers"}
+                  </Button>
+
+                  {/* Beacon Toggle Button */}
+                  <Button
+                    size="sm"
+                    variant={beaconEmitting ? "destructive" : "primary"}
                     onClick={handleToggleBeacon}
-                    className="gap-1.5 text-xs"
+                    className="gap-1.5 text-xs font-semibold shadow-md"
                   >
                     {beaconEmitting ? (
                       <>
-                        <Square className="h-3.5 w-3.5" /> Stop Ultrasonic Tone
+                        <Square className="h-3.5 w-3.5" /> Stop Beacon
                       </>
                     ) : (
                       <>
-                        <Volume2 className="h-3.5 w-3.5 text-blue-400" /> Start 18.75kHz Beacon
+                        <Volume2 className="h-3.5 w-3.5" /> Broadcast to Entire Class
                       </>
                     )}
                   </Button>
@@ -645,6 +707,29 @@ export function TeacherLiveSessionConsole() {
               )}
             </div>
           </div>
+
+          {/* Active Beacon Broadcasting Banner */}
+          {beaconEmitting && (
+            <div className="p-3.5 rounded-xl border border-emerald-500/40 bg-emerald-950/20 backdrop-blur-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs animate-in fade-in duration-200">
+              <div className="flex items-center gap-2.5 text-emerald-400">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
+                </span>
+                <span className="font-semibold text-zinc-100">
+                  Classroom Acoustic Beacon is LIVE:
+                </span>
+                <span className="text-emerald-300 font-mono text-[11px]">
+                  {beaconReachMode === "whole_classroom"
+                    ? "Dual-Carrier 16.5 kHz & 17.5 kHz (Full Classroom Coverage)"
+                    : "18.75 kHz (Near-Ultrasonic)"}
+                </span>
+              </div>
+              <span className="text-[11px] text-zinc-400">
+                Active presence signal reaching all rows
+              </span>
+            </div>
+          )}
 
           {/* Primary Metric & Attendance Tally Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
