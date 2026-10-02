@@ -21,15 +21,33 @@ export async function GET(req: NextRequest) {
       whereClause.status = statusParam;
     }
 
-    // If student, only return sessions for courses the student is enrolled in
+    // If student is requesting active sessions, ensure active sessions are returned
+    // and for past/general sessions only return courses the student is enrolled in
     if (effectiveStudentId) {
-      whereClause.course = {
-        enrollments: {
-          some: {
-            studentId: effectiveStudentId,
+      if (statusParam === "ACTIVE") {
+        whereClause.status = SessionStatus.ACTIVE;
+      } else if (!statusParam) {
+        whereClause.OR = [
+          { status: SessionStatus.ACTIVE },
+          {
+            course: {
+              enrollments: {
+                some: {
+                  studentId: effectiveStudentId,
+                },
+              },
+            },
           },
-        },
-      };
+        ];
+      } else {
+        whereClause.course = {
+          enrollments: {
+            some: {
+              studentId: effectiveStudentId,
+            },
+          },
+        };
+      }
     }
 
     const rawSessions = await prisma.attendanceSession.findMany({
@@ -87,7 +105,9 @@ export async function GET(req: NextRequest) {
       { success: true, count: sessions.length, sessions },
       {
         headers: {
-          "Cache-Control": "private, no-cache, no-store, must-revalidate",
+          "Cache-Control": "private, no-cache, no-store, must-revalidate, max-age=0",
+          Pragma: "no-cache",
+          Expires: "0",
         },
       }
     );

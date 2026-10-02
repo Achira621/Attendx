@@ -23,11 +23,12 @@ export interface StudentAttendanceFlowProps {
     ephemeralSecret?: string;
   };
   onSuccess?: () => void;
+  onAttendanceRecorded?: (result: VerificationResult) => void;
   onCancel?: () => void;
   onOpenKyc?: () => void;
 }
 
-export function StudentAttendanceFlow({ session, onSuccess, onCancel, onOpenKyc }: StudentAttendanceFlowProps) {
+export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded, onCancel, onOpenKyc }: StudentAttendanceFlowProps) {
   const { user } = useAuth();
   const [step, setStep] = useState<"IDLE" | "PROXIMITY" | "FACE" | "RESULT">("IDLE");
   const [proximityStatus, setProximityStatus] = useState<"LISTENING" | "DETECTED" | "TIMEOUT">("LISTENING");
@@ -156,6 +157,9 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel, onOpenKyc 
               if (finalOutcome) {
                 setResult(finalOutcome);
                 setStep("RESULT");
+                if (finalOutcome.outcome === "ACCEPTED") {
+                  onAttendanceRecorded?.(finalOutcome);
+                }
               }
             }
           } else {
@@ -174,13 +178,13 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel, onOpenKyc 
         setStep("RESULT");
       }
     }, 2000); // 2 second delay to allow camera lighting adjustment
-  }, [enrolledHash, user]);
+  }, [enrolledHash, user, onAttendanceRecorded]);
 
   const startAcousticScan = useCallback(async () => {
     try {
       const targetFrequency = session?.beaconFrequencyHz || 16500;
-      // High-sensitivity mobile parameters: 600 Hz drift window, 6 dB SNR threshold
-      const receiver = new AcousticReceiver(targetFrequency, 600, 6);
+      // High-sensitivity mobile parameters: 1200 Hz window tolerance, 2 dB SNR threshold
+      const receiver = new AcousticReceiver(targetFrequency, 1200, 2);
       acousticReceiverRef.current = receiver;
 
       await receiver.startListening(
@@ -249,6 +253,9 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel, onOpenKyc 
       const finalOutcome = await orchestratorRef.current.evaluateFinalSubmission();
       setResult(finalOutcome);
       setStep("RESULT");
+      if (finalOutcome.outcome === "ACCEPTED") {
+        onAttendanceRecorded?.(finalOutcome);
+      }
     }
   };
 

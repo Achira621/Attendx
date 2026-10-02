@@ -290,12 +290,12 @@ export function TeacherLiveSessionConsole() {
         emitterRef.current = new AcousticEmitter({
           frequency: 16500,
           secondaryFrequency: 17500,
-          pulseDurationMs: 1200,
-          intervalMs: 1400,
+          pulseDurationMs: 1400,
+          intervalMs: 1500,
           mode: "ultrasonic",
           reachMode: beaconReachMode,
           token,
-          gainLevel: 0.25,
+          gainLevel: 0.30,
         });
         await emitterRef.current.start();
         setBeaconEmitting(true);
@@ -378,14 +378,15 @@ export function TeacherLiveSessionConsole() {
 
       // Auto start acoustic beacon
       try {
-        const classroom = classrooms.find((c) => c.id === selectedClassroomId);
-        const freq = classroom?.beaconFrequencyHz || 18750;
         emitterRef.current = new AcousticEmitter({
-          frequency: freq,
-          pulseDurationMs: 800,
+          frequency: 16500,
+          secondaryFrequency: 17500,
+          pulseDurationMs: 1400,
           intervalMs: 1500,
           mode: "ultrasonic",
+          reachMode: beaconReachMode,
           token: startData.session?.ephemeralSecret || "CS302-LIVE-BEACON",
+          gainLevel: 0.30,
         });
         await emitterRef.current.start();
         setBeaconEmitting(true);

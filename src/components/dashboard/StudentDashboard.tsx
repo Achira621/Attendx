@@ -112,9 +112,16 @@ export function StudentDashboard() {
     if (!user) return;
     if (isManual) setIsChecking(true);
     try {
-      const res = await fetch(`/api/v1/sessions?status=ACTIVE&studentId=${encodeURIComponent(user.id)}`, {
-        cache: "no-store",
-      });
+      const res = await fetch(
+        `/api/v1/sessions?status=ACTIVE&studentId=${encodeURIComponent(user.id)}&_t=${Date.now()}`,
+        {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+          },
+        }
+      );
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.sessions)) {
@@ -134,8 +141,12 @@ export function StudentDashboard() {
   const fetchBiometricProfile = useCallback(async () => {
     if (!user) return;
     try {
-      const res = await fetch(`/api/v1/biometrics/profile?studentId=${encodeURIComponent(user.id)}`, {
+      const res = await fetch(`/api/v1/biometrics/profile?studentId=${encodeURIComponent(user.id)}&_t=${Date.now()}`, {
         cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+        },
       });
       if (res.ok) {
         const data = await res.json();
@@ -154,9 +165,16 @@ export function StudentDashboard() {
   const fetchAttendanceHistory = useCallback(async () => {
     if (!user) return;
     try {
-      const res = await fetch(`/api/v1/attendance/records?studentId=${encodeURIComponent(user.id)}`, {
-        cache: "no-store",
-      });
+      const res = await fetch(
+        `/api/v1/attendance/records?studentId=${encodeURIComponent(user.id)}&_t=${Date.now()}`,
+        {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+          },
+        }
+      );
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.records)) {
@@ -168,7 +186,7 @@ export function StudentDashboard() {
     }
   }, [user]);
 
-  // Initial load & 5-second polling for active sessions
+  // Initial load & 4-second polling for active sessions
   useEffect(() => {
     let isCancelled = false;
 
@@ -185,7 +203,7 @@ export function StudentDashboard() {
       if (!isCancelled) {
         void fetchActiveSessions(false);
       }
-    }, 5000);
+    }, 4000);
 
     return () => {
       isCancelled = true;
@@ -202,11 +220,55 @@ export function StudentDashboard() {
     setIsVerifyingModalOpen(true);
   };
 
+  const handleAttendanceRecorded = useCallback(
+    (recordResult: { attendanceId?: string; verifiedAt?: string }) => {
+      if (selectedSessionForFlow) {
+        setActiveSessions((prev) =>
+          prev.map((s) =>
+            s.id === selectedSessionForFlow.id
+              ? {
+                  ...s,
+                  hasAttended: true,
+                  attendanceRecord: {
+                    id: recordResult.attendanceId || "rec_live",
+                    status: "PRESENT",
+                    verifiedAt: recordResult.verifiedAt || new Date().toISOString(),
+                    confidence: 0.95,
+                  },
+                }
+              : s
+          )
+        );
+      }
+      void fetchActiveSessions(false);
+      void fetchAttendanceHistory();
+    },
+    [selectedSessionForFlow, fetchActiveSessions, fetchAttendanceHistory]
+  );
+
   const handleVerificationSuccess = () => {
+    if (selectedSessionForFlow) {
+      setActiveSessions((prev) =>
+        prev.map((s) =>
+          s.id === selectedSessionForFlow.id
+            ? {
+                ...s,
+                hasAttended: true,
+                attendanceRecord: {
+                  id: "rec_live",
+                  status: "PRESENT",
+                  verifiedAt: new Date().toISOString(),
+                  confidence: 0.95,
+                },
+              }
+            : s
+        )
+      );
+    }
     setIsVerifyingModalOpen(false);
     setSelectedSessionForFlow(null);
-    fetchActiveSessions();
-    fetchAttendanceHistory();
+    void fetchActiveSessions(true);
+    void fetchAttendanceHistory();
   };
 
   return (
@@ -500,9 +562,12 @@ export function StudentDashboard() {
                 ephemeralSecret: selectedSessionForFlow.ephemeralSecret,
               }}
               onSuccess={handleVerificationSuccess}
+              onAttendanceRecorded={handleAttendanceRecorded}
               onCancel={() => {
                 setIsVerifyingModalOpen(false);
                 setSelectedSessionForFlow(null);
+                void fetchActiveSessions(true);
+                void fetchAttendanceHistory();
               }}
               onOpenKyc={() => {
                 setIsVerifyingModalOpen(false);

@@ -66,20 +66,20 @@ export class AcousticEmitter {
       // to eliminate destructive standing wave nulls across the room
       let primaryFreq = this.config.frequency || 16500;
       let secondaryFreq = this.config.secondaryFrequency || 17500;
-      let targetGain = this.config.gainLevel ?? 0.22;
+      let targetGain = this.config.gainLevel ?? 0.30;
 
       if (reachMode === 'whole_classroom') {
         primaryFreq = 16500;
         secondaryFreq = 17500;
-        targetGain = Math.min(0.32, Math.max(0.12, targetGain));
+        targetGain = Math.min(0.38, Math.max(0.18, targetGain));
       } else if (reachMode === 'standard') {
         primaryFreq = 17500;
         secondaryFreq = 18200;
-        targetGain = Math.min(0.25, Math.max(0.08, targetGain));
+        targetGain = Math.min(0.28, Math.max(0.10, targetGain));
       } else if (reachMode === 'near_ultrasonic') {
         primaryFreq = 18750;
         secondaryFreq = 0;
-        targetGain = Math.min(0.15, Math.max(0.05, targetGain));
+        targetGain = Math.min(0.20, Math.max(0.06, targetGain));
       }
 
       const pulseDurationSec = Math.max(0.8, this.config.pulseDurationMs / 1000);
@@ -91,7 +91,7 @@ export class AcousticEmitter {
       osc1.type = 'sine';
       osc1.frequency.setValueAtTime(primaryFreq, now);
 
-      const splitGain = secondaryFreq > 0 ? targetGain * 0.65 : targetGain;
+      const splitGain = secondaryFreq > 0 ? targetGain * 0.72 : targetGain;
       gain1.gain.setValueAtTime(0.0001, now);
       gain1.gain.exponentialRampToValueAtTime(splitGain, now + rampTime);
       gain1.gain.setValueAtTime(splitGain, now + pulseDurationSec - rampTime);
@@ -192,8 +192,8 @@ export class AcousticReceiver {
 
   constructor(
     private targetFrequency: number = 16500, // Default to whole classroom reach frequency
-    private bandwidthHz: number = 600, // 600 Hz window tolerance for mobile clock drift
-    private detectionThreshold: number = 6 // 6 dB SNR above local noise floor (ultra-sensitive for classroom reach)
+    private bandwidthHz: number = 1200, // 1200 Hz window tolerance for mobile clock drift & acoustic dispersion
+    private detectionThreshold: number = 2 // 2 dB SNR above clean ambient noise floor (sensitive across classroom)
   ) {}
 
   public async startListening(
@@ -202,18 +202,28 @@ export class AcousticReceiver {
   ): Promise<void> {
     if (this.isListening) return;
 
-    // Mobile microphone capture: enable autoGainControl to boost faint sound from across the room
+    // Mobile microphone capture: prioritize high sample rate and agc for distant beacons
     try {
       this.mediaStream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: false,
           noiseSuppression: false,
-          autoGainControl: true, // Crucial for boosting distant acoustic beacon signals across the classroom!
+          autoGainControl: true,
+          sampleRate: { ideal: 48000 },
+          channelCount: 1,
         },
       });
     } catch {
-      // Fallback for strict mobile browsers that reject custom audio constraints
-      this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      try {
+        this.mediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+          },
+        });
+      } catch {
+        this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      }
     }
 
     const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
@@ -225,7 +235,7 @@ export class AcousticReceiver {
     const source = this.audioCtx.createMediaStreamSource(this.mediaStream);
     this.analyser = this.audioCtx.createAnalyser();
     this.analyser.fftSize = 2048;
-    this.analyser.smoothingTimeConstant = 0.3; // Fast reaction time
+    this.analyser.smoothingTimeConstant = 0.25; // Responsive reaction time
     source.connect(this.analyser);
 
     this.isListening = true;
@@ -242,7 +252,7 @@ export class AcousticReceiver {
       16500,
       17500,
       18750,
-    ])).filter((f) => f < nyquist - 200);
+    ])).filter((f) => f > 0 && f < nyquist - 200);
 
     let consecutiveHits = 0;
     const REQUIRED_HITS = 2; // Fast trigger on 2 positive frames (~35ms)
@@ -253,16 +263,23 @@ export class AcousticReceiver {
       this.analyser.getByteFrequencyData(dataArray);
 
       // Compute ambient baseline noise floor in high-frequency zone (14 kHz - 21 kHz)
+      // EXCLUDE all monitored carrier bands (±900 Hz) so the beacon's own energy does NOT inflate baseline noise
       const noiseMinBin = Math.max(0, Math.round((14000 / nyquist) * bufferLength));
       const noiseMaxBin = Math.min(bufferLength - 1, Math.round((21000 / nyquist) * bufferLength));
 
       let noiseSum = 0;
       let noiseCount = 0;
       for (let i = noiseMinBin; i <= noiseMaxBin; i++) {
-        noiseSum += dataArray[i];
-        noiseCount++;
+        const binFreq = (i / bufferLength) * nyquist;
+        const isCarrierZone = monitoredFrequencies.some(
+          (freq) => Math.abs(binFreq - freq) < 900
+        );
+        if (!isCarrierZone) {
+          noiseSum += dataArray[i];
+          noiseCount++;
+        }
       }
-      const baselineNoise = noiseCount > 0 ? Math.max(1, noiseSum / noiseCount) : 4;
+      const baselineNoise = noiseCount > 0 ? Math.max(1, noiseSum / noiseCount) : 3;
 
       // Scan all candidate classroom beacon carriers
       let bestSignal = 0;
@@ -283,14 +300,14 @@ export class AcousticReceiver {
         }
       }
 
-      // Detection condition: Signal exceeds local noise floor by threshold, or strong absolute peak
-      const detected = bestSnr >= this.detectionThreshold || (bestSignal >= 8 && bestSnr >= 3);
-      const signalPercent = Math.min(100, Math.round((bestSnr / 20) * 100));
+      // Detection condition: Signal exceeds isolated noise floor by threshold, or distinct peak
+      const detected = (bestSnr >= this.detectionThreshold && bestSignal >= 6) || bestSignal >= 16;
+      const signalPercent = Math.min(100, Math.round((bestSnr / 12) * 100));
 
       if (detected) {
         consecutiveHits++;
         if (consecutiveHits >= REQUIRED_HITS) {
-          const confidence = Math.min(1.0, 0.80 + (bestSnr / 50));
+          const confidence = Math.min(1.0, 0.85 + (bestSnr / 40));
           const proof: ProximityProof = {
             providerId: 'acoustic',
             tier: 'TIER_A' as ProximityTier,
