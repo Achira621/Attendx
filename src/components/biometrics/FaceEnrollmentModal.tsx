@@ -252,17 +252,28 @@ export function FaceEnrollmentModal({ isOpen, onClose, onSuccess }: FaceEnrollme
           )}
 
           {stage === "ENROLLED" && (
-            <Button
-              size="sm"
-              variant="brand"
-              onClick={() => {
-                onSuccess?.();
-                handleClose();
-              }}
-              className="w-full font-semibold shadow-xs"
-            >
-              Continue to Dashboard
-            </Button>
+            <div className="flex gap-2 w-full">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={startScanning}
+                className="w-1/3 text-xs text-zinc-300 border-zinc-700 bg-zinc-800/60 hover:bg-zinc-800 hover:text-white gap-1.5"
+              >
+                <RefreshCw className="h-3.5 w-3.5 text-amber-400" />
+                <span>Rescan</span>
+              </Button>
+              <Button
+                size="sm"
+                variant="brand"
+                onClick={() => {
+                  onSuccess?.();
+                  handleClose();
+                }}
+                className="w-2/3 font-semibold shadow-xs"
+              >
+                Continue to Dashboard
+              </Button>
+            </div>
           )}
         </div>
       </div>

@@ -453,6 +453,31 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
               </div>
             </div>
 
+            {scanStatus === "SCANNING" && (
+              <div className="pt-1">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleStartFaceScan}
+                  className="w-full text-xs text-zinc-300 border-zinc-700 bg-zinc-800/60 hover:bg-zinc-800 hover:text-white gap-1.5"
+                >
+                  <RefreshCw className="h-3.5 w-3.5 text-amber-400" />
+                  <span>Rescan Face</span>
+                </Button>
+              </div>
+            )}
+
+            {scanStatus === "ERROR" && (
+              <Button
+                size="sm"
+                variant="brand"
+                onClick={handleStartFaceScan}
+                className="w-full gap-2 font-semibold shadow-xs"
+              >
+                <RefreshCw className="h-4 w-4" /> Rescan Face
+              </Button>
+            )}
+
             {scanStatus === "IDLE" && (
               <div className="flex gap-2">
                 <Button
@@ -542,15 +567,30 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
               </div>
             </div>
 
-            <Button
-              size="sm"
-              variant="primary"
-              onClick={handleFinish}
-              className="w-full py-2.5 text-xs font-semibold gap-1.5 shadow-md shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500 text-white"
-            >
-              <CheckCircle2 className="h-4 w-4" />
-              <span>Complete Onboarding & Return to Dashboard</span>
-            </Button>
+            <div className="flex gap-2.5">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  stopCamera();
+                  void handleStartFaceScan();
+                }}
+                className="w-1/3 text-xs text-zinc-300 border-zinc-700 bg-zinc-800/60 hover:bg-zinc-800 hover:text-white gap-1.5"
+              >
+                <RefreshCw className="h-3.5 w-3.5 text-amber-400" />
+                <span>Rescan</span>
+              </Button>
+
+              <Button
+                size="sm"
+                variant="brand"
+                onClick={handleFinish}
+                className="w-2/3 py-2.5 text-xs font-semibold gap-1.5 shadow-xs bg-emerald-600 hover:bg-emerald-500 text-white"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                <span>Complete Onboarding</span>
+              </Button>
+            </div>
           </div>
         )}
 

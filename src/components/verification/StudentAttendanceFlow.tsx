@@ -8,7 +8,7 @@ import { VerificationResult, ProximityProof } from "@/types/verification";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, ShieldAlert, Radio, ArrowRight, RotateCcw, MapPin, UserCheck } from "lucide-react";
+import { CheckCircle2, ShieldAlert, Radio, ArrowRight, RotateCcw, MapPin, UserCheck, RefreshCw } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
 
@@ -258,6 +258,23 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
       }
     }
   };
+
+  const handleRescanFace = useCallback(() => {
+    if (faceIntervalRef.current) {
+      clearInterval(faceIntervalRef.current);
+      faceIntervalRef.current = null;
+    }
+    if (faceEngineRef.current) {
+      faceEngineRef.current.stop();
+      faceEngineRef.current = null;
+    }
+    setStep("FACE");
+    setFaceStatus("WAITING");
+    setFaceMatchSimilarity(null);
+    setFaceGuidance("Re-initializing camera for fresh face scan...");
+    setResult(null);
+    void transitionToFaceScan();
+  }, [transitionToFaceScan]);
 
   const handleReset = () => {
     cleanupHardware();
@@ -549,10 +566,19 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
             <Button
               variant="outline"
               size="sm"
-              onClick={handleSimulateFacePass}
-              className="text-[11px] text-zinc-400 w-full border-dashed"
+              onClick={handleRescanFace}
+              className="text-xs text-zinc-300 border-zinc-700 bg-zinc-800/70 hover:bg-zinc-800 hover:text-white flex-1 gap-1.5"
             >
-              Verify Face (Dev Bypass)
+              <RefreshCw className="h-3.5 w-3.5 text-amber-400" />
+              <span>Rescan Face</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSimulateFacePass}
+              className="text-[11px] text-zinc-500 border-dashed hover:text-zinc-300"
+            >
+              Dev Bypass
             </Button>
           </div>
         </Card>
@@ -620,9 +646,18 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
                 </p>
               </div>
 
-              <Button onClick={handleReset} variant="primary" className="w-full">
-                <RotateCcw className="h-4 w-4 mr-1.5" /> Try Again
-              </Button>
+              <div className="space-y-2 pt-1">
+                <Button onClick={handleRescanFace} variant="brand" className="w-full gap-2 font-semibold">
+                  <RefreshCw className="h-4 w-4" /> Rescan Face
+                </Button>
+                <Button
+                  onClick={handleReset}
+                  variant="outline"
+                  className="w-full text-xs text-zinc-400 border-zinc-800 hover:text-zinc-200"
+                >
+                  <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> Restart Full Verification
+                </Button>
+              </div>
             </div>
           )}
         </Card>
