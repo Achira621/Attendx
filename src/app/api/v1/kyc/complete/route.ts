@@ -132,22 +132,14 @@ export async function POST(req: NextRequest) {
 
     // Auto-enroll student into all courses so they are authorized for attendance
     const allCourses = await prisma.course.findMany({ select: { id: true } });
-    for (const course of allCourses) {
-      await prisma.enrollment
-        .upsert({
-          where: {
-            courseId_studentId: {
-              courseId: course.id,
-              studentId: targetUserId,
-            },
-          },
-          update: {},
-          create: {
-            courseId: course.id,
-            studentId: targetUserId,
-          },
-        })
-        .catch(() => {});
+    if (allCourses.length > 0) {
+      await prisma.enrollment.createMany({
+        data: allCourses.map(course => ({
+          courseId: course.id,
+          studentId: targetUserId,
+        })),
+        skipDuplicates: true,
+      });
     }
 
     // Upsert the biometric profile in the database

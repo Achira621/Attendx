@@ -173,7 +173,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel, onOpenKyc 
         setResult(orchestratorRef.current?.failWithCode("CAMERA_PERMISSION_DENIED") || null);
         setStep("RESULT");
       }
-    }, 100);
+    }, 2000); // 2 second delay to allow camera lighting adjustment
   }, [enrolledHash, user]);
 
   const startAcousticScan = useCallback(async () => {

@@ -20,6 +20,7 @@ import {
   ArrowRight,
   ShieldCheck,
   Fingerprint,
+  ArrowLeft,
 } from "lucide-react";
 
 interface StudentIdKycModalProps {
@@ -170,7 +171,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
         setErrorMsg("Camera access was denied or is unavailable. Please grant camera permission.");
         setScanStatus("ERROR");
       }
-    }, 150);
+    }, 2000); // 2 second delay to let the camera adjust to lighting
   };
 
   const submitKycRecord = async (vectorHash: string, quality: number) => {
@@ -453,14 +454,24 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
             </div>
 
             {scanStatus === "IDLE" && (
-              <Button
-                size="sm"
-                variant="primary"
-                onClick={handleStartFaceScan}
-                className="w-full gap-2 font-semibold"
-              >
-                <Camera className="h-4 w-4" /> Start Camera Scan
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setStep(1)}
+                  className="w-1/3 text-zinc-400 border-zinc-800 hover:bg-zinc-800"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-1.5" /> Back
+                </Button>
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={handleStartFaceScan}
+                  className="w-2/3 gap-2 font-semibold"
+                >
+                  <Camera className="h-4 w-4" /> Start Camera Scan
+                </Button>
+              </div>
             )}
 
             {scanStatus === "SAVING" && (
