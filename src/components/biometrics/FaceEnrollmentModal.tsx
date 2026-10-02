@@ -136,7 +136,7 @@ export function FaceEnrollmentModal({ isOpen, onClose, onSuccess }: FaceEnrollme
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
               <ScanFace className="h-5 w-5" />
             </div>
             <div>
@@ -169,7 +169,7 @@ export function FaceEnrollmentModal({ isOpen, onClose, onSuccess }: FaceEnrollme
                   stage === "SCANNING" && qualityScore >= 0.7
                     ? "border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
                     : stage === "SCANNING"
-                    ? "border-blue-500 animate-pulse"
+                    ? "border-amber-500 animate-pulse"
                     : "border-zinc-700/80"
                 }`}
               />
@@ -234,7 +234,7 @@ export function FaceEnrollmentModal({ isOpen, onClose, onSuccess }: FaceEnrollme
         {/* Action Buttons */}
         <div className="pt-2 flex items-center justify-end gap-2.5">
           {stage === "READY" && (
-            <Button size="sm" variant="primary" onClick={startScanning} className="w-full gap-2 font-semibold">
+            <Button size="sm" variant="brand" onClick={startScanning} className="w-full gap-2 font-semibold shadow-xs">
               <Camera className="h-4 w-4" /> Start Face Capture
             </Button>
           )}
@@ -246,7 +246,7 @@ export function FaceEnrollmentModal({ isOpen, onClose, onSuccess }: FaceEnrollme
           )}
 
           {stage === "ERROR" && (
-            <Button size="sm" variant="primary" onClick={startScanning} className="w-full gap-2">
+            <Button size="sm" variant="brand" onClick={startScanning} className="w-full gap-2 shadow-xs">
               <RefreshCw className="h-4 w-4" /> Try Again
             </Button>
           )}
@@ -254,12 +254,12 @@ export function FaceEnrollmentModal({ isOpen, onClose, onSuccess }: FaceEnrollme
           {stage === "ENROLLED" && (
             <Button
               size="sm"
-              variant="primary"
+              variant="brand"
               onClick={() => {
                 onSuccess?.();
                 handleClose();
               }}
-              className="w-full font-semibold"
+              className="w-full font-semibold shadow-xs"
             >
               Continue to Dashboard
             </Button>

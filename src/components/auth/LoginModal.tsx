@@ -121,7 +121,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
@@ -174,9 +174,9 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
 
         {/* Fast KYC Onboarding Callout */}
         {onOpenKyc && (
-          <div className="p-3 rounded-xl bg-blue-950/40 border border-blue-800/60 flex items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2.5 text-blue-200">
-              <div className="p-1.5 rounded-lg bg-blue-600/20 text-blue-400">
+          <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-800/40 flex items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2.5 text-amber-200">
+              <div className="p-1.5 rounded-lg bg-amber-500/15 text-amber-400">
                 <ScanFace className="h-4 w-4" />
               </div>
               <div>
@@ -190,7 +190,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
                 onClose();
                 onOpenKyc();
               }}
-              className="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs whitespace-nowrap shadow-xs transition"
+              className="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-xs whitespace-nowrap shadow-xs transition"
             >
               Start KYC
             </button>
@@ -217,7 +217,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   placeholder="student@attendex.edu or CS-2026-001"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60 transition"
                   required
                 />
               </div>
@@ -232,7 +232,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60 transition"
                   required
                 />
               </div>
@@ -241,7 +241,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-xs flex items-center justify-center gap-2 transition disabled:opacity-50"
+              className="w-full mt-2 py-2 px-4 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs flex items-center justify-center gap-2 transition disabled:opacity-50 shadow-xs"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign In to Attendex"}
             </button>
@@ -272,7 +272,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
                   onClick={() => setRegRole("TEACHER")}
                   className={`p-2 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 transition ${
                     regRole === "TEACHER"
-                      ? "border-blue-500 bg-blue-500/10 text-blue-300"
+                      ? "border-amber-500 bg-amber-500/10 text-amber-300"
                       : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700"
                   }`}
                 >
@@ -292,7 +292,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
                   value={regName}
                   onChange={(e) => setRegName(e.target.value)}
                   placeholder="e.g. Rohan Sharma"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60 transition"
                   required
                 />
               </div>
@@ -308,7 +308,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
                   value={regEmail}
                   onChange={(e) => setRegEmail(e.target.value)}
                   placeholder="rohan@attendex.edu"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60 transition"
                   required
                 />
               </div>
@@ -325,7 +325,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
                     value={regRollNumber}
                     onChange={(e) => setRegRollNumber(e.target.value)}
                     placeholder="e.g. CS-2026-005"
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60 transition"
                     required
                   />
                 </div>
@@ -342,7 +342,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
                   value={regDepartment}
                   onChange={(e) => setRegDepartment(e.target.value)}
                   placeholder="Computer Science & Engineering"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60 transition"
                 />
               </div>
             </div>
@@ -357,7 +357,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
                   value={regPassword}
                   onChange={(e) => setRegPassword(e.target.value)}
                   placeholder="At least 6 characters"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60 transition"
                   required
                 />
               </div>
@@ -385,7 +385,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
               disabled={loading}
               className="p-2.5 rounded-lg border border-zinc-800 bg-zinc-950 hover:bg-zinc-800/80 transition text-left flex flex-col gap-1 text-xs"
             >
-              <div className="flex items-center gap-1.5 text-blue-400 font-semibold text-[11px]">
+              <div className="flex items-center gap-1.5 text-amber-400 font-semibold text-[11px]">
                 <UserCheck className="h-3.5 w-3.5" />
                 Faculty
               </div>

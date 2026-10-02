@@ -67,7 +67,7 @@ export function FaceDiagnosticLab() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-zinc-800 pb-4">
         <div>
           <h2 className="text-xl font-semibold text-zinc-100 flex items-center gap-2">
-            <Camera className="h-5 w-5 text-blue-400" />
+            <Camera className="h-5 w-5 text-amber-400" />
             Face Verification & Liveness Diagnostic Lab
           </h2>
           <p className="text-xs text-zinc-400 mt-1">
@@ -160,7 +160,7 @@ export function FaceDiagnosticLab() {
 
           <div className="w-full max-w-[440px] pt-4">
             {!cameraActive ? (
-              <Button onClick={handleStartCamera} variant="primary" className="w-full">
+              <Button onClick={handleStartCamera} variant="brand" className="w-full">
                 <Camera className="h-4 w-4" /> Activate Camera
               </Button>
             ) : (

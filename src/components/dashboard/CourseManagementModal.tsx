@@ -72,7 +72,7 @@ export function CourseManagementModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-zinc-800 pb-4 mb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
               <BookOpen className="h-4 w-4" />
             </div>
             <div>
@@ -106,7 +106,7 @@ export function CourseManagementModal({
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
               required
-              className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-xs focus:outline-hidden focus:border-blue-500 font-mono uppercase"
+              className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-xs focus:outline-hidden focus:border-amber-500/60 font-mono uppercase"
             />
           </div>
 
@@ -120,7 +120,7 @@ export function CourseManagementModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-xs focus:outline-hidden focus:border-blue-500"
+              className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-xs focus:outline-hidden focus:border-amber-500/60"
             />
           </div>
 
@@ -134,7 +134,7 @@ export function CourseManagementModal({
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
                 required
-                className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-hidden focus:border-blue-500"
+                className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-hidden focus:border-amber-500/60"
               />
             </div>
 
@@ -149,7 +149,7 @@ export function CourseManagementModal({
                 value={studentLimit}
                 onChange={(e) => setStudentLimit(parseInt(e.target.value, 10) || 60)}
                 required
-                className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-hidden focus:border-blue-500 font-mono"
+                className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-hidden focus:border-amber-500/60 font-mono"
               />
             </div>
           </div>
@@ -176,10 +176,10 @@ export function CourseManagementModal({
             </Button>
             <Button
               type="submit"
-              variant="primary"
+              variant="brand"
               size="sm"
               disabled={isSubmitting}
-              className="text-xs gap-1.5 shadow-md shadow-blue-600/20"
+              className="text-xs gap-1.5 shadow-xs"
             >
               <Plus className="h-3.5 w-3.5" />
               {isSubmitting ? "Saving Class..." : "Save Course to Profile"}

@@ -364,7 +364,7 @@ export function StudentDashboard() {
                         {session.classroom.name} ({session.classroom.roomNumber})
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <Radio className="h-3.5 w-3.5 text-blue-400" />
+                        <Radio className="h-3.5 w-3.5 text-amber-400" />
                         Acoustic Beacon: <span className="font-mono text-zinc-300">{beaconKhz}</span>
                       </span>
                       <span className="flex items-center gap-1.5 font-mono text-[11px] text-zinc-500">
@@ -382,11 +382,11 @@ export function StudentDashboard() {
                     ) : (
                       <Button
                         size="md"
-                        variant="primary"
+                        variant="brand"
                         onClick={() => handleOpenVerification(session)}
-                        className="gap-2 shadow-md shadow-blue-600/20 text-xs font-semibold px-4 py-2.5"
+                        className="gap-2 shadow-xs text-xs font-semibold px-4 py-2.5"
                       >
-                        <Sparkles className="h-4 w-4 text-amber-300" />
+                        <Sparkles className="h-4 w-4 text-zinc-950" />
                         Verify & Mark Attendance
                         <ArrowRight className="h-3.5 w-3.5" />
                       </Button>
@@ -421,7 +421,7 @@ export function StudentDashboard() {
         {/* Left Column: Biometric Profile Status */}
         <div className="md:col-span-1 space-y-3">
           <h3 className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
-            <ScanFace className="h-4 w-4 text-blue-400" />
+            <ScanFace className="h-4 w-4 text-amber-400" />
             Biometric Identity
           </h3>
 
@@ -440,7 +440,7 @@ export function StudentDashboard() {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center text-blue-400">
+              <div className="w-10 h-10 rounded-lg bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-amber-400">
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <div className="space-y-0.5">
@@ -476,7 +476,7 @@ export function StudentDashboard() {
               onClick={() => setIsEnrollModalOpen(true)}
               className="w-full text-xs gap-1.5 border-zinc-700 bg-zinc-800/60 hover:bg-zinc-800 hover:text-white"
             >
-              <Camera className="h-3.5 w-3.5 text-blue-400" />
+              <Camera className="h-3.5 w-3.5 text-zinc-300" />
               {biometricProfile ? "Re-enroll Face Template" : "Enroll Face Template"}
             </Button>
           </Card>
@@ -531,7 +531,7 @@ export function StudentDashboard() {
                           <span>•</span>
                           <span>{dateStr} at {timeStr}</span>
                           <span>•</span>
-                          <span className="text-blue-400">{rec.proximityTierUsed}</span>
+                          <span className="text-amber-400/90 font-mono">{rec.proximityTierUsed}</span>
                         </div>
                       </div>
 

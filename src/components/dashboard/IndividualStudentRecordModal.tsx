@@ -98,7 +98,7 @@ export function IndividualStudentRecordModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-zinc-800 pb-4 mb-4 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
               <GraduationCap className="h-5 w-5" />
             </div>
             <div>
@@ -121,7 +121,7 @@ export function IndividualStudentRecordModal({
               onClick={handleExportStudentCsv}
               className="text-xs gap-1.5 h-8 text-zinc-300 hover:text-white border-zinc-700 bg-zinc-800/60"
             >
-              <Download className="h-3.5 w-3.5 text-blue-400" />
+              <Download className="h-3.5 w-3.5 text-zinc-400" />
               Download CSV
             </Button>
             <button
@@ -166,7 +166,7 @@ export function IndividualStudentRecordModal({
         {/* Attendance Records List */}
         <div className="flex-1 overflow-y-auto pr-1 space-y-2.5">
           <h4 className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
-            <Calendar className="h-3.5 w-3.5 text-blue-400" />
+            <Calendar className="h-3.5 w-3.5 text-amber-400" />
             Lecture Verification History ({student.attendanceHistory.length})
           </h4>
 
@@ -198,7 +198,7 @@ export function IndividualStudentRecordModal({
                         {isPresent && (
                           <>
                             <span>•</span>
-                            <span className="text-blue-400 font-mono">{rec.proximityTier}</span>
+                            <span className="text-amber-400/90 font-mono">{rec.proximityTier}</span>
                           </>
                         )}
                       </div>

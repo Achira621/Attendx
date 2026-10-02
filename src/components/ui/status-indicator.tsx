@@ -29,9 +29,9 @@ export function StatusIndicator({ status, label, className, size = "md" }: Statu
     PROCESSING: {
       symbol: "◌",
       text: "Processing",
-      bg: "bg-blue-950/60",
-      textCol: "text-blue-300",
-      border: "border-blue-800/40",
+      bg: "bg-zinc-800/80",
+      textCol: "text-zinc-200",
+      border: "border-zinc-700/60",
     },
     RETRY_REQUIRED: {
       symbol: "!",

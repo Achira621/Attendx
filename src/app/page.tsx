@@ -46,13 +46,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col selection:bg-blue-600/30 selection:text-blue-200">
+    <div className="min-h-screen bg-[#090a0c] text-zinc-100 flex flex-col selection:bg-amber-500/20 selection:text-amber-200">
       {/* Top Application Bar */}
-      <header className="border-b border-zinc-800 bg-zinc-900/60 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
           {/* Logo & Portal Identity */}
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-xs">
+            <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700/80 flex items-center justify-center font-bold text-amber-400 shadow-xs">
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
@@ -62,14 +62,14 @@ export default function Home() {
                   <span
                     className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
                       user.role === "STUDENT"
-                        ? "bg-emerald-950/60 text-emerald-400 border-emerald-800/60"
-                        : "bg-blue-950/60 text-blue-400 border-blue-800/60"
+                        ? "bg-emerald-950/40 text-emerald-300 border-emerald-800/50"
+                        : "bg-amber-950/40 text-amber-300 border-amber-800/50"
                     }`}
                   >
                     {user.role === "STUDENT" ? "Student Portal" : "Faculty Console"}
                   </span>
                 ) : (
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700/60">
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-900 text-zinc-400 border border-zinc-800">
                     Dual-Presence
                   </span>
                 )}
@@ -100,7 +100,7 @@ export default function Home() {
                     : "text-zinc-400 hover:text-zinc-200"
                 }`}
               >
-                <Radio className="h-3.5 w-3.5 text-blue-400" />
+                <Radio className="h-3.5 w-3.5 text-amber-400" />
                 Acoustic Lab
               </button>
 
@@ -148,9 +148,9 @@ export default function Home() {
                 </button>
 
                 {/* Profile Pill */}
-                <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-zinc-800/80 border border-zinc-700/60 text-xs">
+                <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-xs">
                   {user.role === "TEACHER" ? (
-                    <User className="h-3.5 w-3.5 text-blue-400" />
+                    <User className="h-3.5 w-3.5 text-amber-400" />
                   ) : (
                     <GraduationCap className="h-3.5 w-3.5 text-emerald-400" />
                   )}
@@ -166,7 +166,7 @@ export default function Home() {
                 <button
                   onClick={() => logout()}
                   title="Sign Out"
-                  className="p-1.5 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition"
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-zinc-900 transition"
                 >
                   <LogOut className="h-4 w-4" />
                 </button>
@@ -177,7 +177,7 @@ export default function Home() {
                   size="sm"
                   variant="outline"
                   onClick={() => setIsKycModalOpen(true)}
-                  className="gap-1.5 text-xs font-semibold text-blue-400 border-blue-500/30 hover:bg-blue-950/40 hidden sm:flex"
+                  className="gap-1.5 text-xs font-semibold text-amber-400 border-amber-500/30 hover:bg-amber-950/30 hidden sm:flex"
                 >
                   <ScanFace className="h-3.5 w-3.5" />
                   Create Student ID & KYC
@@ -202,7 +202,7 @@ export default function Home() {
             <button
               onClick={() => setTeacherTab("teacher")}
               className={`p-1.5 font-medium ${
-                teacherTab === "teacher" ? "text-blue-400 font-semibold" : "text-zinc-400"
+                teacherTab === "teacher" ? "text-amber-400 font-semibold" : "text-zinc-400"
               }`}
             >
               Sessions
@@ -210,7 +210,7 @@ export default function Home() {
             <button
               onClick={() => setTeacherTab("acoustic_lab")}
               className={`p-1.5 font-medium ${
-                teacherTab === "acoustic_lab" ? "text-blue-400 font-semibold" : "text-zinc-400"
+                teacherTab === "acoustic_lab" ? "text-amber-400 font-semibold" : "text-zinc-400"
               }`}
             >
               Acoustic
@@ -218,7 +218,7 @@ export default function Home() {
             <button
               onClick={() => setTeacherTab("face_lab")}
               className={`p-1.5 font-medium ${
-                teacherTab === "face_lab" ? "text-blue-400 font-semibold" : "text-zinc-400"
+                teacherTab === "face_lab" ? "text-amber-400 font-semibold" : "text-zinc-400"
               }`}
             >
               Face Lab
@@ -226,7 +226,7 @@ export default function Home() {
             <button
               onClick={() => setTeacherTab("architecture")}
               className={`p-1.5 font-medium ${
-                teacherTab === "architecture" ? "text-blue-400 font-semibold" : "text-zinc-400"
+                teacherTab === "architecture" ? "text-amber-400 font-semibold" : "text-zinc-400"
               }`}
             >
               Specs
@@ -239,7 +239,7 @@ export default function Home() {
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6">
         {loading ? (
           <div className="py-24 text-center space-y-3">
-            <div className="w-8 h-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin mx-auto" />
+            <div className="w-8 h-8 rounded-full border-2 border-amber-500 border-t-transparent animate-spin mx-auto" />
             <p className="text-xs text-zinc-500 font-mono">Authenticating institutional session...</p>
           </div>
         ) : user ? (
@@ -257,7 +257,7 @@ export default function Home() {
                 <div className="space-y-6 max-w-4xl mx-auto">
                   <div className="border-b border-zinc-800 pb-4">
                     <h2 className="text-xl font-bold text-zinc-100 flex items-center gap-2">
-                      <ShieldCheck className="h-5 w-5 text-blue-400" />
+                      <ShieldCheck className="h-5 w-5 text-amber-400" />
                       Attendex Architecture Principles
                     </h2>
                     <p className="text-xs text-zinc-400 mt-1">
@@ -278,7 +278,7 @@ export default function Home() {
 
                     <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/40 space-y-2">
                       <div className="text-xs font-semibold text-zinc-200 flex items-center gap-1.5">
-                        <Radio className="h-4 w-4 text-blue-400" />
+                        <Radio className="h-4 w-4 text-amber-400" />
                         Acoustic Beaconing (TIER_A)
                       </div>
                       <p className="text-xs text-zinc-400 leading-relaxed">
@@ -295,7 +295,7 @@ export default function Home() {
           <div className="max-w-4xl mx-auto py-12 space-y-10">
             {/* Hero */}
             <div className="text-center space-y-3.5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-600/10 border border-blue-500/20 text-xs font-medium text-blue-400">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-medium text-amber-300">
                 <Sparkles className="h-3.5 w-3.5 text-amber-400" />
                 Next-Gen Academic Presence Infrastructure
               </div>
@@ -312,19 +312,19 @@ export default function Home() {
               {/* Instant Student ID & KYC Onboarding Card */}
               <div
                 onClick={() => setIsKycModalOpen(true)}
-                className="group relative p-6 rounded-2xl border border-blue-500/30 bg-blue-950/20 hover:bg-blue-950/40 hover:border-blue-500/60 transition cursor-pointer space-y-4 md:col-span-2 shadow-lg"
+                className="group relative p-6 rounded-2xl border border-amber-500/25 bg-gradient-to-br from-zinc-900/90 via-zinc-900/40 to-amber-950/15 hover:border-amber-500/40 transition cursor-pointer space-y-4 md:col-span-2 shadow-xl"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 group-hover:scale-105 transition">
+                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:scale-105 transition">
                       <ScanFace className="h-6 w-6" />
                     </div>
                     <div className="text-left">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-base font-bold text-white group-hover:text-blue-300 transition">
+                        <h3 className="text-base font-bold text-white group-hover:text-amber-300 transition">
                           Create Student ID & Complete Face KYC
                         </h3>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-600/20 text-blue-300 border border-blue-500/30">
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
                           Recommended
                         </span>
                       </div>
@@ -336,8 +336,8 @@ export default function Home() {
 
                   <Button
                     size="sm"
-                    variant="primary"
-                    className="shrink-0 text-xs font-semibold gap-1.5 bg-blue-600 hover:bg-blue-500 shadow-md shadow-blue-500/20"
+                    variant="brand"
+                    className="shrink-0 text-xs font-semibold gap-1.5"
                   >
                     <span>Create ID & KYC</span>
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -348,7 +348,7 @@ export default function Home() {
               {/* Student Role Card */}
               <div
                 onClick={() => handleSwitchRole("STUDENT")}
-                className="group relative p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900/70 hover:border-emerald-500/50 transition cursor-pointer space-y-4"
+                className="group relative p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900/70 hover:border-emerald-500/40 transition cursor-pointer space-y-4"
               >
                 <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition">
                   <GraduationCap className="h-6 w-6" />
@@ -374,17 +374,17 @@ export default function Home() {
               {/* Faculty Role Card */}
               <div
                 onClick={() => handleSwitchRole("TEACHER")}
-                className="group relative p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900/70 hover:border-blue-500/50 transition cursor-pointer space-y-4"
+                className="group relative p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900/70 hover:border-amber-500/40 transition cursor-pointer space-y-4"
               >
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:scale-105 transition">
+                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:scale-105 transition">
                   <User className="h-6 w-6" />
                 </div>
                 <div>
                   <div className="flex items-center justify-between">
-                    <h3 className="text-base font-bold text-white group-hover:text-blue-300 transition">
+                    <h3 className="text-base font-bold text-white group-hover:text-amber-300 transition">
                       Enter as Faculty
                     </h3>
-                    <ArrowRight className="h-4 w-4 text-zinc-500 group-hover:text-blue-400 group-hover:translate-x-1 transition" />
+                    <ArrowRight className="h-4 w-4 text-zinc-500 group-hover:text-amber-400 group-hover:translate-x-1 transition" />
                   </div>
                   <p className="text-xs text-zinc-400 mt-1">
                     Sign in as <span className="text-zinc-200 font-medium">Dr. Evelyn Reed</span> (Faculty). Launch attendance windows and emit ultrasonic beacons.

@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "ghost" | "destructive";
+  variant?: "primary" | "brand" | "secondary" | "outline" | "ghost" | "destructive";
   size?: "sm" | "md" | "lg" | "icon";
   isLoading?: boolean;
 }
@@ -13,11 +13,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       "inline-flex items-center justify-center font-medium transition-colors select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 disabled:pointer-events-none disabled:opacity-50 cursor-pointer active:scale-[0.98]";
 
     const variants = {
-      primary: "bg-blue-600 text-white hover:bg-blue-500 shadow-sm",
-      secondary: "bg-zinc-800 text-zinc-100 hover:bg-zinc-700 border border-zinc-700/60",
-      outline: "border border-zinc-700 bg-transparent text-zinc-200 hover:bg-zinc-800/80 hover:text-white",
-      ghost: "text-zinc-300 hover:bg-zinc-800/60 hover:text-white",
-      destructive: "bg-red-600 text-white hover:bg-red-500 shadow-sm",
+      primary: "bg-zinc-100 text-zinc-950 hover:bg-white font-medium shadow-xs",
+      brand: "bg-amber-500 text-zinc-950 hover:bg-amber-400 font-semibold shadow-xs",
+      secondary: "bg-zinc-900 text-zinc-200 hover:bg-zinc-800 border border-zinc-800",
+      outline: "border border-zinc-800 bg-transparent text-zinc-200 hover:bg-zinc-800/80 hover:text-white",
+      ghost: "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-100",
+      destructive: "bg-rose-600 text-white hover:bg-rose-500 shadow-xs",
     };
 
     const sizes = {

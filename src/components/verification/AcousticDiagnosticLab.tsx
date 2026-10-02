@@ -86,7 +86,7 @@ export function AcousticDiagnosticLab() {
             const x = (i - startBin) * binWidth;
             const y = canvas.height - barHeight;
 
-            ctx.fillStyle = detected ? "#10b981" : "#3b82f6";
+            ctx.fillStyle = detected ? "#10b981" : "#f59e0b";
             ctx.fillRect(x, y, Math.max(1, binWidth - 1), barHeight);
           }
         }
@@ -118,7 +118,7 @@ export function AcousticDiagnosticLab() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-zinc-800 pb-4">
         <div>
           <h2 className="text-xl font-semibold text-zinc-100 flex items-center gap-2">
-            <Radio className="h-5 w-5 text-blue-400" />
+            <Radio className="h-5 w-5 text-amber-400" />
             Acoustic Proximity Diagnostic Lab
           </h2>
           <p className="text-xs text-zinc-400 mt-1">
@@ -159,7 +159,7 @@ export function AcousticDiagnosticLab() {
                   }}
                   className={`p-2.5 rounded border text-xs text-left transition-all ${
                     emitterFreq === 18750
-                      ? "border-blue-500 bg-blue-950/30 text-blue-200"
+                      ? "border-amber-500/60 bg-amber-950/20 text-amber-200"
                       : "border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700"
                   }`}
                 >
@@ -174,7 +174,7 @@ export function AcousticDiagnosticLab() {
                   }}
                   className={`p-2.5 rounded border text-xs text-left transition-all ${
                     emitterFreq === 15000
-                      ? "border-blue-500 bg-blue-950/30 text-blue-200"
+                      ? "border-amber-500/60 bg-amber-950/20 text-amber-200"
                       : "border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700"
                   }`}
                 >
@@ -201,7 +201,7 @@ export function AcousticDiagnosticLab() {
 
             <div className="pt-2">
               {!emitterActive ? (
-                <Button onClick={handleStartEmitter} variant="primary" className="w-full">
+                <Button onClick={handleStartEmitter} variant="brand" className="w-full">
                   <Play className="h-4 w-4" /> Start Beacon Emitter
                 </Button>
               ) : (
@@ -235,7 +235,7 @@ export function AcousticDiagnosticLab() {
               <div className="flex gap-2">
                 <Button
                   size="sm"
-                  variant={receiverFreq === 18750 ? "primary" : "secondary"}
+                  variant={receiverFreq === 18750 ? "brand" : "secondary"}
                   onClick={() => setReceiverFreq(18750)}
                   disabled={receiverActive}
                 >
@@ -243,7 +243,7 @@ export function AcousticDiagnosticLab() {
                 </Button>
                 <Button
                   size="sm"
-                  variant={receiverFreq === 15000 ? "primary" : "secondary"}
+                  variant={receiverFreq === 15000 ? "brand" : "secondary"}
                   onClick={() => setReceiverFreq(15000)}
                   disabled={receiverActive}
                 >

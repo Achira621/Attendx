@@ -18,20 +18,21 @@
   --text-muted: #71717a;
   --text-inverse: #09090b;
 
-  /* Semantic Brand & Accents */
-  --accent-primary: #3b82f6;
-  --accent-primary-hover: #2563eb;
-  --accent-subtle: rgba(59, 130, 246, 0.12);
+  /* Semantic Brand & Accents (Warm Amber-Bronze & Copper) */
+  --accent-primary: #f59e0b;
+  --accent-primary-hover: #d97706;
+  --accent-subtle: rgba(245, 158, 11, 0.12);
+  --accent-border: rgba(245, 158, 11, 0.28);
 
   /* Status Tokens */
   --status-success: #10b981;
   --status-success-bg: rgba(16, 185, 129, 0.12);
   --status-warning: #f59e0b;
   --status-warning-bg: rgba(245, 158, 11, 0.12);
-  --status-error: #ef4444;
-  --status-error-bg: rgba(239, 68, 68, 0.12);
-  --status-info: #06b6d4;
-  --status-info-bg: rgba(6, 182, 212, 0.12);
+  --status-error: #f43f5e;
+  --status-error-bg: rgba(244, 63, 94, 0.12);
+  --status-info: #94a3b8;
+  --status-info-bg: rgba(148, 163, 184, 0.12);
 
   /* Radii */
   --radius-xs: 4px;

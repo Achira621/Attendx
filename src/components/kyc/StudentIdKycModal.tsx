@@ -236,7 +236,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
         {/* Header */}
         <div className="flex items-start justify-between border-b border-zinc-800 pb-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
               <ScanFace className="h-5 w-5" />
             </div>
             <div>
@@ -257,7 +257,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
           <div
             className={`p-2 rounded-lg border flex items-center justify-center gap-1.5 ${
               step === 1
-                ? "border-blue-500 bg-blue-500/10 text-blue-300 font-semibold"
+                ? "border-amber-500 bg-amber-500/10 text-amber-300 font-semibold"
                 : step > 1
                 ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
                 : "border-zinc-800 text-zinc-500"
@@ -268,7 +268,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
           <div
             className={`p-2 rounded-lg border flex items-center justify-center gap-1.5 ${
               step === 2
-                ? "border-blue-500 bg-blue-500/10 text-blue-300 font-semibold"
+                ? "border-amber-500 bg-amber-500/10 text-amber-300 font-semibold"
                 : step > 2
                 ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
                 : "border-zinc-800 text-zinc-500"
@@ -299,7 +299,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Varad Dalvi"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60"
                   required
                 />
               </div>
@@ -315,7 +315,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
                     value={rollNumber}
                     onChange={(e) => setRollNumber(e.target.value)}
                     placeholder="CS-2026-001"
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 font-mono placeholder-zinc-500 focus:outline-hidden focus:border-blue-500"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 font-mono placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60"
                     required
                   />
                 </div>
@@ -330,7 +330,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
                     value={department}
                     onChange={(e) => setDepartment(e.target.value)}
                     placeholder="Computer Science & Engineering"
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60"
                     required
                   />
                 </div>
@@ -348,7 +348,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="student@attendex.edu"
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60"
                       required
                     />
                   </div>
@@ -363,7 +363,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500"
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60"
                       required
                     />
                   </div>
@@ -373,9 +373,9 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
 
             <Button
               size="sm"
-              variant="primary"
+              variant="brand"
               onClick={handleStartFaceScan}
-              className="w-full mt-3 py-2.5 text-xs font-semibold gap-1.5 shadow-md shadow-blue-500/20"
+              className="w-full mt-3 py-2.5 text-xs font-semibold gap-1.5 shadow-xs"
             >
               <span>Continue to Biometric Face Scan</span>
               <ArrowRight className="h-4 w-4" />
@@ -402,7 +402,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
                     captureProgress > 50
                       ? "border-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.35)] scale-100"
                       : scanStatus === "SCANNING"
-                      ? "border-blue-500 animate-pulse scale-95"
+                      ? "border-amber-500 animate-pulse scale-95"
                       : "border-zinc-700/80"
                   }`}
                 />
@@ -424,7 +424,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
                   className={`px-2 py-0.5 rounded-full border backdrop-blur-md ${
                     isLivenessConfirmed
                       ? "bg-emerald-950/80 border-emerald-500/40 text-emerald-400"
-                      : "bg-blue-950/80 border-blue-500/40 text-blue-300"
+                      : "bg-amber-950/80 border-amber-500/40 text-amber-300"
                   }`}
                 >
                   {isLivenessConfirmed ? "✓ Liveness Active" : "Scanning Liveness"}
@@ -447,7 +447,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
               </div>
               <div className="h-2 w-full bg-zinc-950 rounded-full overflow-hidden border border-zinc-800">
                 <div
-                  className="h-full bg-gradient-to-r from-blue-500 via-indigo-400 to-emerald-400 transition-all duration-150"
+                  className="h-full bg-gradient-to-r from-amber-600 via-amber-400 to-emerald-400 transition-all duration-150"
                   style={{ width: `${captureProgress}%` }}
                 />
               </div>
@@ -465,7 +465,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
                 </Button>
                 <Button
                   size="sm"
-                  variant="primary"
+                  variant="brand"
                   onClick={handleStartFaceScan}
                   className="w-2/3 gap-2 font-semibold"
                 >
@@ -476,7 +476,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
 
             {scanStatus === "SAVING" && (
               <div className="py-2 text-center text-xs text-zinc-400 flex items-center justify-center gap-2">
-                <RefreshCw className="h-3.5 w-3.5 animate-spin text-blue-400" />
+                <RefreshCw className="h-3.5 w-3.5 animate-spin text-amber-400" />
                 <span>Encrypting biometric hash & saving Student ID...</span>
               </div>
             )}
@@ -491,7 +491,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
               {/* Card Header */}
               <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-xs">
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-xs">
                     <GraduationCap className="h-4 w-4" />
                   </div>
                   <div>
@@ -526,7 +526,7 @@ export function StudentIdKycModal({ isOpen, onClose, onSuccess }: StudentIdKycMo
 
                 <div className="space-y-1 text-xs">
                   <div className="font-bold text-white text-base tracking-tight">{name}</div>
-                  <div className="text-blue-400 font-mono font-semibold text-xs">{rollNumber}</div>
+                  <div className="text-amber-400 font-mono font-semibold text-xs">{rollNumber}</div>
                   <div className="text-zinc-400 text-[11px]">{department}</div>
                   <div className="text-[10px] text-zinc-500 font-mono">Status: ACTIVE • BATCH 2026</div>
                 </div>

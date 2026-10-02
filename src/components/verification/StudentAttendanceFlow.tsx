@@ -299,7 +299,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
             <MapPin className="h-3.5 w-3.5 text-zinc-500" /> {classroomDisplay}
           </span>
           <span className="flex items-center gap-1">
-            <Radio className="h-3.5 w-3.5 text-blue-400" /> {beaconFreq}
+            <Radio className="h-3.5 w-3.5 text-amber-400" /> {beaconFreq}
           </span>
         </div>
       </div>
@@ -313,7 +313,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
                 ? "bg-zinc-800 text-zinc-400"
                 : proximityStatus === "DETECTED" || step === "FACE" || step === "RESULT"
                 ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                : "bg-blue-600 text-white animate-pulse"
+                : "bg-amber-500 text-zinc-950 font-bold"
             }`}
           >
             {proximityStatus === "DETECTED" || step === "FACE" || step === "RESULT" ? "✓" : "1"}
@@ -327,7 +327,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
           <span
             className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] ${
               step === "FACE"
-                ? "bg-blue-600 text-white animate-pulse"
+                ? "bg-amber-500 text-zinc-950 font-bold"
                 : step === "RESULT" && result?.outcome === "ACCEPTED"
                 ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
                 : "bg-zinc-800 text-zinc-400"
@@ -367,14 +367,14 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
                 Your Student ID requires an enrolled biometric face template to verify classroom attendance.
               </p>
               {onOpenKyc && (
-                <Button size="sm" variant="primary" onClick={onOpenKyc} className="text-xs h-7 gap-1">
+                <Button size="sm" variant="brand" onClick={onOpenKyc} className="text-xs h-7 gap-1">
                   Complete Face KYC Scan
                 </Button>
               )}
             </div>
           )}
 
-          <div className="w-12 h-12 rounded-full bg-blue-600/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-3 text-blue-400">
+          <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-3 text-amber-400">
             <UserCheck className="h-6 w-6" />
           </div>
           <h4 className="text-base font-semibold text-zinc-100">Ready to Mark Attendance</h4>
@@ -383,7 +383,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
           </p>
 
           <div className="mt-5 space-y-2">
-            <Button onClick={handleStartVerification} variant="primary" size="lg" className="w-full">
+            <Button onClick={handleStartVerification} variant="brand" size="lg" className="w-full">
               Mark Attendance <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
@@ -394,7 +394,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
         <Card className="border-zinc-800 bg-zinc-900/40 text-center py-8 px-5 space-y-4">
           <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
             <div
-              className={`absolute inset-0 rounded-full border border-blue-500/30 ${
+              className={`absolute inset-0 rounded-full border border-amber-500/30 ${
                 proximityStatus === "LISTENING" ? "animate-ping opacity-40" : ""
               }`}
             />
@@ -402,7 +402,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
               className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${
                 proximityStatus === "DETECTED"
                   ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50"
-                  : "bg-blue-600/10 text-blue-400 border border-blue-500/30"
+                  : "bg-amber-500/10 text-amber-400 border border-amber-500/30"
               }`}
             >
               {proximityStatus === "DETECTED" ? <CheckCircle2 className="h-7 w-7" /> : <Radio className="h-6 w-6" />}
@@ -431,14 +431,14 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
             <div className="max-w-[260px] mx-auto space-y-2 pt-1">
               <div className="flex justify-between items-center text-[11px] text-zinc-400">
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                   Classroom Acoustic Radar
                 </span>
-                <span className="font-mono text-blue-400 font-semibold">{signalStrength}%</span>
+                <span className="font-mono text-amber-400 font-semibold">{signalStrength}%</span>
               </div>
               <div className="h-2 w-full bg-zinc-800/80 rounded-full overflow-hidden border border-zinc-700/50">
                 <div
-                  className="h-full bg-gradient-to-r from-blue-500 via-indigo-400 to-emerald-400 transition-all duration-150"
+                  className="h-full bg-gradient-to-r from-amber-600 via-amber-400 to-emerald-400 transition-all duration-150"
                   style={{ width: `${Math.max(6, signalStrength)}%` }}
                 />
               </div>
@@ -499,7 +499,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
           <div className="flex items-center justify-between px-1 text-xs">
             <div className="flex items-center gap-1.5 text-zinc-300 font-mono text-[11px]">
               <span className="text-zinc-500">ID:</span>
-              <span className="text-blue-400 font-semibold">{user?.rollNumber || "CS-2026-001"}</span>
+              <span className="text-amber-400 font-semibold">{user?.rollNumber || "CS-2026-001"}</span>
               <span className="text-zinc-500">•</span>
               <span className="text-zinc-300 truncate max-w-[120px]">{user?.name}</span>
             </div>
@@ -531,7 +531,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
                   cy="58"
                   rx="26"
                   ry="34"
-                  stroke={faceStatus === "CONFIRMING" ? "#10b981" : "#3b82f6"}
+                  stroke={faceStatus === "CONFIRMING" ? "#10b981" : "#f59e0b"}
                   strokeWidth="1.2"
                   className="transition-colors duration-200"
                 />

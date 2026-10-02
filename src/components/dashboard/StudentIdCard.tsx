@@ -56,7 +56,7 @@ export function StudentIdCard({
   return (
     <div className="relative w-full overflow-hidden rounded-2xl border border-zinc-800 bg-gradient-to-br from-zinc-900/90 via-zinc-950 to-zinc-900/70 p-5 shadow-2xl backdrop-blur-md transition-all hover:border-zinc-700">
       {/* Decorative university watermark / subtle glow */}
-      <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-blue-600/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-amber-500/5 blur-3xl" />
       {isVerified && (
         <div className="pointer-events-none absolute -bottom-10 -left-10 h-36 w-36 rounded-full bg-emerald-500/10 blur-2xl" />
       )}
@@ -64,7 +64,7 @@ export function StudentIdCard({
       {/* Card Header: Institution & Type */}
       <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3.5">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-400">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400">
             <GraduationCap className="h-4 w-4" />
           </div>
           <div>
@@ -139,7 +139,7 @@ export function StudentIdCard({
               <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
                 Roll Number / ID
               </div>
-              <div className="font-mono font-semibold text-blue-400 text-xs">
+              <div className="font-mono font-semibold text-zinc-200 text-xs">
                 {user.rollNumber || "CS-2026-001"}
               </div>
             </div>
@@ -202,7 +202,7 @@ export function StudentIdCard({
               onClick={onOpenProfileModal}
               className="text-xs h-7 text-zinc-300 border-zinc-700 hover:bg-zinc-800 w-full sm:w-auto gap-1.5"
             >
-              <User className="h-3.5 w-3.5 text-blue-400" />
+              <User className="h-3.5 w-3.5 text-amber-400" />
               Academic Profile
             </Button>
           )}
@@ -220,9 +220,9 @@ export function StudentIdCard({
           ) : (
             <Button
               size="sm"
-              variant="primary"
+              variant="brand"
               onClick={onOpenKycModal}
-              className="text-xs h-8 bg-blue-600 hover:bg-blue-500 text-white font-semibold w-full sm:w-auto gap-1.5 shadow-md shadow-blue-500/20"
+              className="text-xs h-8 font-semibold w-full sm:w-auto gap-1.5 shadow-sm"
             >
               <ScanFace className="h-3.5 w-3.5" />
               Complete Face KYC Now
@@ -260,7 +260,7 @@ export function StudentIdCard({
           </div>
           <div className="flex justify-between">
             <span>Dual-Presence:</span>
-            <span className="text-blue-400">Acoustic Proximity + Facial KYC</span>
+            <span className="text-amber-400 font-medium">Acoustic Proximity + Facial KYC</span>
           </div>
         </div>
       )}
