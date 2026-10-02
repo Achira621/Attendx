@@ -20,7 +20,8 @@ import {
   ArrowRight,
   Camera,
 } from "lucide-react";
-import { FaceEnrollmentModal } from "@/components/biometrics/FaceEnrollmentModal";
+import { StudentIdCard } from "@/components/dashboard/StudentIdCard";
+import { StudentIdKycModal } from "@/components/kyc/StudentIdKycModal";
 
 interface ActiveSessionData {
   id: string;
@@ -56,6 +57,7 @@ interface BiometricProfileData {
   id: string;
   qualityScore: number;
   algorithmVersion: string;
+  templateVectorHash?: string;
   enrolledAt: string;
 }
 
@@ -88,6 +90,22 @@ export function StudentDashboard() {
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
   const [lastCheckedTime, setLastCheckedTime] = useState<Date>(new Date());
   const [isChecking, setIsChecking] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(() => {
+    if (typeof window === "undefined" || !user) return null;
+    return (
+      localStorage.getItem(`attendex_id_photo_${user.id}`) ||
+      (user.rollNumber ? localStorage.getItem(`attendex_id_photo_${user.rollNumber}`) : null)
+    );
+  });
+
+  const loadPhoto = useCallback(() => {
+    if (user && typeof window !== "undefined") {
+      const stored =
+        localStorage.getItem(`attendex_id_photo_${user.id}`) ||
+        (user.rollNumber ? localStorage.getItem(`attendex_id_photo_${user.rollNumber}`) : null);
+      setPhotoUrl(stored);
+    }
+  }, [user]);
 
   // 1. Fetch active sessions for this student
   const fetchActiveSessions = useCallback(async (isManual = false) => {
@@ -121,8 +139,10 @@ export function StudentDashboard() {
       });
       if (res.ok) {
         const data = await res.json();
-        if (data.success && data.profile) {
+        if (data.success && data.kycVerified && data.profile) {
           setBiometricProfile(data.profile);
+        } else {
+          setBiometricProfile(null);
         }
       }
     } catch (err) {
@@ -174,6 +194,10 @@ export function StudentDashboard() {
   }, [fetchActiveSessions, fetchBiometricProfile, fetchAttendanceHistory]);
 
   const handleOpenVerification = (session: ActiveSessionData) => {
+    if (!biometricProfile) {
+      setIsEnrollModalOpen(true);
+      return;
+    }
     setSelectedSessionForFlow(session);
     setIsVerifyingModalOpen(true);
   };
@@ -187,68 +211,35 @@ export function StudentDashboard() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Student Profile Card */}
-      <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-lg">
-            {user?.name?.slice(0, 1) || "S"}
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg font-bold text-zinc-100 tracking-tight">{user?.name || "Student"}</h1>
-              <Badge variant="outline" className="text-[10px] font-mono border-zinc-700 bg-zinc-800/80 text-zinc-300">
-                {user?.rollNumber || "CS-2026-001"}
-              </Badge>
-            </div>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              {user?.department || "Computer Science & Engineering"} • Student Portal
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="px-3 py-1.5 rounded-lg bg-zinc-950 border border-zinc-800 flex items-center gap-2 text-xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-zinc-400">Classroom Radar:</span>
-            <span className="font-medium text-zinc-200">Listening</span>
-          </div>
-
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => fetchActiveSessions()}
-            disabled={isChecking}
-            className="h-8 gap-1.5 text-xs text-zinc-400 hover:text-zinc-200"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${isChecking ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
-        </div>
-      </div>
-
-      {/* FACE REGISTRATION CALLOUT IF NOT ENROLLED */}
-      {!biometricProfile && (
-        <div className="p-4 rounded-xl border border-amber-500/40 bg-amber-500/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2.5 text-amber-200">
-            <ScanFace className="h-5 w-5 text-amber-400 shrink-0" />
-            <div>
-              <p className="font-semibold text-zinc-100">Face Registration Required</p>
-              <p className="text-zinc-400 text-[11px]">
-                Each student login requires an enrolled biometric face template to verify classroom attendance.
-              </p>
-            </div>
-          </div>
-          <Button
-            size="sm"
-            variant="primary"
-            onClick={() => setIsEnrollModalOpen(true)}
-            className="text-xs shrink-0 gap-1.5 shadow-md shadow-blue-500/20"
-          >
-            <Camera className="h-3.5 w-3.5" />
-            Enroll Face Now
-          </Button>
-        </div>
+      {/* Student Institutional Digital ID Card */}
+      {user && (
+        <StudentIdCard
+          user={user}
+          biometricProfile={biometricProfile}
+          onOpenKycModal={() => setIsEnrollModalOpen(true)}
+          photoUrl={photoUrl}
+        />
       )}
+
+      {/* Radar Status & Fast Refresh Bar */}
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-2 text-xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-zinc-400">Classroom Dual Radar:</span>
+          <span className="font-medium text-zinc-200">Listening (16.5 kHz)</span>
+        </div>
+
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => fetchActiveSessions(true)}
+          disabled={isChecking}
+          className="h-7 text-xs text-zinc-400 hover:text-zinc-200 gap-1.5"
+        >
+          <RefreshCw className={`h-3 w-3 ${isChecking ? "animate-spin" : ""}`} />
+          <span>Refresh Sessions</span>
+        </Button>
+      </div>
 
       {/* ACTIVE ATTENDANCE SESSIONS SECTION */}
       <div className="space-y-3">
@@ -513,18 +504,24 @@ export function StudentDashboard() {
                 setIsVerifyingModalOpen(false);
                 setSelectedSessionForFlow(null);
               }}
+              onOpenKyc={() => {
+                setIsVerifyingModalOpen(false);
+                setIsEnrollModalOpen(true);
+              }}
             />
           </div>
         </div>
       )}
 
-      {/* BIOMETRIC FACE ENROLLMENT MODAL */}
-      <FaceEnrollmentModal
+      {/* STUDENT ID & BIOMETRIC FACE KYC MODAL */}
+      <StudentIdKycModal
         isOpen={isEnrollModalOpen}
         onClose={() => setIsEnrollModalOpen(false)}
         onSuccess={() => {
           setIsEnrollModalOpen(false);
           fetchBiometricProfile();
+          fetchActiveSessions();
+          loadPhoto();
         }}
       />
     </div>

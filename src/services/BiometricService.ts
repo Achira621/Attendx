@@ -142,7 +142,7 @@ export class BiometricService {
 
     return {
       similarity: Number(similarity.toFixed(3)),
-      isMatch: similarity >= 0.72,
+      isMatch: similarity >= 0.70,
     };
   }
 
@@ -155,7 +155,7 @@ export class BiometricService {
   ): Promise<VerificationCheckResult> {
     const profile = await this.getProfile(studentId);
 
-    if (!profile || profile.templateVectorHash.startsWith("mock_vector")) {
+    if (!profile || profile.templateVectorHash.startsWith("mock_") || profile.templateVectorHash.startsWith("sha256_mock")) {
       return {
         matched: false,
         confidence: 0,

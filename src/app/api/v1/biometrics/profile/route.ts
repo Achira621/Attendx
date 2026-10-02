@@ -30,15 +30,22 @@ export async function GET(req: NextRequest) {
 
     const profile = await BiometricService.getProfile(studentId);
 
-    if (!profile) {
+    const isRealEnrolled =
+      !!profile &&
+      !profile.templateVectorHash.startsWith("mock_") &&
+      !profile.templateVectorHash.startsWith("sha256_mock");
+
+    if (!isRealEnrolled) {
       return NextResponse.json(
         {
-          success: false,
+          success: true,
           enrolled: false,
-          error: "No biometric profile enrolled for this student.",
+          kycVerified: false,
+          profile: null,
+          message: "No verified biometric Face KYC profile enrolled for this student.",
           code: "FACE_NOT_ENROLLED",
         },
-        { status: 404 }
+        { status: 200 }
       );
     }
 
@@ -46,6 +53,7 @@ export async function GET(req: NextRequest) {
       {
         success: true,
         enrolled: true,
+        kycVerified: true,
         profile: {
           id: profile.id,
           studentId: profile.studentId,
@@ -59,7 +67,7 @@ export async function GET(req: NextRequest) {
       {
         status: 200,
         headers: {
-          "Cache-Control": "private, max-age=60", // Short edge cache for profile
+          "Cache-Control": "private, no-cache, no-store, must-revalidate",
         },
       }
     );

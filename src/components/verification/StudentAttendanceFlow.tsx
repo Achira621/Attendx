@@ -24,9 +24,10 @@ export interface StudentAttendanceFlowProps {
   };
   onSuccess?: () => void;
   onCancel?: () => void;
+  onOpenKyc?: () => void;
 }
 
-export function StudentAttendanceFlow({ session, onSuccess, onCancel }: StudentAttendanceFlowProps) {
+export function StudentAttendanceFlow({ session, onSuccess, onCancel, onOpenKyc }: StudentAttendanceFlowProps) {
   const { user } = useAuth();
   const [step, setStep] = useState<"IDLE" | "PROXIMITY" | "FACE" | "RESULT">("IDLE");
   const [proximityStatus, setProximityStatus] = useState<"LISTENING" | "DETECTED" | "TIMEOUT">("LISTENING");
@@ -36,6 +37,11 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel }: StudentA
   const [faceStatus, setFaceStatus] = useState<"WAITING" | "ALIGNING" | "CONFIRMING">("WAITING");
   const [faceGuidance, setFaceGuidance] = useState<string>("Center your face in the oval guide");
   const [result, setResult] = useState<VerificationResult | null>(null);
+
+  // KYC Enrollment verification state
+  const [enrolledHash, setEnrolledHash] = useState<string | null>(null);
+  const [isEnrolledKyc, setIsEnrolledKyc] = useState<boolean>(true);
+  const [faceMatchSimilarity, setFaceMatchSimilarity] = useState<number | null>(null);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const orchestratorRef = useRef<VerificationOrchestrator | null>(null);
@@ -83,6 +89,28 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel }: StudentA
     };
   }, [user, session, cleanupHardware]);
 
+  // Check student's enrolled biometric KYC profile
+  useEffect(() => {
+    if (!user) return;
+    const checkKyc = async () => {
+      try {
+        const res = await fetch(`/api/v1/biometrics/profile?studentId=${encodeURIComponent(user.id)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.kycVerified && data.profile) {
+            setEnrolledHash(data.profile.templateVectorHash);
+            setIsEnrolledKyc(true);
+          } else {
+            setIsEnrolledKyc(false);
+          }
+        }
+      } catch (err) {
+        console.warn("[StudentAttendanceFlow] Could not fetch profile:", err);
+      }
+    };
+    void checkKyc();
+  }, [user]);
+
   const transitionToFaceScan = useCallback(async () => {
     setStep("FACE");
     setFaceStatus("ALIGNING");
@@ -101,7 +129,16 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel }: StudentA
 
           if (assessment.detected && assessment.isCentered && assessment.isProperSize) {
             stableFrames++;
-            setFaceGuidance("Face aligned. Hold steady for liveness...");
+            const liveVector = faceEngineRef.current.extractFaceDescriptor(assessment.box);
+
+            if (enrolledHash) {
+              const comp = BrowserFaceVerificationEngine.compareFaceVectors(liveVector, enrolledHash);
+              const simPercent = Math.round(comp.similarity * 100);
+              setFaceMatchSimilarity(simPercent);
+              setFaceGuidance(`Face match: ${simPercent}% with ID: ${user?.rollNumber || "CS-2026-001"}. Hold steady...`);
+            } else {
+              setFaceGuidance("Face aligned. Hold steady for liveness...");
+            }
 
             if (stableFrames >= 6) {
               setFaceStatus("CONFIRMING");
@@ -137,7 +174,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel }: StudentA
         setStep("RESULT");
       }
     }, 100);
-  }, []);
+  }, [enrolledHash, user]);
 
   const startAcousticScan = useCallback(async () => {
     try {
@@ -312,16 +349,33 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel }: StudentA
 
       {/* Step Views */}
       {step === "IDLE" && (
-        <Card className="border-zinc-800 bg-zinc-900/40 text-center py-8 px-5">
-          <div className="w-12 h-12 rounded-full bg-blue-600/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-4 text-blue-400">
+        <Card className="border-zinc-800 bg-zinc-900/40 text-center py-6 px-5">
+          {!isEnrolledKyc && (
+            <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-left text-xs space-y-2 text-amber-200">
+              <div className="flex items-center gap-2">
+                <ShieldAlert className="h-4 w-4 text-amber-400 shrink-0" />
+                <span className="font-semibold text-zinc-100">Face KYC Required</span>
+              </div>
+              <p className="text-[11px] text-zinc-400">
+                Your Student ID requires an enrolled biometric face template to verify classroom attendance.
+              </p>
+              {onOpenKyc && (
+                <Button size="sm" variant="primary" onClick={onOpenKyc} className="text-xs h-7 gap-1">
+                  Complete Face KYC Scan
+                </Button>
+              )}
+            </div>
+          )}
+
+          <div className="w-12 h-12 rounded-full bg-blue-600/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-3 text-blue-400">
             <UserCheck className="h-6 w-6" />
           </div>
           <h4 className="text-base font-semibold text-zinc-100">Ready to Mark Attendance</h4>
           <p className="text-xs text-zinc-400 mt-2 max-w-[280px] mx-auto leading-relaxed">
-            Please ensure you are seated inside the classroom. Verification requires acoustic proximity and a single one-time face scan.
+            Please ensure you are seated inside the classroom. Verification requires acoustic proximity and a single one-time face scan against your enrolled Student ID.
           </p>
 
-          <div className="mt-6 space-y-2">
+          <div className="mt-5 space-y-2">
             <Button onClick={handleStartVerification} variant="primary" size="lg" className="w-full">
               Mark Attendance <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
@@ -433,7 +487,25 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel }: StudentA
       )}
 
       {step === "FACE" && (
-        <Card className="border-zinc-800 bg-zinc-900/40 p-3 text-center space-y-3">
+        <Card className="border-zinc-800 bg-zinc-900/40 p-3 text-center space-y-2.5">
+          {/* Student ID Matching Header */}
+          <div className="flex items-center justify-between px-1 text-xs">
+            <div className="flex items-center gap-1.5 text-zinc-300 font-mono text-[11px]">
+              <span className="text-zinc-500">ID:</span>
+              <span className="text-blue-400 font-semibold">{user?.rollNumber || "CS-2026-001"}</span>
+              <span className="text-zinc-500">•</span>
+              <span className="text-zinc-300 truncate max-w-[120px]">{user?.name}</span>
+            </div>
+            {faceMatchSimilarity !== null && (
+              <Badge
+                variant={faceMatchSimilarity >= 70 ? "success" : "warning"}
+                className="text-[10px] font-mono"
+              >
+                {faceMatchSimilarity}% Match
+              </Badge>
+            )}
+          </div>
+
           <div className="relative w-full aspect-[3/4] bg-zinc-950 rounded-lg overflow-hidden border border-zinc-800">
             <video ref={videoRef} playsInline muted className="w-full h-full object-cover transform -scale-x-100" />
 
@@ -494,18 +566,26 @@ export function StudentAttendanceFlow({ session, onSuccess, onCancel }: StudentA
                 </p>
               </div>
 
-              <div className="bg-zinc-950 p-3 rounded-lg border border-zinc-800/80 text-xs space-y-1.5 text-left">
+              <div className="bg-zinc-950 p-3.5 rounded-lg border border-zinc-800/80 text-xs space-y-2 text-left">
+                <div className="flex justify-between text-zinc-400">
+                  <span>Student ID:</span>
+                  <span className="font-mono text-zinc-200">{user?.rollNumber || "CS-2026-001"} ({result.studentName})</span>
+                </div>
                 <div className="flex justify-between text-zinc-400">
                   <span>Timestamp:</span>
                   <span className="font-mono text-zinc-200">{result.verifiedAt}</span>
                 </div>
                 <div className="flex justify-between text-zinc-400">
-                  <span>Proximity Tier:</span>
-                  <span className="font-mono text-emerald-400">TIER_A (Acoustic)</span>
+                  <span>Proximity:</span>
+                  <span className="font-mono text-emerald-400">✓ TIER_A Acoustic Verified</span>
                 </div>
                 <div className="flex justify-between text-zinc-400">
-                  <span>Verification Hash:</span>
-                  <span className="font-mono text-zinc-400 text-[10px]">{result.attendanceId}</span>
+                  <span>Biometric KYC Check:</span>
+                  <span className="font-mono text-emerald-400">✓ Face & Liveness Verified</span>
+                </div>
+                <div className="flex justify-between text-zinc-400">
+                  <span>Record ID:</span>
+                  <span className="font-mono text-zinc-500 text-[10px] truncate max-w-[160px]">{result.attendanceId}</span>
                 </div>
               </div>
 

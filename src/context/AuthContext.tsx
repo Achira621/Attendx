@@ -17,6 +17,8 @@ interface AuthContextType {
   }) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   quickLogin: (role: "TEACHER" | "STUDENT") => Promise<{ success: boolean; error?: string }>;
+  updateUser: (user: AuthUser) => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -115,8 +117,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateUser = (updatedUser: AuthUser) => {
+    setUser(updatedUser);
+  };
+
+  const refreshUser = async () => {
+    try {
+      const res = await fetch("/api/v1/auth/me");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.authenticated && data.user) {
+          setUser(data.user);
+        }
+      }
+    } catch (err) {
+      console.error("[AuthContext] Error refreshing user session:", err);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, quickLogin }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, quickLogin, updateUser, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

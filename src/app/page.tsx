@@ -22,7 +22,9 @@ import {
   Sparkles,
   ArrowRight,
   ArrowLeftRight,
+  ScanFace,
 } from "lucide-react";
+import { StudentIdKycModal } from "@/components/kyc/StudentIdKycModal";
 
 type TeacherTab = "teacher" | "acoustic_lab" | "face_lab" | "architecture";
 
@@ -30,6 +32,7 @@ export default function Home() {
   const { user, logout, quickLogin, loading } = useAuth();
   const [teacherTab, setTeacherTab] = useState<TeacherTab>("teacher");
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isKycModalOpen, setIsKycModalOpen] = useState(false);
   const [switchingRole, setSwitchingRole] = useState(false);
 
   // Quick switch role convenience for evaluators/testers
@@ -172,6 +175,15 @@ export default function Home() {
               <div className="flex items-center gap-2">
                 <Button
                   size="sm"
+                  variant="outline"
+                  onClick={() => setIsKycModalOpen(true)}
+                  className="gap-1.5 text-xs font-semibold text-blue-400 border-blue-500/30 hover:bg-blue-950/40 hidden sm:flex"
+                >
+                  <ScanFace className="h-3.5 w-3.5" />
+                  Create Student ID & KYC
+                </Button>
+                <Button
+                  size="sm"
                   variant="primary"
                   onClick={() => setIsLoginModalOpen(true)}
                   className="gap-1.5 text-xs font-semibold"
@@ -297,6 +309,42 @@ export default function Home() {
 
             {/* Quick Demo Launch Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Instant Student ID & KYC Onboarding Card */}
+              <div
+                onClick={() => setIsKycModalOpen(true)}
+                className="group relative p-6 rounded-2xl border border-blue-500/30 bg-blue-950/20 hover:bg-blue-950/40 hover:border-blue-500/60 transition cursor-pointer space-y-4 md:col-span-2 shadow-lg"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 group-hover:scale-105 transition">
+                      <ScanFace className="h-6 w-6" />
+                    </div>
+                    <div className="text-left">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-base font-bold text-white group-hover:text-blue-300 transition">
+                          Create Student ID & Complete Face KYC
+                        </h3>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-600/20 text-blue-300 border border-blue-500/30">
+                          Recommended
+                        </span>
+                      </div>
+                      <p className="text-xs text-zinc-400 mt-1 max-w-xl">
+                        Register your student credentials, generate an official institutional digital ID card, and perform a one-time biometric face scan to unlock dual-factor attendance.
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    className="shrink-0 text-xs font-semibold gap-1.5 bg-blue-600 hover:bg-blue-500 shadow-md shadow-blue-500/20"
+                  >
+                    <span>Create ID & KYC</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+
               {/* Student Role Card */}
               <div
                 onClick={() => handleSwitchRole("STUDENT")}
@@ -370,6 +418,13 @@ export default function Home() {
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
+        onOpenKyc={() => setIsKycModalOpen(true)}
+      />
+
+      {/* Student ID & Face KYC Modal */}
+      <StudentIdKycModal
+        isOpen={isKycModalOpen}
+        onClose={() => setIsKycModalOpen(false)}
       />
     </div>
   );

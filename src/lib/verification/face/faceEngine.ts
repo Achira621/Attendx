@@ -70,7 +70,7 @@ export class BrowserFaceVerificationEngine {
     const frame = this.ctx.getImageData(0, 0, width, height);
     const data = frame.data;
 
-    // 1. Calculate average frame luminance & contrast
+    // 1. Calculate average frame luminance & skin chromaticity
     let totalLuminance = 0;
     const skinPixels: { x: number; y: number }[] = [];
 
@@ -87,8 +87,19 @@ export class BrowserFaceVerificationEngine {
         const lum = 0.299 * r + 0.587 * g + 0.114 * b;
         totalLuminance += lum;
 
-        // Biometric skin chrominance heuristic range (normalized RGB / YCbCr proxy)
-        if (r > 60 && g > 40 && b > 20 && r > g && r > b && (r - g) > 15) {
+        // Inclusive biometric skin chromaticity range across diverse tones (RGB / YCbCr proxy)
+        const maxC = Math.max(r, g, b);
+        const minC = Math.min(r, g, b);
+        const isSkinTone =
+          r > 35 &&
+          g > 25 &&
+          b > 15 &&
+          maxC - minC > 10 &&
+          r >= g &&
+          r > b &&
+          Math.abs(r - g) >= 3;
+
+        if (isSkinTone) {
           skinPixels.push({ x, y });
         }
       }
@@ -97,8 +108,8 @@ export class BrowserFaceVerificationEngine {
     const totalSamples = (width / step) * (height / step);
     const avgBrightness = totalLuminance / totalSamples;
 
-    // Lighting check
-    if (avgBrightness < 35 || avgBrightness > 235) {
+    // Lighting check (tolerant range: 25 - 245)
+    if (avgBrightness < 25 || avgBrightness > 245) {
       return {
         detected: false,
         count: 0,
@@ -110,9 +121,9 @@ export class BrowserFaceVerificationEngine {
       };
     }
 
-    // Minimum cluster for face detection
+    // Minimum cluster for face detection (tolerant ratio 0.05)
     const skinRatio = skinPixels.length / totalSamples;
-    if (skinRatio < 0.08) {
+    if (skinRatio < 0.05) {
       return {
         detected: false,
         count: 0,
@@ -143,13 +154,13 @@ export class BrowserFaceVerificationEngine {
     const totalArea = width * height;
     const sizeRatio = clusterArea / totalArea;
 
-    // Centering check
+    // Centering check (generous 28% variance tolerance)
     const centerX = (minX + maxX) / 2;
     const centerY = (minY + maxY) / 2;
-    const isCentered = Math.abs(centerX - width / 2) < width * 0.22 && Math.abs(centerY - height / 2) < height * 0.22;
-    const isProperSize = sizeRatio >= 0.15 && sizeRatio <= 0.65;
+    const isCentered = Math.abs(centerX - width / 2) < width * 0.28 && Math.abs(centerY - height / 2) < height * 0.28;
+    const isProperSize = sizeRatio >= 0.12 && sizeRatio <= 0.75;
 
-    if (!isProperSize && sizeRatio < 0.15) {
+    if (!isProperSize && sizeRatio < 0.12) {
       return {
         detected: true,
         count: 1,
@@ -227,12 +238,11 @@ export class BrowserFaceVerificationEngine {
   }
 
   /**
-   * Extract a deterministic 256-bit perceptual spatial luminance & gradient descriptor
-   * from the localized face bounding box.
+   * Extract raw 8x8 block luminance means from the face bounding box
    */
-  public extractFaceDescriptor(box?: { x: number; y: number; width: number; height: number }): string {
+  public extractRawBlockMeans(box?: { x: number; y: number; width: number; height: number }): number[] {
     if (!this.ctx || !this.videoEl) {
-      return `FBV-FALLBACK-${Date.now().toString(36)}`;
+      return new Array(64).fill(128);
     }
 
     try {
@@ -276,23 +286,60 @@ export class BrowserFaceVerificationEngine {
         }
       }
 
-      // Compute mean facial luminance for contrast normalization
-      const globalMean = blockMeans.reduce((a, b) => a + b, 0) / blockMeans.length;
-
-      // Encode into 64-character quantized hex signature
-      let descriptorHex = "";
-      for (let i = 0; i < blockMeans.length; i++) {
-        // Normalize block relative to face mean (-128 to +128 -> 0 to 15)
-        const rel = blockMeans[i] - globalMean;
-        const quantized = Math.max(0, Math.min(15, Math.round((rel + 64) / 8)));
-        descriptorHex += quantized.toString(16);
-      }
-
-      return `FBV-${descriptorHex}`;
+      return blockMeans;
     } catch (err) {
-      console.warn("[BrowserFaceVerificationEngine] Descriptor extraction error:", err);
-      return `FBV-ERR-${Date.now().toString(36)}`;
+      console.warn("[BrowserFaceVerificationEngine] Block means extraction error:", err);
+      return new Array(64).fill(128);
     }
+  }
+
+  /**
+   * Compute a 256-bit quantized hex descriptor from a set of 64 block means
+   */
+  public static computeDescriptorFromMeans(blockMeans: number[]): string {
+    if (!blockMeans || blockMeans.length < 16) {
+      return `FBV-FALLBACK-${Date.now().toString(36)}`;
+    }
+    // Compute mean facial luminance for contrast normalization
+    const globalMean = blockMeans.reduce((a, b) => a + b, 0) / blockMeans.length;
+
+    // Encode into 64-character quantized hex signature
+    let descriptorHex = "";
+    for (let i = 0; i < blockMeans.length; i++) {
+      // Normalize block relative to face mean (-128 to +128 -> 0 to 15)
+      const rel = blockMeans[i] - globalMean;
+      const quantized = Math.max(0, Math.min(15, Math.round((rel + 64) / 8)));
+      descriptorHex += quantized.toString(16);
+    }
+
+    return `FBV-${descriptorHex}`;
+  }
+
+  /**
+   * Average multiple sets of block means across consecutive frames for high-stability templates
+   */
+  public static averageBlockMeans(samples: number[][]): number[] {
+    if (!samples || samples.length === 0) return new Array(64).fill(128);
+    const count = samples.length;
+    const len = samples[0].length;
+    const avg: number[] = new Array(len).fill(0);
+    for (let i = 0; i < len; i++) {
+      let sum = 0;
+      for (let s = 0; s < count; s++) {
+        sum += samples[s][i] || 128;
+      }
+      avg[i] = sum / count;
+    }
+    return avg;
+  }
+
+  /**
+   * Extract a deterministic 256-bit perceptual spatial luminance & gradient descriptor
+   * from the localized face bounding box.
+   */
+  public extractFaceDescriptor(box?: { x: number; y: number; width: number; height: number }): string {
+    const blockMeans = this.extractRawBlockMeans(box);
+    return BrowserFaceVerificationEngine.computeDescriptorFromMeans(blockMeans);
   }
 
   /**

@@ -16,15 +16,17 @@ import {
   Hash,
   UserPlus,
   LogIn,
+  ScanFace,
 } from "lucide-react";
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  onOpenKyc?: () => void;
 }
 
-export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
+export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModalProps) {
   const { login, register, quickLogin } = useAuth();
   const [tab, setTab] = useState<"LOGIN" | "REGISTER">("LOGIN");
 
@@ -169,6 +171,31 @@ export function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
             Create Account
           </button>
         </div>
+
+        {/* Fast KYC Onboarding Callout */}
+        {onOpenKyc && (
+          <div className="p-3 rounded-xl bg-blue-950/40 border border-blue-800/60 flex items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2.5 text-blue-200">
+              <div className="p-1.5 rounded-lg bg-blue-600/20 text-blue-400">
+                <ScanFace className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="font-semibold text-white leading-tight">Create Student ID & KYC</p>
+                <p className="text-[11px] text-zinc-400 leading-tight">Instant ID + Biometric face registration</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenKyc();
+              }}
+              className="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs whitespace-nowrap shadow-xs transition"
+            >
+              Start KYC
+            </button>
+          </div>
+        )}
 
         {/* Error Alert */}
         {error && (
