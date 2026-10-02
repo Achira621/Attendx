@@ -8,6 +8,7 @@ export interface CachedSessionData {
   proximityTierRequired: ProximityTier;
   maxAttempts: number;
   courseId: string;
+  studentLimit?: number;
   enrolledStudentIds: Set<string>;
   cachedAt: number;
 }
@@ -55,6 +56,7 @@ export class SessionCache {
       proximityTierRequired: session.proximityTierRequired,
       maxAttempts: session.maxAttempts,
       courseId: session.courseId,
+      studentLimit: session.studentLimit,
       enrolledStudentIds,
       cachedAt: now,
     };

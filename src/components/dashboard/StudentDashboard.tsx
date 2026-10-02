@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { StudentIdCard } from "@/components/dashboard/StudentIdCard";
 import { StudentIdKycModal } from "@/components/kyc/StudentIdKycModal";
+import { StudentProfileModal } from "@/components/dashboard/StudentProfileModal";
 
 interface ActiveSessionData {
   id: string;
@@ -88,6 +89,7 @@ export function StudentDashboard() {
   const [selectedSessionForFlow, setSelectedSessionForFlow] = useState<ActiveSessionData | null>(null);
   const [isVerifyingModalOpen, setIsVerifyingModalOpen] = useState(false);
   const [isEnrollModalOpen, setIsEnrollModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [lastCheckedTime, setLastCheckedTime] = useState<Date>(new Date());
   const [isChecking, setIsChecking] = useState(false);
   const [photoUrl, setPhotoUrl] = useState<string | null>(() => {
@@ -279,6 +281,7 @@ export function StudentDashboard() {
           user={user}
           biometricProfile={biometricProfile}
           onOpenKycModal={() => setIsEnrollModalOpen(true)}
+          onOpenProfileModal={() => setIsProfileModalOpen(true)}
           photoUrl={photoUrl}
         />
       )}
@@ -589,6 +592,16 @@ export function StudentDashboard() {
           loadPhoto();
         }}
       />
+
+      {/* STUDENT INSTITUTIONAL ACADEMIC PROFILE & ATTENDANCE RECORD MODAL */}
+      {user && (
+        <StudentProfileModal
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          studentId={user.id}
+          photoUrl={photoUrl}
+        />
+      )}
     </div>
   );
 }

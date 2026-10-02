@@ -4,6 +4,7 @@ import { AttendancePayload, VerificationResult, FailureCode } from "@/types/veri
 import { SessionStatus, ProximityTier } from "@prisma/client";
 import { SessionCache } from "@/lib/cache/sessionCache";
 import { BiometricService } from "@/services/BiometricService";
+import { prisma } from "@/lib/db/prisma";
 
 export class AttendanceEngine {
   /**
@@ -35,6 +36,24 @@ export class AttendanceEngine {
       const isEnrolled = session.enrolledStudentIds.has(payload.studentId);
       if (!isEnrolled) {
         return this.createFailureResult(payload, "STUDENT_NOT_ENROLLED", startTime, clientIp);
+      }
+
+      // Check student capacity limit if configured
+      if (session.studentLimit && session.studentLimit > 0) {
+        const currentCount = await prisma.attendanceRecord.count({
+          where: { sessionId: payload.sessionId, status: "PRESENT" },
+        });
+        const alreadyRecorded = await prisma.attendanceRecord.findUnique({
+          where: {
+            sessionId_studentId: {
+              sessionId: payload.sessionId,
+              studentId: payload.studentId,
+            },
+          },
+        });
+        if (!alreadyRecorded && currentCount >= session.studentLimit) {
+          return this.createFailureResult(payload, "RATE_LIMITED", startTime, clientIp);
+        }
       }
 
       // 3. Freshness & Timestamp Drift Check (allowed drift: 90 seconds)

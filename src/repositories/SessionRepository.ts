@@ -7,6 +7,7 @@ export interface CreateSessionParams {
   teacherId: string;
   proximityTierRequired?: ProximityTier;
   durationMinutes?: number;
+  studentLimit?: number;
 }
 
 export class SessionRepository {
@@ -24,6 +25,7 @@ export class SessionRepository {
         status: SessionStatus.CREATED,
         ephemeralSecret,
         proximityTierRequired: params.proximityTierRequired || ProximityTier.TIER_A,
+        studentLimit: params.studentLimit || 60,
       },
       include: {
         course: true,

@@ -84,6 +84,7 @@ model Course {
   name        String   // e.g. Distributed Systems
   department  String
   teacherId   String
+  studentLimit Int     @default(60)
   createdAt   DateTime @default(now())
 
   teacher     User     @relation("TeacherCourses", fields: [teacherId], references: [id])
@@ -134,6 +135,7 @@ model AttendanceSession {
   ephemeralSecret       String        // Seed for acoustic/rotating challenge
   proximityTierRequired ProximityTier @default(TIER_A)
   maxAttempts           Int           @default(3)
+  studentLimit          Int           @default(60)
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
 

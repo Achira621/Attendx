@@ -22,13 +22,20 @@ import {
   RefreshCw,
   X,
   Bell,
+  Download,
+  BookOpen,
+  Layers,
 } from "lucide-react";
+import { downloadCsv } from "@/lib/exportCsv";
+import { CourseAnalyticsSection } from "@/components/dashboard/CourseAnalyticsSection";
+import { CourseManagementModal } from "@/components/dashboard/CourseManagementModal";
 
 interface CourseOption {
   id: string;
   code: string;
   name: string;
   department: string;
+  studentLimit?: number;
   _count?: { enrollments: number };
 }
 
@@ -61,11 +68,13 @@ interface ActiveSessionDetails {
   graceEndTime?: string;
   ephemeralSecret: string;
   proximityTierRequired: "TIER_A" | "TIER_B" | "TIER_C";
+  studentLimit?: number;
   course: {
     id: string;
     code: string;
     name: string;
     department: string;
+    _count?: { enrollments: number };
   };
   classroom: {
     id: string;
@@ -91,17 +100,20 @@ interface ActiveSessionDetails {
 
 export function TeacherLiveSessionConsole() {
   const { user } = useAuth();
+  const [teacherView, setTeacherView] = useState<"live_session" | "course_analytics">("live_session");
   const [activeSession, setActiveSession] = useState<ActiveSessionDetails | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Creation Modal State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isCreateCourseModalOpen, setIsCreateCourseModalOpen] = useState(false);
   const [courses, setCourses] = useState<CourseOption[]>([]);
   const [classrooms, setClassrooms] = useState<ClassroomOption[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const [selectedClassroomId, setSelectedClassroomId] = useState("");
   const [selectedProximityTier, setSelectedProximityTier] = useState<"TIER_A" | "TIER_B" | "TIER_C">("TIER_A");
   const [durationMinutes, setDurationMinutes] = useState(15);
+  const [sessionStudentLimit, setSessionStudentLimit] = useState(60);
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
@@ -350,6 +362,7 @@ export function TeacherLiveSessionConsole() {
           teacherId: user?.id,
           proximityTierRequired: selectedProximityTier,
           durationMinutes,
+          studentLimit: sessionStudentLimit,
         }),
       });
 
@@ -515,6 +528,34 @@ export function TeacherLiveSessionConsole() {
     return matchesSearch && matchesFilter;
   });
 
+  const handleExportSessionCsv = () => {
+    if (!activeSession) return;
+    const sessionDate = activeSession.startTime
+      ? new Date(activeSession.startTime).toISOString().slice(0, 10)
+      : new Date().toISOString().slice(0, 10);
+    const filename = `attendance_${activeSession.course?.code || "course"}_${sessionDate}.csv`;
+
+    const headers = [
+      "Roll Number",
+      "Student Name",
+      "Attendance Status",
+      "Verified Time",
+      "Verification Method",
+      "Confidence Score",
+    ];
+
+    const rows = filteredStudents.map((s) => [
+      s.rollNumber,
+      s.name,
+      s.status,
+      s.verifiedAt || "Not Marked",
+      s.method || "N/A",
+      s.confidence ? `${(s.confidence * 100).toFixed(0)}%` : "N/A",
+    ]);
+
+    downloadCsv(filename, headers, rows);
+  };
+
   const formatTimer = (totalSec: number) => {
     const mins = Math.floor(totalSec / 60);
     const secs = totalSec % 60;
@@ -533,11 +574,49 @@ export function TeacherLiveSessionConsole() {
             </Badge>
           </div>
           <p className="text-xs text-zinc-400 mt-0.5">
-            Real-time classroom session management, proximity ultrasonic beaconing, and biometric verification feed.
+            Classroom session management, course rosters, ultrasonic beacons, and student attendance analytics.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          {/* View Mode Toggle */}
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-zinc-950 border border-zinc-800 text-xs">
+            <button
+              type="button"
+              onClick={() => setTeacherView("live_session")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                teacherView === "live_session"
+                  ? "bg-zinc-800 text-white shadow-xs"
+                  : "text-zinc-400 hover:text-zinc-200"
+              }`}
+            >
+              <Radio className="h-3.5 w-3.5 text-emerald-400" />
+              Live Session
+            </button>
+            <button
+              type="button"
+              onClick={() => setTeacherView("course_analytics")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                teacherView === "course_analytics"
+                  ? "bg-zinc-800 text-white shadow-xs"
+                  : "text-zinc-400 hover:text-zinc-200"
+              }`}
+            >
+              <BookOpen className="h-3.5 w-3.5 text-blue-400" />
+              Course Directory & Analytics
+            </button>
+          </div>
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setIsCreateCourseModalOpen(true)}
+            className="gap-1.5 text-xs text-zinc-300 border-zinc-700 hover:bg-zinc-800"
+          >
+            <Plus className="h-3.5 w-3.5 text-blue-400" />
+            Add Class
+          </Button>
+
           <Button
             size="sm"
             variant="outline"
@@ -558,14 +637,23 @@ export function TeacherLiveSessionConsole() {
             }}
             className="gap-1.5 text-xs font-semibold shadow-xs"
           >
-            <Plus className="h-4 w-4" />
-            New Attendance Session
+            <Play className="h-3.5 w-3.5" />
+            Launch Session
           </Button>
         </div>
       </div>
 
-      {/* Active Session Overview or Empty State */}
-      {activeSession ? (
+      {/* Main Content: Course Analytics View OR Live Session View */}
+      {teacherView === "course_analytics" ? (
+        <CourseAnalyticsSection
+          teacherId={user?.id}
+          onStartSessionForCourse={(courseId: string) => {
+            setSelectedCourseId(courseId);
+            setTeacherView("live_session");
+            setIsCreateModalOpen(true);
+          }}
+        />
+      ) : activeSession ? (
         <div className="space-y-6">
           {/* Live Session Control Panel */}
           <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
@@ -836,6 +924,18 @@ export function TeacherLiveSessionConsole() {
                   <option value="PROCESSING">Processing</option>
                   <option value="NOT_MARKED">Not Marked</option>
                 </select>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleExportSessionCsv}
+                  disabled={filteredStudents.length === 0}
+                  className="h-8 gap-1.5 text-xs text-zinc-300 border-zinc-700 hover:bg-zinc-800"
+                  title="Download attendance records as CSV"
+                >
+                  <Download className="h-3.5 w-3.5 text-emerald-400" />
+                  Export CSV
+                </Button>
               </div>
             </div>
 
@@ -945,7 +1045,16 @@ export function TeacherLiveSessionConsole() {
             <form onSubmit={handleCreateAndStartSession} className="space-y-4">
               {/* Course Selection */}
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">Academic Course</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-zinc-300">Academic Course</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsCreateCourseModalOpen(true)}
+                    className="text-[11px] text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium transition"
+                  >
+                    <Plus className="h-3 w-3" /> Add New Class
+                  </button>
+                </div>
                 <select
                   value={selectedCourseId}
                   onChange={(e) => setSelectedCourseId(e.target.value)}
@@ -1024,6 +1133,24 @@ export function TeacherLiveSessionConsole() {
                 </div>
               </div>
 
+              {/* Student Capacity Limit */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-zinc-300">Student Capacity Limit</label>
+                  <span className="text-[10px] font-mono text-zinc-500">Max headcount for session</span>
+                </div>
+                <input
+                  type="number"
+                  min={1}
+                  max={500}
+                  value={sessionStudentLimit}
+                  onChange={(e) => setSessionStudentLimit(Math.max(1, parseInt(e.target.value) || 60))}
+                  placeholder="e.g. 60"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-zinc-200 font-mono focus:outline-hidden focus:border-blue-500"
+                  required
+                />
+              </div>
+
               {/* Attendance Duration */}
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-zinc-300">Attendance Window Duration</label>
@@ -1069,6 +1196,17 @@ export function TeacherLiveSessionConsole() {
           </div>
         </div>
       )}
+
+      {/* COURSE CREATOR & MANAGEMENT MODAL */}
+      <CourseManagementModal
+        isOpen={isCreateCourseModalOpen}
+        onClose={() => setIsCreateCourseModalOpen(false)}
+        onSuccess={async (newCourse) => {
+          await fetchSessionOptions();
+          setSelectedCourseId(newCourse.id);
+        }}
+        teacherId={user?.id}
+      />
     </div>
   );
 }

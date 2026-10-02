@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { courseId, classroomId, teacherId, proximityTierRequired, durationMinutes } = body;
+    const { courseId, classroomId, teacherId, proximityTierRequired, durationMinutes, studentLimit } = body;
 
     const effectiveTeacherId = authUser?.id || teacherId;
     if (!courseId || !classroomId || !effectiveTeacherId) {
@@ -142,6 +142,7 @@ export async function POST(req: NextRequest) {
       teacherId: effectiveTeacherId,
       proximityTierRequired: (proximityTierRequired as ProximityTier) || ProximityTier.TIER_A,
       durationMinutes: durationMinutes || 15,
+      studentLimit: studentLimit ? parseInt(studentLimit, 10) : undefined,
     });
 
     return NextResponse.json({ success: true, session }, { status: 201 });

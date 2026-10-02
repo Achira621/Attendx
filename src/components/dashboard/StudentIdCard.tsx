@@ -13,6 +13,7 @@ import {
   Building2,
   CheckCircle2,
   AlertTriangle,
+  User,
 } from "lucide-react";
 
 export interface StudentIdCardProps {
@@ -25,6 +26,7 @@ export interface StudentIdCardProps {
     enrolledAt?: string;
   } | null;
   onOpenKycModal: () => void;
+  onOpenProfileModal?: () => void;
   photoUrl?: string | null;
 }
 
@@ -32,6 +34,7 @@ export function StudentIdCard({
   user,
   biometricProfile,
   onOpenKycModal,
+  onOpenProfileModal,
   photoUrl,
 }: StudentIdCardProps) {
   const [showTechSpecs, setShowTechSpecs] = useState(false);
@@ -191,7 +194,19 @@ export function StudentIdCard({
         </div>
 
         {/* Action Button */}
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          {onOpenProfileModal && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onOpenProfileModal}
+              className="text-xs h-7 text-zinc-300 border-zinc-700 hover:bg-zinc-800 w-full sm:w-auto gap-1.5"
+            >
+              <User className="h-3.5 w-3.5 text-blue-400" />
+              Academic Profile
+            </Button>
+          )}
+
           {isVerified ? (
             <Button
               size="sm"
