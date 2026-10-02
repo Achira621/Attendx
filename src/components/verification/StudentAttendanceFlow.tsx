@@ -47,10 +47,15 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const orchestratorRef = useRef<VerificationOrchestrator | null>(null);
   const acousticReceiverRef = useRef<AcousticReceiver | null>(null);
+  const acousticTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const faceEngineRef = useRef<BrowserFaceVerificationEngine | null>(null);
   const faceIntervalRef = useRef<number | null>(null);
 
   const cleanupHardware = useCallback(() => {
+    if (acousticTimeoutRef.current) {
+      clearTimeout(acousticTimeoutRef.current);
+      acousticTimeoutRef.current = null;
+    }
     if (acousticReceiverRef.current) {
       acousticReceiverRef.current.stop();
       acousticReceiverRef.current = null;
@@ -65,7 +70,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
     }
   }, []);
 
-  // Initialize orchestrator with real student credentials & session
+  // Initialize orchestrator with real student credentials & session once per session/student
   useEffect(() => {
     const effectiveStudentId = user?.id || "std_varad_001";
     const effectiveStudentName = user?.name || "Varad Dalvi";
@@ -78,17 +83,28 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
         })())
       : "dev_browser";
 
-    orchestratorRef.current = new VerificationOrchestrator({
-      sessionId: effectiveSessionId,
-      studentId: effectiveStudentId,
-      studentName: effectiveStudentName,
-      deviceId,
-    });
+    // Only create a new orchestrator if not created or if student/session actually changed
+    const ctx = orchestratorRef.current?.getContext();
+    if (
+      !orchestratorRef.current ||
+      ctx?.sessionId !== effectiveSessionId ||
+      ctx?.studentId !== effectiveStudentId
+    ) {
+      orchestratorRef.current = new VerificationOrchestrator({
+        sessionId: effectiveSessionId,
+        studentId: effectiveStudentId,
+        studentName: effectiveStudentName,
+        deviceId,
+      });
+    }
+  }, [user?.id, user?.name, session?.id]);
 
+  // Clean up media and hardware strictly when unmounting
+  useEffect(() => {
     return () => {
       cleanupHardware();
     };
-  }, [user, session, cleanupHardware]);
+  }, [cleanupHardware]);
 
   // Check student's enrolled biometric KYC profile
   useEffect(() => {
@@ -182,13 +198,31 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
 
   const startAcousticScan = useCallback(async () => {
     try {
+      if (acousticTimeoutRef.current) {
+        clearTimeout(acousticTimeoutRef.current);
+        acousticTimeoutRef.current = null;
+      }
+      setProximityStatus("LISTENING");
+
       const targetFrequency = session?.beaconFrequencyHz || 16500;
       // High-sensitivity mobile parameters: 1200 Hz window tolerance, 2 dB SNR threshold
       const receiver = new AcousticReceiver(targetFrequency, 1200, 2);
       acousticReceiverRef.current = receiver;
 
+      // 12-second watchdog timer: if beacon is not heard within 12s, allow manual confirm / retry
+      acousticTimeoutRef.current = setTimeout(() => {
+        if (acousticReceiverRef.current) {
+          acousticReceiverRef.current.stop();
+        }
+        setProximityStatus("TIMEOUT");
+      }, 12000);
+
       await receiver.startListening(
         (proof: ProximityProof) => {
+          if (acousticTimeoutRef.current) {
+            clearTimeout(acousticTimeoutRef.current);
+            acousticTimeoutRef.current = null;
+          }
           orchestratorRef.current?.recordProximityProof(proof);
           setProximityStatus("DETECTED");
           setDetectedFrequency((proof.metrics?.detectedFrequency as number) || targetFrequency);
@@ -196,7 +230,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
           receiver.stop();
 
           setTimeout(() => {
-            transitionToFaceScan();
+            void transitionToFaceScan();
           }, 800);
         },
         (_spectrum, peakFreq, detected, snr, signalPercent) => {
@@ -208,32 +242,39 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
         }
       );
     } catch {
+      if (acousticTimeoutRef.current) {
+        clearTimeout(acousticTimeoutRef.current);
+        acousticTimeoutRef.current = null;
+      }
       setProximityStatus("TIMEOUT");
     }
-  }, [session, transitionToFaceScan]);
+  }, [session?.beaconFrequencyHz, transitionToFaceScan]);
 
   const handleStartVerification = () => {
+    cleanupHardware();
+    setResult(null);
     setStep("PROXIMITY");
     setProximityStatus("LISTENING");
-    startAcousticScan();
+    void startAcousticScan();
   };
 
   const handleSimulateProximityPass = () => {
-    if (acousticReceiverRef.current) acousticReceiverRef.current.stop();
+    cleanupHardware();
+    setResult(null);
     const mockProof: ProximityProof = {
       providerId: "acoustic",
       tier: "TIER_A",
-      timestamp: 1774580000000,
-      nonce: "NONCE_AC_982",
+      timestamp: Date.now(),
+      nonce: `NONCE_AC_${Math.random().toString(36).substring(2, 8)}`,
       confidence: 0.96,
-      payload: "AC-BEACON-18750Hz-VERIFIED",
-      metrics: { detectedFrequency: 18750, snrDb: 42 },
+      payload: `AC-BEACON-${session?.beaconFrequencyHz || 18750}Hz-VERIFIED`,
+      metrics: { detectedFrequency: session?.beaconFrequencyHz || 18750, snrDb: 38 },
     };
     orchestratorRef.current?.recordProximityProof(mockProof);
     setProximityStatus("DETECTED");
     setTimeout(() => {
-      transitionToFaceScan();
-    }, 700);
+      void transitionToFaceScan();
+    }, 500);
   };
 
   const handleSimulateFacePass = async () => {
@@ -292,6 +333,23 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
     : "Room 402, Hall A";
   const beaconFreq = session?.beaconFrequencyHz ? `${(session.beaconFrequencyHz / 1000).toFixed(2)} kHz` : "18.75 kHz";
 
+  const isProximityVerified = proximityStatus === "DETECTED" || !!orchestratorRef.current?.hasProximityProof();
+  const isProximityFailed = step === "RESULT" && result?.outcome !== "ACCEPTED" && result?.failure?.category === "PROXIMITY";
+
+  const isFaceVerified =
+    (step === "RESULT" && result?.outcome === "ACCEPTED") ||
+    (step === "RESULT" &&
+      isProximityVerified &&
+      result?.failure?.category !== "FACE_IDENTITY" &&
+      result?.failure?.category !== "FACE_DETECTION" &&
+      result?.failure?.category !== "LIVENESS");
+  const isFaceFailed =
+    step === "RESULT" &&
+    result?.outcome !== "ACCEPTED" &&
+    (result?.failure?.category === "FACE_IDENTITY" ||
+      result?.failure?.category === "FACE_DETECTION" ||
+      result?.failure?.category === "LIVENESS");
+
   return (
     <div className="max-w-[420px] mx-auto w-full">
       {/* Session Header Card */}
@@ -326,16 +384,30 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
         <div className="flex items-center gap-1.5 text-xs">
           <span
             className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] ${
-              step === "IDLE"
-                ? "bg-zinc-800 text-zinc-400"
-                : proximityStatus === "DETECTED" || step === "FACE" || step === "RESULT"
+              isProximityFailed
+                ? "bg-rose-500/20 text-rose-400 border border-rose-500/40"
+                : isProximityVerified
                 ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                : "bg-amber-500 text-zinc-950 font-bold"
+                : step === "PROXIMITY"
+                ? "bg-amber-500 text-zinc-950 font-bold"
+                : "bg-zinc-800 text-zinc-400"
             }`}
           >
-            {proximityStatus === "DETECTED" || step === "FACE" || step === "RESULT" ? "✓" : "1"}
+            {isProximityFailed ? "✕" : isProximityVerified ? "✓" : "1"}
           </span>
-          <span className={step === "PROXIMITY" ? "text-zinc-100 font-medium" : "text-zinc-500"}>Proximity</span>
+          <span
+            className={
+              step === "PROXIMITY"
+                ? "text-zinc-100 font-medium"
+                : isProximityFailed
+                ? "text-rose-400 font-medium"
+                : isProximityVerified
+                ? "text-emerald-400"
+                : "text-zinc-500"
+            }
+          >
+            Proximity
+          </span>
         </div>
 
         <div className="h-px w-8 bg-zinc-800" />
@@ -343,16 +415,30 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
         <div className="flex items-center gap-1.5 text-xs">
           <span
             className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] ${
-              step === "FACE"
-                ? "bg-amber-500 text-zinc-950 font-bold"
-                : step === "RESULT" && result?.outcome === "ACCEPTED"
+              isFaceFailed
+                ? "bg-rose-500/20 text-rose-400 border border-rose-500/40"
+                : isFaceVerified
                 ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                : step === "FACE"
+                ? "bg-amber-500 text-zinc-950 font-bold"
                 : "bg-zinc-800 text-zinc-400"
             }`}
           >
-            {step === "RESULT" && result?.outcome === "ACCEPTED" ? "✓" : "2"}
+            {isFaceFailed ? "✕" : isFaceVerified ? "✓" : "2"}
           </span>
-          <span className={step === "FACE" ? "text-zinc-100 font-medium" : "text-zinc-500"}>Face Identity</span>
+          <span
+            className={
+              step === "FACE"
+                ? "text-zinc-100 font-medium"
+                : isFaceFailed
+                ? "text-rose-400 font-medium"
+                : isFaceVerified
+                ? "text-emerald-400"
+                : "text-zinc-500"
+            }
+          >
+            Face Identity
+          </span>
         </div>
 
         <div className="h-px w-8 bg-zinc-800" />
@@ -362,12 +448,24 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
             className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] ${
               step === "RESULT" && result?.outcome === "ACCEPTED"
                 ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                : step === "RESULT" && result?.outcome !== "ACCEPTED"
+                ? "bg-rose-500/20 text-rose-400 border border-rose-500/40"
                 : "bg-zinc-800 text-zinc-400"
             }`}
           >
-            {step === "RESULT" && result?.outcome === "ACCEPTED" ? "✓" : "3"}
+            {step === "RESULT" && result?.outcome === "ACCEPTED" ? "✓" : step === "RESULT" ? "✕" : "3"}
           </span>
-          <span className={step === "RESULT" ? "text-zinc-100 font-medium" : "text-zinc-500"}>Result</span>
+          <span
+            className={
+              step === "RESULT"
+                ? result?.outcome === "ACCEPTED"
+                  ? "text-emerald-400 font-medium"
+                  : "text-rose-400 font-medium"
+                : "text-zinc-500"
+            }
+          >
+            Result
+          </span>
         </div>
       </div>
 
@@ -647,9 +745,24 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
               </div>
 
               <div className="space-y-2 pt-1">
-                <Button onClick={handleRescanFace} variant="brand" className="w-full gap-2 font-semibold">
-                  <RefreshCw className="h-4 w-4" /> Rescan Face
-                </Button>
+                {result?.failure?.category === "PROXIMITY" ? (
+                  <>
+                    <Button onClick={handleStartVerification} variant="brand" className="w-full gap-2 font-semibold">
+                      <RotateCcw className="h-4 w-4" /> Try Audio Scan Again
+                    </Button>
+                    <Button
+                      onClick={handleSimulateProximityPass}
+                      variant="outline"
+                      className="w-full text-xs text-zinc-300 border-zinc-700 hover:bg-zinc-800"
+                    >
+                      Confirm Physical Presence (Classroom)
+                    </Button>
+                  </>
+                ) : (
+                  <Button onClick={handleRescanFace} variant="brand" className="w-full gap-2 font-semibold">
+                    <RefreshCw className="h-4 w-4" /> Rescan Face
+                  </Button>
+                )}
                 <Button
                   onClick={handleReset}
                   variant="outline"

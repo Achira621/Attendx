@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { StudentAttendanceFlow } from "@/components/verification/StudentAttendanceFlow";
 import { Button } from "@/components/ui/button";
@@ -188,7 +188,12 @@ export function StudentDashboard() {
     }
   }, [user]);
 
-  // Initial load & 4-second polling for active sessions
+  const isVerifyingModalOpenRef = useRef(isVerifyingModalOpen);
+  useEffect(() => {
+    isVerifyingModalOpenRef.current = isVerifyingModalOpen;
+  }, [isVerifyingModalOpen]);
+
+  // Initial load & 4-second polling for active sessions (paused while verifying)
   useEffect(() => {
     let isCancelled = false;
 
@@ -202,7 +207,7 @@ export function StudentDashboard() {
     void loadData();
 
     const interval = setInterval(() => {
-      if (!isCancelled) {
+      if (!isCancelled && !isVerifyingModalOpenRef.current) {
         void fetchActiveSessions(false);
       }
     }, 4000);
@@ -272,6 +277,27 @@ export function StudentDashboard() {
     void fetchActiveSessions(true);
     void fetchAttendanceHistory();
   };
+
+  const memoizedFlowSession = useMemo(() => {
+    if (!selectedSessionForFlow) return undefined;
+    return {
+      id: selectedSessionForFlow.id,
+      courseCode: selectedSessionForFlow.course.code,
+      courseName: selectedSessionForFlow.course.name,
+      classroomName: selectedSessionForFlow.classroom.name,
+      roomNumber: selectedSessionForFlow.classroom.roomNumber,
+      beaconFrequencyHz: selectedSessionForFlow.classroom.beaconFrequencyHz,
+      ephemeralSecret: selectedSessionForFlow.ephemeralSecret,
+    };
+  }, [
+    selectedSessionForFlow?.id,
+    selectedSessionForFlow?.course.code,
+    selectedSessionForFlow?.course.name,
+    selectedSessionForFlow?.classroom.name,
+    selectedSessionForFlow?.classroom.roomNumber,
+    selectedSessionForFlow?.classroom.beaconFrequencyHz,
+    selectedSessionForFlow?.ephemeralSecret,
+  ]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -555,15 +581,7 @@ export function StudentDashboard() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="relative w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-6">
             <StudentAttendanceFlow
-              session={{
-                id: selectedSessionForFlow.id,
-                courseCode: selectedSessionForFlow.course.code,
-                courseName: selectedSessionForFlow.course.name,
-                classroomName: selectedSessionForFlow.classroom.name,
-                roomNumber: selectedSessionForFlow.classroom.roomNumber,
-                beaconFrequencyHz: selectedSessionForFlow.classroom.beaconFrequencyHz,
-                ephemeralSecret: selectedSessionForFlow.ephemeralSecret,
-              }}
+              session={memoizedFlowSession}
               onSuccess={handleVerificationSuccess}
               onAttendanceRecorded={handleAttendanceRecorded}
               onCancel={() => {

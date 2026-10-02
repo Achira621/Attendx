@@ -30,6 +30,18 @@ export class VerificationOrchestrator {
 
   constructor(private context: VerificationContext) {}
 
+  public getContext(): VerificationContext {
+    return this.context;
+  }
+
+  public getProximityProof(): ProximityProof | null {
+    return this.proximityProof;
+  }
+
+  public hasProximityProof(): boolean {
+    return this.proximityProof !== null;
+  }
+
   public getStage(): VerificationStage {
     return this.currentStage;
   }
