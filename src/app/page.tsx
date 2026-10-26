@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { StudentIdKycModal } from "@/components/kyc/StudentIdKycModal";
 
+import { AttendexLogo } from "@/components/ui/AttendexLogo";
+
 type TeacherTab = "teacher" | "acoustic_lab" | "face_lab" | "architecture";
 
 export default function Home() {
@@ -46,35 +48,28 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#090a0c] text-zinc-100 flex flex-col selection:bg-amber-500/20 selection:text-amber-200">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 flex flex-col selection:bg-[#FF7A59]/20 selection:text-[#FF7A59]">
       {/* Top Application Bar */}
-      <header className="border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+      <header className="border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-[#0F172A]/85 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           {/* Logo & Portal Identity */}
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700/80 flex items-center justify-center font-bold text-amber-400 shadow-xs">
-              <ShieldCheck className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-sm tracking-tight text-white">Attendex</span>
-                {user ? (
-                  <span
-                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
-                      user.role === "STUDENT"
-                        ? "bg-emerald-950/40 text-emerald-300 border-emerald-800/50"
-                        : "bg-amber-950/40 text-amber-300 border-amber-800/50"
-                    }`}
-                  >
-                    {user.role === "STUDENT" ? "Student Portal" : "Faculty Console"}
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-900 text-zinc-400 border border-zinc-800">
-                    Dual-Presence
-                  </span>
-                )}
-              </div>
-            </div>
+            <AttendexLogo size={36} withText={true} withTagline={false} />
+            {user ? (
+              <span
+                className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
+                  user.role === "STUDENT"
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/50"
+                    : "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800/50"
+                }`}
+              >
+                {user.role === "STUDENT" ? "Student Portal" : "Faculty Console"}
+              </span>
+            ) : (
+              <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800/60 dark:text-slate-300 dark:border-slate-700">
+                Presence with Purpose
+              </span>
+            )}
           </div>
 
           {/* Teacher-Only Navigation Tabs (Hidden for Students) */}
@@ -291,124 +286,165 @@ export default function Home() {
             </>
           )
         ) : (
-          /* NOT LOGGED IN: Welcome Portal with Instant Role Launchers */
-          <div className="max-w-4xl mx-auto py-12 space-y-10">
-            {/* Hero */}
-            <div className="text-center space-y-3.5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-medium text-amber-300">
-                <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                Next-Gen Academic Presence Infrastructure
+          /* NOT LOGGED IN: Welcome Portal with Poster Hero Design */
+          <div className="max-w-5xl mx-auto py-8 sm:py-12 space-y-12">
+            {/* Hero Section matching the Design System Poster */}
+            <div className="relative rounded-3xl overflow-hidden p-8 sm:p-12 border border-slate-200/90 dark:border-slate-800 bg-gradient-to-br from-white via-slate-50 to-[#E7F2FF]/40 dark:from-slate-900 dark:via-[#111827] dark:to-[#1E1B4B]/30 shadow-xl">
+              {/* Decorative Subtle Background Orbs */}
+              <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-gradient-to-br from-[#7C3AED]/15 via-[#FF7A59]/10 to-transparent blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-gradient-to-tr from-[#E7F2FF] to-transparent dark:from-[#7C3AED]/10 blur-2xl pointer-events-none" />
+
+              <div className="relative z-10 max-w-3xl space-y-6">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-xs">
+                    <ShieldCheck className="h-3.5 w-3.5 text-[#7C3AED]" />
+                    <span>Trusted by Modern Institutions</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[11px] font-mono tracking-wider uppercase text-slate-400">
+                    <span>SECURE</span>
+                    <span>•</span>
+                    <span>AUTHENTIC</span>
+                    <span>•</span>
+                    <span>PRIVATE</span>
+                    <span>•</span>
+                    <span>EFFORTLESS</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-950 dark:text-white leading-[1.08]" style={{ fontFamily: "var(--font-sora), sans-serif" }}>
+                    Real People. <br />
+                    <span className="bg-gradient-to-r from-[#0F172A] via-[#7C3AED] to-[#FF7A59] dark:from-white dark:via-purple-300 dark:to-[#FF7A59] bg-clip-text text-transparent">
+                      Real Presence.
+                    </span>
+                  </h1>
+                  <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl font-normal leading-relaxed pt-1">
+                    AI-powered, privacy-preserving, edge-first attendance for classrooms and organisations.
+                  </p>
+                </div>
+
+                {/* Primary CTA Buttons from Poster */}
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <button
+                    onClick={() => setIsLoginModalOpen(true)}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0F172A] hover:bg-[#1E293B] text-white font-semibold text-sm shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <span>Get Started</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+
+                  <button
+                    onClick={() => setIsKycModalOpen(true)}
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 font-semibold text-sm shadow-xs transition-all hover:scale-[1.02]"
+                  >
+                    <ScanFace className="h-4 w-4 text-[#FF7A59]" />
+                    <span>Create Student ID & KYC</span>
+                  </button>
+                </div>
+
+                {/* Brand Feature Badges Strip (from poster bottom) */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-200/80 dark:border-slate-800/80 text-xs">
+                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                    <div className="w-6 h-6 rounded-md bg-[#FF7A59]/15 flex items-center justify-center text-[#FF7A59] shrink-0">
+                      <Radio className="h-3.5 w-3.5" />
+                    </div>
+                    <span className="font-medium">Anti-Proxy Ultrasonic</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                    <div className="w-6 h-6 rounded-md bg-[#7C3AED]/15 flex items-center justify-center text-[#7C3AED] shrink-0">
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                    </div>
+                    <span className="font-medium">Privacy by Design</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                    <div className="w-6 h-6 rounded-md bg-blue-500/15 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                      <Sparkles className="h-3.5 w-3.5" />
+                    </div>
+                    <span className="font-medium">Edge Architecture</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                    <div className="w-6 h-6 rounded-md bg-emerald-500/15 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                      <GraduationCap className="h-3.5 w-3.5" />
+                    </div>
+                    <span className="font-medium">Built for Education</span>
+                  </div>
+                </div>
               </div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight max-w-2xl mx-auto">
-                Classroom Attendance with Dual-Factor Presence
-              </h1>
-              <p className="text-sm text-zinc-400 max-w-xl mx-auto leading-relaxed">
-                Attendex binds physical classroom proximity (ultrasonic acoustic beacons) with on-device face matching and passive liveness detection.
-              </p>
             </div>
 
             {/* Quick Demo Launch Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {/* Instant Student ID & KYC Onboarding Card */}
-              <div
-                onClick={() => setIsKycModalOpen(true)}
-                className="group relative p-6 rounded-2xl border border-amber-500/25 bg-gradient-to-br from-zinc-900/90 via-zinc-900/40 to-amber-950/15 hover:border-amber-500/40 transition cursor-pointer space-y-4 md:col-span-2 shadow-xl"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:scale-105 transition">
-                      <ScanFace className="h-6 w-6" />
-                    </div>
-                    <div className="text-left">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-base font-bold text-white group-hover:text-amber-300 transition">
-                          Create Student ID & Complete Face KYC
-                        </h3>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                          Recommended
-                        </span>
-                      </div>
-                      <p className="text-xs text-zinc-400 mt-1 max-w-xl">
-                        Register your student credentials, generate an official institutional digital ID card, and perform a one-time biometric face scan to unlock dual-factor attendance.
-                      </p>
-                    </div>
-                  </div>
-
-                  <Button
-                    size="sm"
-                    variant="brand"
-                    className="shrink-0 text-xs font-semibold gap-1.5"
-                  >
-                    <span>Create ID & KYC</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Button>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white" style={{ fontFamily: "var(--font-sora), sans-serif" }}>
+                    Interactive Role Launchers
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Jump directly into the student or teacher portal to experience dual presence live.
+                  </p>
                 </div>
               </div>
 
-              {/* Student Role Card */}
-              <div
-                onClick={() => handleSwitchRole("STUDENT")}
-                className="group relative p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900/70 hover:border-emerald-500/40 transition cursor-pointer space-y-4"
-              >
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition">
-                  <GraduationCap className="h-6 w-6" />
-                </div>
-                <div>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-base font-bold text-white group-hover:text-emerald-300 transition">
-                      Enter as Student
-                    </h3>
-                    <ArrowRight className="h-4 w-4 text-zinc-500 group-hover:text-emerald-400 group-hover:translate-x-1 transition" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {/* Student Role Card */}
+                <div
+                  onClick={() => handleSwitchRole("STUDENT")}
+                  className="group relative p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-emerald-500/50 hover:shadow-lg transition cursor-pointer space-y-4"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition">
+                    <GraduationCap className="h-6 w-6" />
                   </div>
-                  <p className="text-xs text-zinc-400 mt-1">
-                    Sign in as <span className="text-zinc-200 font-medium">Varad Dalvi</span> (CS-2026-001). See active attendance sessions and mark presence.
-                  </p>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition" style={{ fontFamily: "var(--font-sora), sans-serif" }}>
+                        Enter as Student
+                      </h3>
+                      <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-emerald-500 group-hover:translate-x-1 transition" />
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Sign in as <span className="text-slate-900 dark:text-slate-200 font-medium">Varad Dalvi</span>. Scan classroom audio beacon & perform on-device biometric presence.
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 text-[11px] text-slate-400 font-mono">
+                    <span className="text-emerald-600 dark:text-emerald-400">✓ Acoustic receiver</span>
+                    <span>•</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">✓ On-device face scan</span>
+                  </div>
                 </div>
-                <div className="pt-2 border-t border-zinc-800/80 flex items-center gap-2 text-[11px] text-zinc-500 font-mono">
-                  <span>✓ Acoustic receiver</span>
-                  <span>•</span>
-                  <span>✓ On-device face scan</span>
-                </div>
-              </div>
 
-              {/* Faculty Role Card */}
-              <div
-                onClick={() => handleSwitchRole("TEACHER")}
-                className="group relative p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900/70 hover:border-amber-500/40 transition cursor-pointer space-y-4"
-              >
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:scale-105 transition">
-                  <User className="h-6 w-6" />
-                </div>
-                <div>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-base font-bold text-white group-hover:text-amber-300 transition">
-                      Enter as Faculty
-                    </h3>
-                    <ArrowRight className="h-4 w-4 text-zinc-500 group-hover:text-amber-400 group-hover:translate-x-1 transition" />
+                {/* Faculty Role Card */}
+                <div
+                  onClick={() => handleSwitchRole("TEACHER")}
+                  className="group relative p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-[#7C3AED]/50 hover:shadow-lg transition cursor-pointer space-y-4"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/40 flex items-center justify-center text-[#7C3AED] group-hover:scale-105 transition">
+                    <User className="h-6 w-6" />
                   </div>
-                  <p className="text-xs text-zinc-400 mt-1">
-                    Sign in as <span className="text-zinc-200 font-medium">Dr. Evelyn Reed</span> (Faculty). Launch attendance windows and emit ultrasonic beacons.
-                  </p>
-                </div>
-                <div className="pt-2 border-t border-zinc-800/80 flex items-center gap-2 text-[11px] text-zinc-500 font-mono">
-                  <span>✓ Ultrasonic emitter</span>
-                  <span>•</span>
-                  <span>✓ Live roster tally</span>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#7C3AED] transition" style={{ fontFamily: "var(--font-sora), sans-serif" }}>
+                        Enter as Faculty
+                      </h3>
+                      <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-[#7C3AED] group-hover:translate-x-1 transition" />
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Sign in as <span className="text-slate-900 dark:text-slate-200 font-medium">Dr. Arjun Mehta</span>. Broadcast ultrasonic beacon & track real-time attendance tally.
+                    </p>
+                  </div>
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 text-[11px] text-slate-400 font-mono">
+                    <span className="text-[#7C3AED]">✓ Ultrasonic emitter</span>
+                    <span>•</span>
+                    <span className="text-[#7C3AED]">✓ Real-time roster telemetry</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Custom Credentials Sign In */}
-            <div className="text-center pt-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsLoginModalOpen(true)}
-                className="gap-2 text-xs text-zinc-400 hover:text-zinc-200"
-              >
-                <LogIn className="h-3.5 w-3.5" />
-                Sign in with custom email / credentials
-              </Button>
+            {/* Quote / Footer Banner matching image footer */}
+            <div className="text-center py-4 border-t border-slate-200 dark:border-slate-800">
+              <p className="text-xs italic text-slate-400 font-serif">
+                &ldquo;Attendance isn&apos;t just a number, it&apos;s a step towards a brighter future.&rdquo;
+              </p>
             </div>
           </div>
         )}

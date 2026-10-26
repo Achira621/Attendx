@@ -125,12 +125,18 @@ export function CourseAnalyticsSection({
   }, []);
 
   useEffect(() => {
-    void fetchCourses();
+    const timer = setTimeout(() => {
+      void fetchCourses();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [fetchCourses]);
 
   useEffect(() => {
     if (selectedCourseId) {
-      void fetchAnalytics(selectedCourseId);
+      const timer = setTimeout(() => {
+        void fetchAnalytics(selectedCourseId);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [selectedCourseId, fetchAnalytics]);
 

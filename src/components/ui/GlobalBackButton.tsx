@@ -9,7 +9,10 @@ export function GlobalBackButton() {
   const [canGoBack, setCanGoBack] = useState(false);
 
   useEffect(() => {
-    setCanGoBack(window.history.length > 2); // 1 or 2 often means it's the first page load in some browsers
+    const timer = setTimeout(() => {
+      setCanGoBack(window.history.length > 2);
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   if (!canGoBack) return null;

@@ -248,7 +248,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
       }
       setProximityStatus("TIMEOUT");
     }
-  }, [session?.beaconFrequencyHz, transitionToFaceScan]);
+  }, [session, transitionToFaceScan]);
 
   const handleStartVerification = () => {
     cleanupHardware();
@@ -333,7 +333,9 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
     : "Room 402, Hall A";
   const beaconFreq = session?.beaconFrequencyHz ? `${(session.beaconFrequencyHz / 1000).toFixed(2)} kHz` : "18.75 kHz";
 
-  const isProximityVerified = proximityStatus === "DETECTED" || !!orchestratorRef.current?.hasProximityProof();
+  const isProximityVerified =
+    proximityStatus === "DETECTED" ||
+    (step === "RESULT" && result !== null && result.failure?.category !== "PROXIMITY");
   const isProximityFailed = step === "RESULT" && result?.outcome !== "ACCEPTED" && result?.failure?.category === "PROXIMITY";
 
   const isFaceVerified =
@@ -352,45 +354,47 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
 
   return (
     <div className="max-w-[420px] mx-auto w-full">
-      {/* Session Header Card */}
-      <div className="mb-4 p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 text-left">
+      {/* Session Header Card matching mobile check-in */}
+      <div className="mb-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-left shadow-xs">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Active Course Session</span>
+          <span className="text-[11px] font-mono text-[#7C3AED] uppercase tracking-wider font-semibold">Classroom Check-In</span>
           <div className="flex items-center gap-2">
             <Badge variant="success" className="text-[10px]">Active Now</Badge>
             {onCancel && (
               <button
                 onClick={onCancel}
-                className="text-xs text-zinc-400 hover:text-zinc-200 px-2 py-0.5 rounded hover:bg-zinc-800 transition"
+                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 px-2 py-0.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition"
               >
-                Cancel
+                ✕ Cancel
               </button>
             )}
           </div>
         </div>
-        <h3 className="text-base font-semibold text-zinc-100 mt-1">{courseCode}: {courseName}</h3>
-        <div className="flex items-center gap-3 text-xs text-zinc-400 mt-2">
+        <h3 className="text-base font-bold text-slate-900 dark:text-white mt-1" style={{ fontFamily: "var(--font-sora), sans-serif" }}>
+          {courseCode}: {courseName}
+        </h3>
+        <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-2">
           <span className="flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5 text-zinc-500" /> {classroomDisplay}
+            <MapPin className="h-3.5 w-3.5 text-slate-400" /> {classroomDisplay}
           </span>
           <span className="flex items-center gap-1">
-            <Radio className="h-3.5 w-3.5 text-amber-400" /> {beaconFreq}
+            <Radio className="h-3.5 w-3.5 text-[#FF7A59]" /> {beaconFreq}
           </span>
         </div>
       </div>
 
-      {/* Stepper Indicator */}
+      {/* Stepper Indicator matching poster (1: Proximity, 2: Face Scan, 3: Complete) */}
       <div className="flex items-center justify-between mb-6 px-3">
-        <div className="flex items-center gap-1.5 text-xs">
+        <div className="flex flex-col items-center gap-1 text-[11px]">
           <span
-            className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] ${
+            className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] ${
               isProximityFailed
-                ? "bg-rose-500/20 text-rose-400 border border-rose-500/40"
+                ? "bg-rose-50 text-rose-600 border border-rose-300 dark:bg-rose-950/40 dark:text-rose-400"
                 : isProximityVerified
-                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                ? "bg-emerald-500 text-white shadow-xs"
                 : step === "PROXIMITY"
-                ? "bg-amber-500 text-zinc-950 font-bold"
-                : "bg-zinc-800 text-zinc-400"
+                ? "bg-[#7C3AED] text-white shadow-xs font-bold"
+                : "bg-slate-100 dark:bg-slate-800 text-slate-400"
             }`}
           >
             {isProximityFailed ? "✕" : isProximityVerified ? "✓" : "1"}
@@ -398,30 +402,28 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
           <span
             className={
               step === "PROXIMITY"
-                ? "text-zinc-100 font-medium"
-                : isProximityFailed
-                ? "text-rose-400 font-medium"
+                ? "text-[#7C3AED] font-semibold"
                 : isProximityVerified
-                ? "text-emerald-400"
-                : "text-zinc-500"
+                ? "text-emerald-600 dark:text-emerald-400 font-medium"
+                : "text-slate-400"
             }
           >
             Proximity
           </span>
         </div>
 
-        <div className="h-px w-8 bg-zinc-800" />
+        <div className="h-0.5 flex-1 mx-2 bg-slate-200 dark:bg-slate-800" />
 
-        <div className="flex items-center gap-1.5 text-xs">
+        <div className="flex flex-col items-center gap-1 text-[11px]">
           <span
-            className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] ${
+            className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] ${
               isFaceFailed
-                ? "bg-rose-500/20 text-rose-400 border border-rose-500/40"
+                ? "bg-rose-50 text-rose-600 border border-rose-300 dark:bg-rose-950/40 dark:text-rose-400"
                 : isFaceVerified
-                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                ? "bg-emerald-500 text-white shadow-xs"
                 : step === "FACE"
-                ? "bg-amber-500 text-zinc-950 font-bold"
-                : "bg-zinc-800 text-zinc-400"
+                ? "bg-[#7C3AED] text-white shadow-xs font-bold"
+                : "bg-slate-100 dark:bg-slate-800 text-slate-400"
             }`}
           >
             {isFaceFailed ? "✕" : isFaceVerified ? "✓" : "2"}
@@ -429,28 +431,26 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
           <span
             className={
               step === "FACE"
-                ? "text-zinc-100 font-medium"
-                : isFaceFailed
-                ? "text-rose-400 font-medium"
+                ? "text-[#7C3AED] font-semibold"
                 : isFaceVerified
-                ? "text-emerald-400"
-                : "text-zinc-500"
+                ? "text-emerald-600 dark:text-emerald-400 font-medium"
+                : "text-slate-400"
             }
           >
-            Face Identity
+            Face Scan
           </span>
         </div>
 
-        <div className="h-px w-8 bg-zinc-800" />
+        <div className="h-0.5 flex-1 mx-2 bg-slate-200 dark:bg-slate-800" />
 
-        <div className="flex items-center gap-1.5 text-xs">
+        <div className="flex flex-col items-center gap-1 text-[11px]">
           <span
-            className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] ${
+            className={`w-6 h-6 rounded-full flex items-center justify-center font-bold text-[10px] ${
               step === "RESULT" && result?.outcome === "ACCEPTED"
-                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                ? "bg-emerald-500 text-white shadow-xs"
                 : step === "RESULT" && result?.outcome !== "ACCEPTED"
-                ? "bg-rose-500/20 text-rose-400 border border-rose-500/40"
-                : "bg-zinc-800 text-zinc-400"
+                ? "bg-rose-50 text-rose-600 border border-rose-300 dark:bg-rose-950/40 dark:text-rose-400"
+                : "bg-slate-100 dark:bg-slate-800 text-slate-400"
             }`}
           >
             {step === "RESULT" && result?.outcome === "ACCEPTED" ? "✓" : step === "RESULT" ? "✕" : "3"}
@@ -459,12 +459,12 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
             className={
               step === "RESULT"
                 ? result?.outcome === "ACCEPTED"
-                  ? "text-emerald-400 font-medium"
-                  : "text-rose-400 font-medium"
-                : "text-zinc-500"
+                  ? "text-emerald-600 dark:text-emerald-400 font-semibold"
+                  : "text-rose-500 font-semibold"
+                : "text-slate-400"
             }
           >
-            Result
+            Complete
           </span>
         </div>
       </div>
@@ -683,50 +683,54 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
       )}
 
       {step === "RESULT" && (
-        <Card className="border-zinc-800 bg-zinc-900/40 text-center py-6 px-5 space-y-4">
+        <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 text-center py-6 px-5 space-y-4 shadow-sm">
           {result?.outcome === "ACCEPTED" ? (
             <div className="space-y-4">
-              <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400">
-                <CheckCircle2 className="h-6 w-6" />
+              {/* Circular Gradient Badge with checkmark matching the poster */}
+              <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#7C3AED] via-[#FF7A59] to-[#F6D7B0] opacity-90 animate-pulse" />
+                <div className="relative w-14 h-14 rounded-full bg-white dark:bg-slate-950 flex items-center justify-center text-emerald-500 shadow-md">
+                  <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+                </div>
               </div>
 
               <div>
-                <h4 className="text-base font-semibold text-zinc-100">Attendance Recorded</h4>
-                <p className="text-xs text-zinc-400 mt-1">
-                  Verified for <span className="text-zinc-200 font-medium">{result.studentName}</span>
+                <h4 className="text-xl font-extrabold text-slate-900 dark:text-white" style={{ fontFamily: "var(--font-sora), sans-serif" }}>
+                  Attendance Marked!
+                </h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-mono">
+                  {courseCode} • {classroomDisplay}
                 </p>
               </div>
 
-              <div className="bg-zinc-950 p-3.5 rounded-lg border border-zinc-800/80 text-xs space-y-2 text-left">
-                <div className="flex justify-between text-zinc-400">
-                  <span>Student ID:</span>
-                  <span className="font-mono text-zinc-200">{user?.rollNumber || "CS-2026-001"} ({result.studentName})</span>
+              {/* Verified Badges Stack matching the mobile check-in poster */}
+              <div className="space-y-2 max-w-[280px] mx-auto text-left text-xs">
+                <div className="flex items-center gap-2.5 p-2 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
+                  <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px] shrink-0">✓</span>
+                  <span className="font-medium">Proximity Verified</span>
                 </div>
-                <div className="flex justify-between text-zinc-400">
-                  <span>Timestamp:</span>
-                  <span className="font-mono text-zinc-200">{result.verifiedAt}</span>
+                <div className="flex items-center gap-2.5 p-2 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
+                  <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px] shrink-0">✓</span>
+                  <span className="font-medium">Face Verified</span>
                 </div>
-                <div className="flex justify-between text-zinc-400">
-                  <span>Proximity:</span>
-                  <span className="font-mono text-emerald-400">✓ TIER_A Acoustic Verified</span>
+                <div className="flex items-center gap-2.5 p-2 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
+                  <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px] shrink-0">✓</span>
+                  <span className="font-medium">Liveness Verified</span>
                 </div>
-                <div className="flex justify-between text-zinc-400">
-                  <span>Biometric KYC Check:</span>
-                  <span className="font-mono text-emerald-400">✓ Face & Liveness Verified</span>
-                </div>
-                <div className="flex justify-between text-zinc-400">
-                  <span>Record ID:</span>
-                  <span className="font-mono text-zinc-500 text-[10px] truncate max-w-[160px]">{result.attendanceId}</span>
+                <div className="flex items-center gap-2.5 p-2 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
+                  <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px] shrink-0">✓</span>
+                  <span className="font-medium">Identity Matched ({result.studentName})</span>
                 </div>
               </div>
 
+              {/* Gradient Done Action Button from poster */}
               <Button
                 onClick={() => {
                   if (onSuccess) onSuccess();
                   else handleReset();
                 }}
-                variant="secondary"
-                className="w-full"
+                variant="brand"
+                className="w-full h-11 rounded-full text-sm font-semibold shadow-md"
               >
                 Done
               </Button>

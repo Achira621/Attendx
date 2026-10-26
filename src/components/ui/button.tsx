@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "brand" | "secondary" | "outline" | "ghost" | "destructive";
+  variant?: "primary" | "brand" | "coral" | "purple" | "secondary" | "outline" | "ghost" | "destructive";
   size?: "sm" | "md" | "lg" | "icon";
   isLoading?: boolean;
 }
@@ -13,11 +13,13 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       "inline-flex items-center justify-center font-medium transition-colors select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 disabled:pointer-events-none disabled:opacity-50 cursor-pointer active:scale-[0.98]";
 
     const variants = {
-      primary: "bg-zinc-100 text-zinc-950 hover:bg-white font-medium shadow-xs",
-      brand: "bg-amber-500 text-zinc-950 hover:bg-amber-400 font-semibold shadow-xs",
-      secondary: "bg-zinc-900 text-zinc-200 hover:bg-zinc-800 border border-zinc-800",
-      outline: "border border-zinc-800 bg-transparent text-zinc-200 hover:bg-zinc-800/80 hover:text-white",
-      ghost: "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-100",
+      primary: "bg-[#0F172A] text-white hover:bg-[#1E293B] dark:bg-white dark:text-[#0F172A] dark:hover:bg-slate-100 font-semibold shadow-xs",
+      brand: "bg-gradient-to-r from-[#0F172A] via-[#1E1B4B] to-[#7C3AED] text-white hover:opacity-95 font-semibold shadow-xs",
+      coral: "bg-[#FF7A59] text-white hover:bg-[#F4643F] font-semibold shadow-xs",
+      purple: "bg-[#7C3AED] text-white hover:bg-[#6D28D9] font-semibold shadow-xs",
+      secondary: "bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700",
+      outline: "border border-slate-300 dark:border-slate-700 bg-transparent text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white",
+      ghost: "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100",
       destructive: "bg-rose-600 text-white hover:bg-rose-500 shadow-xs",
     };
 

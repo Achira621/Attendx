@@ -570,32 +570,34 @@ export function TeacherLiveSessionConsole() {
   return (
     <div className="space-y-6">
       {/* Top Session Hub Action Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-lg font-bold text-zinc-100 tracking-tight">Faculty Attendance Console</h1>
-            <Badge variant="outline" className="text-[10px] font-mono border-zinc-700 bg-zinc-800/80 text-zinc-300">
-              {user?.name || "Dr. Evelyn Reed"}
+            <h1 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: "var(--font-sora), sans-serif" }}>
+              Faculty Attendance Console
+            </h1>
+            <Badge variant="brand" className="text-[10px] font-mono">
+              {user?.name || "Dr. Arjun Mehta"}
             </Badge>
           </div>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Classroom session management, course rosters, ultrasonic beacons, and student attendance analytics.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
           {/* View Mode Toggle */}
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-zinc-950 border border-zinc-800 text-xs">
+          <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs">
             <button
               type="button"
               onClick={() => setTeacherView("live_session")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
                 teacherView === "live_session"
-                  ? "bg-zinc-800 text-white shadow-xs"
-                  : "text-zinc-400 hover:text-zinc-200"
+                  ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs"
+                  : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
               }`}
             >
-              <Radio className="h-3.5 w-3.5 text-emerald-400" />
+              <Radio className="h-3.5 w-3.5 text-[#FF7A59]" />
               Live Session
             </button>
             <button
@@ -661,7 +663,7 @@ export function TeacherLiveSessionConsole() {
       ) : activeSession ? (
         <div className="space-y-6">
           {/* Live Session Control Panel */}
-          <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50 backdrop-blur-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+          <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
             <div className="space-y-2">
               <div className="flex items-center gap-2.5">
                 {activeSession.status === "ACTIVE" ? (
@@ -678,27 +680,27 @@ export function TeacherLiveSessionConsole() {
                   <Badge variant="neutral">{activeSession.status}</Badge>
                 )}
 
-                <h2 className="text-xl font-bold text-zinc-100 tracking-tight">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: "var(--font-sora), sans-serif" }}>
                   {activeSession.course?.code}: {activeSession.course?.name}
                 </h2>
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 text-xs text-zinc-400">
+              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
                 <span className="flex items-center gap-1.5">
-                  <MapPin className="h-3.5 w-3.5 text-zinc-500" />
+                  <MapPin className="h-3.5 w-3.5 text-slate-400" />
                   {activeSession.classroom?.name} ({activeSession.classroom?.roomNumber})
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Clock className="h-3.5 w-3.5 text-zinc-500" />
-                  Elapsed: <span className="font-mono text-zinc-200 tabular-nums">{formatTimer(elapsedSeconds)}</span>
+                  <Clock className="h-3.5 w-3.5 text-slate-400" />
+                  Elapsed: <span className="font-mono text-slate-700 dark:text-slate-200 tabular-nums">{formatTimer(elapsedSeconds)}</span>
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Radio className="h-3.5 w-3.5 text-amber-400" />
-                  Beacon: <span className="font-mono text-zinc-300">
+                  <Radio className="h-3.5 w-3.5 text-[#FF7A59]" />
+                  Beacon: <span className="font-mono text-slate-700 dark:text-slate-300">
                     {(activeSession.classroom?.beaconFrequencyHz / 1000).toFixed(2)} kHz ({activeSession.proximityTierRequired})
                   </span>
                 </span>
-                <span className="flex items-center gap-1.5 font-mono text-[11px] text-zinc-500">
+                <span className="flex items-center gap-1.5 font-mono text-[11px] text-slate-400">
                   ID: {activeSession.id.slice(-8)}
                 </span>
               </div>
@@ -709,14 +711,14 @@ export function TeacherLiveSessionConsole() {
               {activeSession.status === "ACTIVE" && (
                 <>
                   {/* Acoustic Reach Selector */}
-                  <div className="flex items-center gap-1 p-0.5 rounded-lg bg-zinc-950 border border-zinc-800 text-[11px]">
+                  <div className="flex items-center gap-1 p-0.5 rounded-lg bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px]">
                     <button
                       type="button"
                       onClick={() => setBeaconReachMode("whole_classroom")}
                       className={`px-2.5 py-1 rounded transition text-xs ${
                         beaconReachMode === "whole_classroom"
-                          ? "bg-zinc-100 text-zinc-950 font-medium"
-                          : "text-zinc-400 hover:text-zinc-200"
+                          ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-medium shadow-xs"
+                          : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
                       }`}
                     >
                       Entire Class (16.5 kHz)
@@ -726,8 +728,8 @@ export function TeacherLiveSessionConsole() {
                       onClick={() => setBeaconReachMode("near_ultrasonic")}
                       className={`px-2.5 py-1 rounded transition text-xs ${
                         beaconReachMode === "near_ultrasonic"
-                          ? "bg-zinc-100 text-zinc-950 font-medium"
-                          : "text-zinc-400 hover:text-zinc-200"
+                          ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-medium shadow-xs"
+                          : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
                       }`}
                     >
                       Near-Ultrasound (18.75 kHz)
@@ -740,19 +742,19 @@ export function TeacherLiveSessionConsole() {
                     variant="outline"
                     onClick={handleTestSpeakerChime}
                     disabled={isPlayingChime}
-                    className="gap-1.5 text-xs text-zinc-300 border-zinc-700 hover:bg-zinc-800"
+                    className="gap-1.5 text-xs text-slate-700 dark:text-slate-300"
                     title="Play a brief test chime to confirm your laptop speakers are unmuted"
                   >
-                    <Bell className={`h-3.5 w-3.5 ${isPlayingChime ? "text-amber-400 animate-bounce" : "text-zinc-400"}`} />
+                    <Bell className={`h-3.5 w-3.5 ${isPlayingChime ? "text-[#FF7A59] animate-bounce" : "text-slate-400"}`} />
                     {isPlayingChime ? "Chime..." : "Test Speakers"}
                   </Button>
 
                   {/* Beacon Toggle Button */}
                   <Button
                     size="sm"
-                    variant={beaconEmitting ? "destructive" : "primary"}
+                    variant={beaconEmitting ? "destructive" : "coral"}
                     onClick={handleToggleBeacon}
-                    className="gap-1.5 text-xs font-semibold shadow-md"
+                    className="gap-1.5 text-xs font-semibold shadow-xs"
                   >
                     {beaconEmitting ? (
                       <>
@@ -760,7 +762,7 @@ export function TeacherLiveSessionConsole() {
                       </>
                     ) : (
                       <>
-                        <Volume2 className="h-3.5 w-3.5" /> Broadcast to Entire Class
+                        <Volume2 className="h-3.5 w-3.5" /> Broadcast Beacon
                       </>
                     )}
                   </Button>
@@ -769,7 +771,7 @@ export function TeacherLiveSessionConsole() {
                     size="sm"
                     variant="outline"
                     onClick={handleStartGracePeriod}
-                    className="gap-1.5 text-xs text-amber-400 border-amber-500/30 hover:bg-amber-950/20"
+                    className="gap-1.5 text-xs text-[#FF7A59] border-[#FF7A59]/30 hover:bg-[#FF7A59]/10"
                   >
                     <Clock className="h-3.5 w-3.5" /> Grace +60s
                   </Button>
@@ -778,9 +780,9 @@ export function TeacherLiveSessionConsole() {
                     size="sm"
                     variant="outline"
                     onClick={handleSimulateStudentAttendance}
-                    className="gap-1.5 text-xs text-zinc-300 border-zinc-700 hover:bg-zinc-800"
+                    className="gap-1.5 text-xs text-slate-700 dark:text-slate-300"
                   >
-                    <Sparkles className="h-3.5 w-3.5 text-amber-400" /> Sim Student
+                    <Sparkles className="h-3.5 w-3.5 text-[#7C3AED]" /> Sim Student
                   </Button>
 
                   <Button
@@ -795,7 +797,7 @@ export function TeacherLiveSessionConsole() {
               )}
 
               {activeSession.status === "CLOSED" && (
-                <div className="text-xs text-zinc-400 italic">
+                <div className="text-xs text-slate-500 italic">
                   Session Closed • Attendance locked
                 </div>
               )}
@@ -804,38 +806,41 @@ export function TeacherLiveSessionConsole() {
 
           {/* Active Beacon Broadcasting Banner */}
           {beaconEmitting && (
-            <div className="p-3.5 rounded-xl border border-emerald-500/40 bg-emerald-950/20 backdrop-blur-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs animate-in fade-in duration-200">
-              <div className="flex items-center gap-2.5 text-emerald-400">
+            <div className="p-3.5 rounded-2xl border border-emerald-500/40 bg-emerald-50/70 dark:bg-emerald-950/20 backdrop-blur-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs animate-in fade-in duration-200">
+              <div className="flex items-center gap-2.5 text-emerald-700 dark:text-emerald-400">
                 <span className="relative flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
                 </span>
-                <span className="font-semibold text-zinc-100">
+                <span className="font-semibold text-slate-900 dark:text-white">
                   Classroom Acoustic Beacon is LIVE:
                 </span>
-                <span className="text-emerald-300 font-mono text-[11px]">
+                <span className="text-emerald-700 dark:text-emerald-300 font-mono text-[11px]">
                   {beaconReachMode === "whole_classroom"
                     ? "Dual-Carrier 16.5 kHz & 17.5 kHz (Full Classroom Coverage)"
                     : "18.75 kHz (Near-Ultrasonic)"}
                 </span>
               </div>
-              <span className="text-[11px] text-zinc-400">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">
                 Active presence signal reaching all rows
               </span>
             </div>
           )}
 
-          {/* Primary Metric & Attendance Tally Cards */}
+          {/* Primary Metric & Attendance Tally Cards matching Poster (118, 112, 4, 2) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Stat */}
-            <Card className="border-zinc-800 bg-zinc-900/40">
+            <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs">
               <CardContent className="p-4">
-                <div className="text-xs text-zinc-400 font-medium">Class Attendance Rate</div>
-                <div className="text-2xl font-bold text-zinc-100 tracking-tight mt-1 tabular-nums">
-                  {presentCount} / {students.length}{" "}
-                  <span className="text-xs font-normal text-zinc-500">({attendancePercentage}%)</span>
+                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  <span>Class Attendance Rate</span>
+                  <Users className="h-4 w-4 text-[#7C3AED]" />
                 </div>
-                <div className="mt-2.5 h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+                <div className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-1 tabular-nums">
+                  {presentCount} / {students.length}{" "}
+                  <span className="text-xs font-normal text-slate-500">({attendancePercentage}%)</span>
+                </div>
+                <div className="mt-2.5 h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                     style={{ width: `${attendancePercentage}%` }}
@@ -845,63 +850,65 @@ export function TeacherLiveSessionConsole() {
             </Card>
 
             {/* Present Counter */}
-            <Card className="border-zinc-800 bg-zinc-900/40">
+            <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs">
               <CardContent className="p-4 flex items-center justify-between">
                 <div>
-                  <div className="text-xs text-emerald-400 font-medium flex items-center gap-1">
+                  <div className="text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
                     <span>✓</span> Verified Present
                   </div>
-                  <div className="text-2xl font-bold text-emerald-300 tracking-tight mt-1 tabular-nums">
+                  <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tracking-tight mt-1 tabular-nums">
                     {presentCount}
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-lg bg-emerald-950/40 border border-emerald-800/40 flex items-center justify-center text-emerald-400 font-bold">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold">
                   ✓
                 </div>
               </CardContent>
             </Card>
 
             {/* Processing Counter */}
-            <Card className="border-zinc-800 bg-zinc-900/40">
+            <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs">
               <CardContent className="p-4 flex items-center justify-between">
                 <div>
-                  <div className="text-xs text-zinc-400 font-medium flex items-center gap-1">
+                  <div className="text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
                     <span>◌</span> In Verification
                   </div>
-                  <div className="text-2xl font-bold text-zinc-200 tracking-tight mt-1 tabular-nums">
+                  <div className="text-2xl font-bold text-amber-600 dark:text-amber-400 tracking-tight mt-1 tabular-nums">
                     {processingCount}
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-lg bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-400 font-bold">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 flex items-center justify-center text-amber-600 dark:text-amber-400 font-bold">
                   ◌
                 </div>
               </CardContent>
             </Card>
 
             {/* Not Marked Counter */}
-            <Card className="border-zinc-800 bg-zinc-900/40">
+            <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs">
               <CardContent className="p-4 flex items-center justify-between">
                 <div>
-                  <div className="text-xs text-zinc-400 font-medium flex items-center gap-1">
+                  <div className="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
                     <span>○</span> Unmarked / Absent
                   </div>
-                  <div className="text-2xl font-bold text-zinc-300 tracking-tight mt-1 tabular-nums">
+                  <div className="text-2xl font-bold text-slate-700 dark:text-slate-300 tracking-tight mt-1 tabular-nums">
                     {notMarkedCount}
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-lg bg-zinc-800/60 border border-zinc-700/40 flex items-center justify-center text-zinc-400 font-bold">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/40 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold">
                   ○
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Student Roster Table Card */}
-          <Card className="border-zinc-800 bg-zinc-900/30 overflow-hidden">
-            <div className="p-4 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {/* Student Roster Table Card matching the design style guide */}
+          <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 overflow-hidden shadow-xs">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-zinc-400" />
-                <h3 className="text-sm font-semibold text-zinc-100">Live Enrolled Roster</h3>
+                <Users className="h-4 w-4 text-[#7C3AED]" />
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white" style={{ fontFamily: "var(--font-sora), sans-serif" }}>
+                  Live Enrolled Roster
+                </h3>
                 <Badge variant="outline" className="text-[10px]">
                   {filteredStudents.length} Students
                 </Badge>
@@ -909,20 +916,20 @@ export function TeacherLiveSessionConsole() {
 
               <div className="flex items-center gap-2">
                 <div className="relative">
-                  <Search className="h-3.5 w-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <Search className="h-3.5 w-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search name or roll..."
-                    className="h-8 pl-8 pr-3 text-xs rounded-md bg-zinc-950 border border-zinc-800 text-zinc-200 placeholder-zinc-500 focus:outline-hidden focus:border-zinc-600 w-[180px] sm:w-[220px]"
+                    className="h-8 pl-8 pr-3 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-hidden focus:border-[#7C3AED] w-[180px] sm:w-[220px]"
                   />
                 </div>
 
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="h-8 px-2 text-xs rounded-md bg-zinc-950 border border-zinc-800 text-zinc-300 focus:outline-hidden focus:border-zinc-600"
+                  className="h-8 px-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 focus:outline-hidden focus:border-[#7C3AED]"
                 >
                   <option value="ALL">All Status</option>
                   <option value="PRESENT">Present</option>
@@ -935,10 +942,10 @@ export function TeacherLiveSessionConsole() {
                   variant="outline"
                   onClick={handleExportSessionCsv}
                   disabled={filteredStudents.length === 0}
-                  className="h-8 gap-1.5 text-xs text-zinc-300 border-zinc-700 hover:bg-zinc-800"
+                  className="h-8 gap-1.5 text-xs text-slate-700 dark:text-slate-300"
                   title="Download attendance records as CSV"
                 >
-                  <Download className="h-3.5 w-3.5 text-emerald-400" />
+                  <Download className="h-3.5 w-3.5 text-[#FF7A59]" />
                   Export CSV
                 </Button>
               </div>
@@ -946,8 +953,8 @@ export function TeacherLiveSessionConsole() {
 
             {/* Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-zinc-300">
-                <thead className="bg-zinc-950/60 text-zinc-500 font-mono uppercase text-[10px] tracking-wider border-b border-zinc-800">
+              <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
+                <thead className="bg-slate-50 dark:bg-slate-950/80 text-slate-500 font-mono uppercase text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800">
                   <tr>
                     <th className="py-2.5 px-4 font-medium">Roll No</th>
                     <th className="py-2.5 px-4 font-medium">Student</th>

@@ -54,36 +54,36 @@ export function StudentIdCard({
     : "Not Yet Enrolled";
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-zinc-800 bg-gradient-to-br from-zinc-900/90 via-zinc-950 to-zinc-900/70 p-5 shadow-2xl backdrop-blur-md transition-all hover:border-zinc-700">
-      {/* Decorative university watermark / subtle glow */}
-      <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-amber-500/5 blur-3xl" />
+    <div className="relative w-full overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-5 sm:p-6 shadow-md backdrop-blur-md transition-all hover:border-[#7C3AED]/40">
+      {/* Decorative brand watermark glow */}
+      <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-gradient-to-br from-[#7C3AED]/10 to-[#FF7A59]/10 blur-3xl" />
       {isVerified && (
         <div className="pointer-events-none absolute -bottom-10 -left-10 h-36 w-36 rounded-full bg-emerald-500/10 blur-2xl" />
       )}
 
       {/* Card Header: Institution & Type */}
-      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3.5">
+      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3.5">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400">
-            <GraduationCap className="h-4 w-4" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/40 text-[#7C3AED]">
+            <GraduationCap className="h-5 w-5" />
           </div>
           <div>
-            <div className="text-[11px] font-bold tracking-wider uppercase text-zinc-300 font-mono">
-              Attendex Institute of Technology
+            <div className="text-[11px] font-bold tracking-wider uppercase text-slate-800 dark:text-slate-200 font-mono">
+              VIT University • Attendex Campus
             </div>
-            <div className="text-[10px] text-zinc-500">Official Student Digital Identity</div>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400">Official Student Digital Identity</div>
           </div>
         </div>
 
         {/* KYC Verification Badge */}
         {isVerified ? (
-          <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 text-[11px] font-medium text-emerald-400">
-            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+          <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 px-2.5 py-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>KYC Verified</span>
           </div>
         ) : (
-          <div className="flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/40 px-2.5 py-1 text-[11px] font-medium text-amber-300">
-            <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
+          <div className="flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 px-2.5 py-1 text-[11px] font-medium text-amber-700 dark:text-amber-300">
+            <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
             <span>KYC Pending</span>
           </div>
         )}
