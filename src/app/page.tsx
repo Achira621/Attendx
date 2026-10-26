@@ -48,7 +48,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 flex flex-col selection:bg-[#FF7A59]/20 selection:text-[#FF7A59]">
+    <div className="min-h-screen text-slate-900 dark:text-slate-100 flex flex-col selection:bg-[#FF7A59]/20 selection:text-[#FF7A59]">
       {/* Top Application Bar */}
       <header className="border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-[#0F172A]/85 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
