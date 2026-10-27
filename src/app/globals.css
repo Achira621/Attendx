@@ -9,22 +9,22 @@
   --brand-ice-blue: #E7F2FF;
   --brand-slate-grey: #64748B;
 
-  /* Theme Surfaces - Deep Indigo Dark Mode as primary */
-  --bg-canvas: #0B0F19;
-  --bg-surface: #111827;
-  --bg-surface-elevated: #1F2937;
-  --bg-surface-hover: #283548;
+  /* Theme Surfaces - Light Canvas by default, overridden by .dark */
+  --bg-canvas: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #F1F5F9;
+  --bg-surface-hover: #E2E8F0;
 
   /* Borders & Dividers */
-  --border-subtle: #1E293B;
-  --border-strong: #334155;
-  --border-accent: rgba(124, 58, 237, 0.4);
+  --border-subtle: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --border-accent: rgba(124, 58, 237, 0.3);
 
   /* Typography - Maximum Visibility & Contrast */
-  --text-primary: #FFFFFF;
-  --text-secondary: #E2E8F0;
-  --text-muted: #CBD5E1;
-  --text-inverse: #0B0F19;
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+  --text-inverse: #FFFFFF;
 
   /* Semantic Brand & Accents */
   --accent-primary: #FF7A59;

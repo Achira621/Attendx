@@ -34,8 +34,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       className={`dark ${sora.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[#0B0F19] text-[#F8FAFC] font-sans selection:bg-[#FF7A59]/20 selection:text-[#FF7A59] relative">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (localStorage.getItem('attendex-canvas-theme') === 'light') {
+                  document.documentElement.classList.remove('dark');
+                } else {
+                  document.documentElement.classList.add('dark');
+                }
+              } catch (_) {}
+            `,
+          }}
+        />
+      </head>
+      <body className="min-h-full flex flex-col bg-[var(--bg-canvas)] text-[var(--text-primary)] font-sans selection:bg-[#FF7A59]/20 selection:text-[#FF7A59] relative transition-colors duration-300">
         <AmbientCanvasBackground />
         <div className="relative z-10 flex flex-col flex-1">
           <GlobalBackButton />

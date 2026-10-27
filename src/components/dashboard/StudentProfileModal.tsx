@@ -7,20 +7,12 @@ import { Card } from "@/components/ui/card";
 import { LoadingAnimation } from "@/components/ui/LoadingAnimation";
 import { downloadCsv } from "@/lib/exportCsv";
 import {
-  User,
   GraduationCap,
   BookOpen,
-  Calendar,
   CheckCircle2,
   ShieldCheck,
-  Smartphone,
   Download,
   X,
-  Clock,
-  Sparkles,
-  AlertTriangle,
-  Building2,
-  Hash,
 } from "lucide-react";
 
 export interface StudentProfileData {

@@ -290,15 +290,7 @@ export function StudentDashboard() {
       beaconFrequencyHz: selectedSessionForFlow.classroom.beaconFrequencyHz,
       ephemeralSecret: selectedSessionForFlow.ephemeralSecret,
     };
-  }, [
-    selectedSessionForFlow?.id,
-    selectedSessionForFlow?.course.code,
-    selectedSessionForFlow?.course.name,
-    selectedSessionForFlow?.classroom.name,
-    selectedSessionForFlow?.classroom.roomNumber,
-    selectedSessionForFlow?.classroom.beaconFrequencyHz,
-    selectedSessionForFlow?.ephemeralSecret,
-  ]);
+  }, [selectedSessionForFlow]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

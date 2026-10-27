@@ -16,14 +16,8 @@ import {
   Plus,
   Users,
   Download,
-  Calendar,
   Search,
-  CheckCircle2,
-  Clock,
   ArrowRight,
-  TrendingUp,
-  GraduationCap,
-  Sparkles,
   RefreshCw,
 } from "lucide-react";
 
@@ -72,7 +66,6 @@ export interface CourseAnalyticsSectionProps {
 
 export function CourseAnalyticsSection({
   teacherId,
-  onStartSessionForCourse,
 }: CourseAnalyticsSectionProps) {
   const [courses, setCourses] = useState<CourseSummary[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(true);

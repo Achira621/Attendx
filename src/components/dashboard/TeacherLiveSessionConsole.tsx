@@ -24,7 +24,6 @@ import {
   Bell,
   Download,
   BookOpen,
-  Layers,
 } from "lucide-react";
 import { downloadCsv } from "@/lib/exportCsv";
 import { CourseAnalyticsSection } from "@/components/dashboard/CourseAnalyticsSection";

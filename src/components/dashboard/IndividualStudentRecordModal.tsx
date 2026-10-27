@@ -6,17 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { downloadCsv } from "@/lib/exportCsv";
 import {
-  User,
   GraduationCap,
   Calendar,
   Clock,
-  MapPin,
   CheckCircle2,
   XCircle,
   Download,
   X,
-  ShieldCheck,
-  Radio,
 } from "lucide-react";
 
 export interface StudentHistoryRecord {

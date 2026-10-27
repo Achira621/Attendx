@@ -26,8 +26,8 @@ import {
   ScanFace,
 } from "lucide-react";
 import { StudentIdKycModal } from "@/components/kyc/StudentIdKycModal";
-
 import { AttendexLogo } from "@/components/ui/AttendexLogo";
+import { CanvasThemeToggle } from "@/components/ui/CanvasThemeToggle";
 
 type TeacherTab = "teacher" | "acoustic_lab" | "face_lab" | "architecture";
 
@@ -75,13 +75,13 @@ export default function Home() {
 
           {/* Teacher-Only Navigation Tabs (Hidden for Students) */}
           {user && user.role === "TEACHER" && (
-            <nav className="hidden md:flex items-center gap-1 bg-zinc-950 p-1 rounded-lg border border-zinc-800">
+            <nav className="hidden md:flex items-center gap-1 bg-slate-100 dark:bg-zinc-950 p-1 rounded-lg border border-slate-200 dark:border-zinc-800">
               <button
                 onClick={() => setTeacherTab("teacher")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md font-medium transition-all ${
                   teacherTab === "teacher"
-                    ? "bg-zinc-800 text-white shadow-xs"
-                    : "text-slate-300 hover:text-white"
+                    ? "bg-white text-slate-900 dark:bg-zinc-800 dark:text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
                 }`}
               >
                 <LayoutDashboard className="h-3.5 w-3.5" />
@@ -92,11 +92,11 @@ export default function Home() {
                 onClick={() => setTeacherTab("acoustic_lab")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md font-medium transition-all ${
                   teacherTab === "acoustic_lab"
-                    ? "bg-zinc-800 text-white shadow-xs"
-                    : "text-slate-300 hover:text-white"
+                    ? "bg-white text-slate-900 dark:bg-zinc-800 dark:text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
                 }`}
               >
-                <Radio className="h-3.5 w-3.5 text-amber-400" />
+                <Radio className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
                 Acoustic Lab
               </button>
 
@@ -104,11 +104,11 @@ export default function Home() {
                 onClick={() => setTeacherTab("face_lab")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md font-medium transition-all ${
                   teacherTab === "face_lab"
-                    ? "bg-zinc-800 text-white shadow-xs"
-                    : "text-slate-300 hover:text-white"
+                    ? "bg-white text-slate-900 dark:bg-zinc-800 dark:text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
                 }`}
               >
-                <Camera className="h-3.5 w-3.5 text-emerald-400" />
+                <Camera className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                 Face Lab
               </button>
 
@@ -116,8 +116,8 @@ export default function Home() {
                 onClick={() => setTeacherTab("architecture")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md font-medium transition-all ${
                   teacherTab === "architecture"
-                    ? "bg-zinc-800 text-white shadow-xs"
-                    : "text-slate-300 hover:text-white"
+                    ? "bg-white text-slate-900 dark:bg-zinc-800 dark:text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
                 }`}
               >
                 <FileText className="h-3.5 w-3.5" />
@@ -128,6 +128,9 @@ export default function Home() {
 
           {/* User Auth Profile & Fast Switch Controls */}
           <div className="flex items-center gap-2.5">
+            {/* Canvas Light / Dark Toggle */}
+            <CanvasThemeToggle />
+
             {loading ? (
               <div className="h-7 w-24 bg-zinc-800/60 animate-pulse rounded-lg" />
             ) : user ? (
@@ -194,11 +197,11 @@ export default function Home() {
 
         {/* Mobile Sub-Navigation for Teacher */}
         {user && user.role === "TEACHER" && (
-          <div className="md:hidden flex items-center justify-around border-t border-zinc-800 px-2 py-1.5 text-xs">
+          <div className="md:hidden flex items-center justify-around border-t border-slate-200 dark:border-zinc-800 bg-slate-50/90 dark:bg-zinc-950/90 px-2 py-1.5 text-xs">
             <button
               onClick={() => setTeacherTab("teacher")}
               className={`p-1.5 font-medium ${
-                teacherTab === "teacher" ? "text-amber-400 font-semibold" : "text-slate-300"
+                teacherTab === "teacher" ? "text-amber-500 dark:text-amber-400 font-semibold" : "text-slate-600 dark:text-slate-300"
               }`}
             >
               Sessions
@@ -206,7 +209,7 @@ export default function Home() {
             <button
               onClick={() => setTeacherTab("acoustic_lab")}
               className={`p-1.5 font-medium ${
-                teacherTab === "acoustic_lab" ? "text-amber-400 font-semibold" : "text-slate-300"
+                teacherTab === "acoustic_lab" ? "text-amber-500 dark:text-amber-400 font-semibold" : "text-slate-600 dark:text-slate-300"
               }`}
             >
               Acoustic
@@ -214,7 +217,7 @@ export default function Home() {
             <button
               onClick={() => setTeacherTab("face_lab")}
               className={`p-1.5 font-medium ${
-                teacherTab === "face_lab" ? "text-amber-400 font-semibold" : "text-slate-300"
+                teacherTab === "face_lab" ? "text-amber-500 dark:text-amber-400 font-semibold" : "text-slate-600 dark:text-slate-300"
               }`}
             >
               Face Lab
@@ -222,7 +225,7 @@ export default function Home() {
             <button
               onClick={() => setTeacherTab("architecture")}
               className={`p-1.5 font-medium ${
-                teacherTab === "architecture" ? "text-amber-400 font-semibold" : "text-slate-300"
+                teacherTab === "architecture" ? "text-amber-500 dark:text-amber-400 font-semibold" : "text-slate-600 dark:text-slate-300"
               }`}
             >
               Specs
@@ -409,7 +412,7 @@ export default function Home() {
                       Sign in as <span className="text-slate-900 dark:text-white font-semibold">Varad Dalvi</span>. Scan classroom audio beacon & perform on-device biometric presence.
                     </p>
                   </div>
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 text-[11px] text-slate-300 font-mono">
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                     <span className="text-emerald-600 dark:text-emerald-400 font-medium">✓ Acoustic receiver</span>
                     <span>•</span>
                     <span className="text-emerald-600 dark:text-emerald-400 font-medium">✓ On-device face scan</span>
@@ -435,7 +438,7 @@ export default function Home() {
                       Sign in as <span className="text-slate-900 dark:text-white font-semibold">Dr. Arjun Mehta</span>. Broadcast ultrasonic beacon & track real-time attendance tally.
                     </p>
                   </div>
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 text-[11px] text-slate-300 font-mono">
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                     <span className="text-[#7C3AED] font-medium">✓ Ultrasonic emitter</span>
                     <span>•</span>
                     <span className="text-[#7C3AED] font-medium">✓ Real-time roster telemetry</span>
