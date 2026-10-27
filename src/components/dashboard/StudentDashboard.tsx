@@ -23,6 +23,7 @@ import {
 import { StudentIdCard } from "@/components/dashboard/StudentIdCard";
 import { StudentIdKycModal } from "@/components/kyc/StudentIdKycModal";
 import { StudentProfileModal } from "@/components/dashboard/StudentProfileModal";
+import { LoadingAnimation } from "@/components/ui/LoadingAnimation";
 
 interface ActiveSessionData {
   id: string;
@@ -316,8 +317,8 @@ export function StudentDashboard() {
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-2 text-xs">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-zinc-400">Classroom Dual Radar:</span>
-          <span className="font-medium text-zinc-200">Listening (16.5 kHz)</span>
+          <span className="text-slate-300 font-medium">Classroom Dual Radar:</span>
+          <span className="font-semibold text-white">Listening (16.5 kHz)</span>
         </div>
 
         <Button
@@ -325,7 +326,7 @@ export function StudentDashboard() {
           variant="outline"
           onClick={() => fetchActiveSessions(true)}
           disabled={isChecking}
-          className="h-7 text-xs text-zinc-400 hover:text-zinc-200 gap-1.5"
+          className="h-7 text-xs text-slate-300 hover:text-white gap-1.5"
         >
           <RefreshCw className={`h-3 w-3 ${isChecking ? "animate-spin" : ""}`} />
           <span>Refresh Sessions</span>
@@ -336,26 +337,28 @@ export function StudentDashboard() {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold text-zinc-200 uppercase tracking-wider flex items-center gap-1.5">
+            <h2 className="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-1.5">
               <Radio className="h-4 w-4 text-emerald-400" />
               Active Classroom Sessions
             </h2>
             {activeSessions.length > 0 && (
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/50">
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 border border-emerald-700/60 font-semibold">
                 {activeSessions.length} LIVE NOW
               </span>
             )}
           </div>
-          <span className="text-[11px] text-zinc-500 font-mono">
+          <span className="text-[11px] text-slate-300 font-mono font-medium">
             Updated {lastCheckedTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
           </span>
         </div>
 
         {loadingSessions ? (
-          <div className="p-8 rounded-xl border border-zinc-800 bg-zinc-900/20 text-center animate-pulse space-y-3">
-            <div className="w-8 h-8 rounded-full bg-zinc-800 mx-auto" />
-            <div className="h-4 w-48 bg-zinc-800 rounded mx-auto" />
-            <div className="h-3 w-32 bg-zinc-800/60 rounded mx-auto" />
+          <div className="p-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 text-center">
+            <LoadingAnimation
+              size="md"
+              message="Scanning Classroom Proximity Channels"
+              submessage="Searching for acoustic lecture beacons & scheduled sessions..."
+            />
           </div>
         ) : activeSessions.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
@@ -372,28 +375,28 @@ export function StudentDashboard() {
                   <div className="space-y-2">
                     <div className="flex items-center gap-2.5">
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <Badge variant="success" className="text-[10px] tracking-wide uppercase">
+                      <Badge variant="success" className="text-xs tracking-wide uppercase font-semibold">
                         Attendance In Progress
                       </Badge>
-                      <span className="text-xs font-mono text-zinc-400">
+                      <span className="text-sm font-mono text-slate-200 font-bold">
                         {session.course.code}
                       </span>
                     </div>
 
-                    <h3 className="text-lg font-bold text-zinc-100 tracking-tight">
+                    <h3 className="text-xl font-bold text-white tracking-tight">
                       {session.course.name}
                     </h3>
 
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-zinc-400">
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-slate-200 font-medium">
                       <span className="flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5 text-zinc-500" />
+                        <MapPin className="h-4 w-4 text-purple-400" />
                         {session.classroom.name} ({session.classroom.roomNumber})
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <Radio className="h-3.5 w-3.5 text-amber-400" />
-                        Acoustic Beacon: <span className="font-mono text-zinc-300">{beaconKhz}</span>
+                        <Radio className="h-4 w-4 text-amber-400" />
+                        Acoustic Beacon: <span className="font-mono text-amber-300 font-bold">{beaconKhz}</span>
                       </span>
-                      <span className="flex items-center gap-1.5 font-mono text-[11px] text-zinc-500">
+                      <span className="flex items-center gap-1.5 font-mono text-xs text-slate-300 font-semibold">
                         Session: {session.id.slice(-8)}
                       </span>
                     </div>
@@ -401,7 +404,7 @@ export function StudentDashboard() {
 
                   <div className="flex items-center gap-3 shrink-0">
                     {session.hasAttended ? (
-                      <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
+                      <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-sm font-semibold">
                         <CheckCircle2 className="h-4 w-4" />
                         <span>✓ Attendance Recorded</span>
                       </div>
@@ -410,11 +413,11 @@ export function StudentDashboard() {
                         size="md"
                         variant="brand"
                         onClick={() => handleOpenVerification(session)}
-                        className="gap-2 shadow-xs text-xs font-semibold px-4 py-2.5"
+                        className="gap-2 shadow-xs text-sm font-bold px-5 py-3"
                       >
                         <Sparkles className="h-4 w-4 text-zinc-950" />
                         Verify & Mark Attendance
-                        <ArrowRight className="h-3.5 w-3.5" />
+                        <ArrowRight className="h-4 w-4" />
                       </Button>
                     )}
                   </div>
@@ -424,17 +427,17 @@ export function StudentDashboard() {
           </div>
         ) : (
           /* Calm, Linear-style empty state */
-          <div className="p-8 rounded-xl border border-zinc-800/80 bg-zinc-900/20 text-center space-y-3.5">
-            <div className="w-12 h-12 rounded-full bg-zinc-800/60 border border-zinc-700/50 flex items-center justify-center mx-auto text-zinc-400">
-              <Radio className="h-5 w-5 animate-pulse text-zinc-400" />
+          <div className="p-8 rounded-xl border border-zinc-800/80 bg-zinc-900/40 text-center space-y-3.5">
+            <div className="w-12 h-12 rounded-full bg-zinc-800/60 border border-zinc-700/50 flex items-center justify-center mx-auto text-amber-400">
+              <Radio className="h-5 w-5 animate-pulse text-amber-400" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-zinc-200">No Active Attendance Sessions</h3>
-              <p className="text-xs text-zinc-400 max-w-md mx-auto mt-1 leading-relaxed">
+              <h3 className="text-sm font-bold text-white">No Active Attendance Sessions</h3>
+              <p className="text-xs text-slate-300 max-w-md mx-auto mt-1 leading-relaxed">
                 Your professors have not started attendance for any enrolled classes yet. When an attendance window opens, it will appear here instantly.
               </p>
             </div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-950 border border-zinc-800 text-[11px] font-mono text-zinc-500">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-950 border border-zinc-800 text-[11px] font-mono text-slate-300 font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
               Scanning for classroom ultrasonic beacons...
             </div>
@@ -446,20 +449,20 @@ export function StudentDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left Column: Biometric Profile Status */}
         <div className="md:col-span-1 space-y-3">
-          <h3 className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+          <h3 className="text-xs font-semibold text-white uppercase tracking-wider flex items-center gap-1.5">
             <ScanFace className="h-4 w-4 text-amber-400" />
             Biometric Identity
           </h3>
 
-          <Card className="border-zinc-800 bg-zinc-900/30 p-4 space-y-3.5">
+          <Card className="border-zinc-800 bg-zinc-900/60 p-4 space-y-3.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-zinc-400 font-medium">Face Profile</span>
+              <span className="text-xs text-slate-300 font-medium">Face Profile</span>
               {biometricProfile ? (
                 <Badge variant="success" className="text-[10px]">
                   Enrolled
                 </Badge>
               ) : (
-                <Badge variant="outline" className="text-[10px] text-amber-400 border-amber-500/40">
+                <Badge variant="outline" className="text-[10px] text-amber-300 border-amber-500/40">
                   Pending
                 </Badge>
               )}
@@ -470,8 +473,8 @@ export function StudentDashboard() {
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <div className="space-y-0.5">
-                <p className="text-xs font-medium text-zinc-200">On-Device Template</p>
-                <p className="text-[11px] text-zinc-400">
+                <p className="text-xs font-bold text-white">On-Device Template</p>
+                <p className="text-[11px] text-slate-300">
                   {biometricProfile
                     ? `Algorithm: ${biometricProfile.algorithmVersion}`
                     : "Not enrolled on this device"}
@@ -479,20 +482,20 @@ export function StudentDashboard() {
               </div>
             </div>
 
-            <div className="p-2.5 rounded-lg bg-zinc-950 border border-zinc-800/80 text-xs space-y-1 text-zinc-400">
+            <div className="p-2.5 rounded-lg bg-zinc-950 border border-zinc-800/80 text-xs space-y-1 text-slate-200">
               <div className="flex justify-between">
-                <span>Quality Score:</span>
-                <span className="font-mono text-emerald-400">
+                <span className="text-slate-300">Quality Score:</span>
+                <span className="font-mono text-emerald-400 font-semibold">
                   {biometricProfile ? `${(biometricProfile.qualityScore * 100).toFixed(0)}%` : "N/A"}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span>Privacy Mode:</span>
-                <span className="font-mono text-zinc-300">Local Vector Hash</span>
+                <span className="text-slate-300">Privacy Mode:</span>
+                <span className="font-mono text-white font-medium">Local Vector Hash</span>
               </div>
             </div>
 
-            <p className="text-[11px] text-zinc-500 leading-tight">
+            <p className="text-[11px] text-slate-300 leading-tight">
               Raw biometric pixels are never sent or stored on the server. Only quantized vector assertions are verified.
             </p>
 
@@ -500,7 +503,7 @@ export function StudentDashboard() {
               size="sm"
               variant="outline"
               onClick={() => setIsEnrollModalOpen(true)}
-              className="w-full text-xs gap-1.5 border-zinc-700 bg-zinc-800/60 hover:bg-zinc-800 hover:text-white"
+              className="w-full text-xs gap-1.5 border-zinc-700 bg-zinc-800/80 text-white hover:bg-zinc-700 hover:text-white"
             >
               <Camera className="h-3.5 w-3.5 text-zinc-300" />
               {biometricProfile ? "Re-enroll Face Template" : "Enroll Face Template"}
@@ -511,21 +514,21 @@ export function StudentDashboard() {
         {/* Right Column: Attendance Records History */}
         <div className="md:col-span-2 space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+            <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
               <Calendar className="h-4 w-4 text-emerald-400" />
               Recent Attendance History
             </h3>
-            <span className="text-[11px] font-mono text-zinc-500">
+            <span className="text-xs font-mono text-slate-300 font-semibold">
               {attendanceHistory.length} Recorded
             </span>
           </div>
 
-          <Card className="border-zinc-800 bg-zinc-900/30 overflow-hidden">
+          <Card className="border-zinc-800 bg-zinc-900/60 overflow-hidden">
             {attendanceHistory.length === 0 ? (
               <div className="p-8 text-center space-y-2">
-                <Clock className="h-6 w-6 text-zinc-600 mx-auto" />
-                <p className="text-xs text-zinc-400">No attendance records yet.</p>
-                <p className="text-[11px] text-zinc-500">
+                <Clock className="h-7 w-7 text-slate-400 mx-auto" />
+                <p className="text-sm text-slate-200 font-medium">No attendance records yet.</p>
+                <p className="text-xs text-slate-400">
                   Completed verifications will appear here with proof hashes and timestamps.
                 </p>
               </div>
@@ -542,28 +545,28 @@ export function StudentDashboard() {
                   });
 
                   return (
-                    <div key={rec.id} className="p-3.5 flex items-center justify-between gap-3 text-xs">
+                    <div key={rec.id} className="p-4 flex items-center justify-between gap-4 text-sm">
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-medium text-zinc-200">
+                        <div className="flex items-center gap-2.5">
+                          <span className="font-mono font-bold text-white text-sm">
                             {rec.session.course.code}
                           </span>
-                          <span className="text-zinc-400 font-normal">
+                          <span className="text-slate-200 font-medium text-sm">
                             {rec.session.course.name}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 text-[11px] text-zinc-500">
-                          <span>{rec.session.classroom.name}</span>
+                        <div className="flex items-center gap-2 text-xs text-slate-300">
+                          <span className="text-slate-300 font-medium">{rec.session.classroom.name}</span>
                           <span>•</span>
-                          <span>{dateStr} at {timeStr}</span>
+                          <span className="text-slate-300 font-medium">{dateStr} at {timeStr}</span>
                           <span>•</span>
-                          <span className="text-amber-400/90 font-mono">{rec.proximityTierUsed}</span>
+                          <span className="text-amber-300 font-mono font-semibold">{rec.proximityTierUsed}</span>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3">
                         <StatusIndicator status={rec.status} />
-                        <span className="text-[10px] font-mono text-zinc-500">
+                        <span className="text-xs font-mono text-slate-200 font-bold">
                           {(rec.confidence * 100).toFixed(0)}%
                         </span>
                       </div>

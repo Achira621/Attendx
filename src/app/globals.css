@@ -9,40 +9,40 @@
   --brand-ice-blue: #E7F2FF;
   --brand-slate-grey: #64748B;
 
-  /* Theme Surfaces (Light Mode default matching the guide's dashboard) */
-  --bg-canvas: #F8FAFC;
-  --bg-surface: #FFFFFF;
-  --bg-surface-elevated: #FFFFFF;
-  --bg-surface-hover: #F1F5F9;
+  /* Theme Surfaces - Deep Indigo Dark Mode as primary */
+  --bg-canvas: #0B0F19;
+  --bg-surface: #111827;
+  --bg-surface-elevated: #1F2937;
+  --bg-surface-hover: #283548;
 
   /* Borders & Dividers */
-  --border-subtle: #E2E8F0;
-  --border-strong: #CBD5E1;
-  --border-accent: rgba(124, 58, 237, 0.25);
+  --border-subtle: #1E293B;
+  --border-strong: #334155;
+  --border-accent: rgba(124, 58, 237, 0.4);
 
-  /* Typography */
-  --text-primary: #0F172A;
-  --text-secondary: #475569;
-  --text-muted: #64748B;
-  --text-inverse: #FFFFFF;
+  /* Typography - Maximum Visibility & Contrast */
+  --text-primary: #FFFFFF;
+  --text-secondary: #E2E8F0;
+  --text-muted: #CBD5E1;
+  --text-inverse: #0B0F19;
 
   /* Semantic Brand & Accents */
   --accent-primary: #FF7A59;
   --accent-primary-hover: #F4643F;
   --accent-purple: #7C3AED;
   --accent-purple-hover: #6D28D9;
-  --accent-subtle: rgba(255, 122, 89, 0.12);
-  --accent-border: rgba(255, 122, 89, 0.28);
+  --accent-subtle: rgba(255, 122, 89, 0.18);
+  --accent-border: rgba(255, 122, 89, 0.35);
 
   /* Status Tokens from Guide */
   --status-success: #10B981;
-  --status-success-bg: rgba(16, 185, 129, 0.12);
+  --status-success-bg: rgba(16, 185, 129, 0.16);
   --status-warning: #F59E0B;
-  --status-warning-bg: rgba(245, 158, 11, 0.12);
+  --status-warning-bg: rgba(245, 158, 11, 0.16);
   --status-error: #EF4444;
-  --status-error-bg: rgba(239, 68, 68, 0.12);
+  --status-error-bg: rgba(239, 68, 68, 0.16);
   --status-info: #3B82F6;
-  --status-info-bg: rgba(59, 130, 246, 0.12);
+  --status-info-bg: rgba(59, 130, 246, 0.16);
 
   /* Radii */
   --radius-xs: 6px;
@@ -63,10 +63,10 @@
   --border-strong: #334155;
   --border-accent: rgba(124, 58, 237, 0.4);
 
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
-  --text-inverse: #0F172A;
+  --text-primary: #FFFFFF;
+  --text-secondary: #E2E8F0;
+  --text-muted: #CBD5E1;
+  --text-inverse: #0B0F19;
 
   --accent-subtle: rgba(255, 122, 89, 0.18);
   --accent-border: rgba(255, 122, 89, 0.35);
@@ -107,10 +107,17 @@
   --color-info-bg: var(--status-info-bg);
 }
 
+html {
+  font-size: 17px;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   background-color: var(--bg-canvas);
   color: var(--text-primary);
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
   letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

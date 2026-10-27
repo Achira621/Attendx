@@ -18,6 +18,7 @@ import {
   LogIn,
   ScanFace,
 } from "lucide-react";
+import { LoadingAnimation } from "@/components/ui/LoadingAnimation";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -117,7 +118,17 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="relative w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-6 space-y-4 text-zinc-100">
+      <div className="relative w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-6 space-y-4 text-zinc-100 overflow-hidden">
+        {loading && (
+          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-zinc-950/90 backdrop-blur-xs p-6 animate-in fade-in duration-150">
+            <LoadingAnimation
+              size="sm"
+              message={tab === "LOGIN" ? "Authenticating Session..." : "Creating Account..."}
+              submessage="Verifying credentials & cryptographic session signature"
+            />
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
@@ -209,30 +220,30 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
         {tab === "LOGIN" && (
           <form onSubmit={handleLoginSubmit} className="space-y-3.5">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300">Institutional Email or Roll Number</label>
+              <label className="text-xs font-semibold text-slate-200">Institutional Email or Roll Number</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <input
                   type="text"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   placeholder="student@attendex.edu or CS-2026-001"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60 transition"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-white font-medium placeholder-slate-400 focus:outline-hidden focus:border-amber-500/60 transition"
                   required
                 />
               </div>
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300">Password</label>
+              <label className="text-xs font-semibold text-slate-200">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60 transition"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-white font-medium placeholder-slate-400 focus:outline-hidden focus:border-amber-500/60 transition"
                   required
                 />
               </div>
@@ -241,7 +252,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-2 px-4 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs flex items-center justify-center gap-2 transition disabled:opacity-50 shadow-xs"
+              className="w-full mt-2 py-2 px-4 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-bold text-xs flex items-center justify-center gap-2 transition disabled:opacity-50 shadow-xs"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign In to Attendex"}
             </button>
@@ -253,15 +264,15 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
           <form onSubmit={handleRegisterSubmit} className="space-y-3">
             {/* Role Picker */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300">Account Role</label>
+              <label className="text-xs font-semibold text-slate-200">Account Role</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setRegRole("STUDENT")}
-                  className={`p-2 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 transition ${
+                  className={`p-2 rounded-lg border text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
                     regRole === "STUDENT"
-                      ? "border-emerald-500 bg-emerald-500/10 text-emerald-300"
-                      : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700"
+                      ? "border-emerald-500 bg-emerald-500/20 text-emerald-300"
+                      : "border-zinc-800 bg-zinc-950 text-slate-300 hover:border-zinc-700 hover:text-white"
                   }`}
                 >
                   <GraduationCap className="h-3.5 w-3.5" />
@@ -270,10 +281,10 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
                 <button
                   type="button"
                   onClick={() => setRegRole("TEACHER")}
-                  className={`p-2 rounded-lg border text-xs font-medium flex items-center justify-center gap-1.5 transition ${
+                  className={`p-2 rounded-lg border text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
                     regRole === "TEACHER"
-                      ? "border-amber-500 bg-amber-500/10 text-amber-300"
-                      : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700"
+                      ? "border-amber-500 bg-amber-500/20 text-amber-300"
+                      : "border-zinc-800 bg-zinc-950 text-slate-300 hover:border-zinc-700 hover:text-white"
                   }`}
                 >
                   <User className="h-3.5 w-3.5" />
@@ -284,15 +295,15 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
 
             {/* Full Name */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300">Full Legal Name</label>
+              <label className="text-xs font-semibold text-slate-200">Full Legal Name</label>
               <div className="relative">
-                <User className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <input
                   type="text"
                   value={regName}
                   onChange={(e) => setRegName(e.target.value)}
                   placeholder="e.g. Rohan Sharma"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60 transition"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-white font-medium placeholder-slate-400 focus:outline-hidden focus:border-amber-500/60 transition"
                   required
                 />
               </div>
@@ -300,15 +311,15 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
 
             {/* Email */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300">Institutional Email</label>
+              <label className="text-xs font-semibold text-slate-200">Institutional Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <input
                   type="email"
                   value={regEmail}
                   onChange={(e) => setRegEmail(e.target.value)}
                   placeholder="rohan@attendex.edu"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60 transition"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-white font-medium placeholder-slate-400 focus:outline-hidden focus:border-amber-500/60 transition"
                   required
                 />
               </div>
@@ -317,15 +328,15 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
             {/* Roll Number (Students only) */}
             {regRole === "STUDENT" && (
               <div className="space-y-1">
-                <label className="text-xs font-medium text-zinc-300">Roll Number</label>
+                <label className="text-xs font-semibold text-slate-200">Roll Number</label>
                 <div className="relative">
-                  <Hash className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                  <Hash className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                   <input
                     type="text"
                     value={regRollNumber}
                     onChange={(e) => setRegRollNumber(e.target.value)}
                     placeholder="e.g. CS-2026-005"
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60 transition"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-white font-mono font-medium placeholder-slate-400 focus:outline-hidden focus:border-amber-500/60 transition"
                     required
                   />
                 </div>
@@ -334,30 +345,30 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
 
             {/* Department */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300">Academic Department</label>
+              <label className="text-xs font-semibold text-slate-200">Academic Department</label>
               <div className="relative">
-                <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <input
                   type="text"
                   value={regDepartment}
                   onChange={(e) => setRegDepartment(e.target.value)}
                   placeholder="Computer Science & Engineering"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60 transition"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-white font-medium placeholder-slate-400 focus:outline-hidden focus:border-amber-500/60 transition"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div className="space-y-1">
-              <label className="text-xs font-medium text-zinc-300">Secure Password</label>
+              <label className="text-xs font-semibold text-slate-200">Secure Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <input
                   type="password"
                   value={regPassword}
                   onChange={(e) => setRegPassword(e.target.value)}
                   placeholder="At least 6 characters"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60 transition"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-9 pr-3 py-2 text-xs text-white font-medium placeholder-slate-400 focus:outline-hidden focus:border-amber-500/60 transition"
                   required
                 />
               </div>
@@ -366,7 +377,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-2 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-medium text-xs flex items-center justify-center gap-2 transition disabled:opacity-50"
+              className="w-full mt-2 py-2 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold text-xs flex items-center justify-center gap-2 transition disabled:opacity-50"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Complete Registration"}
             </button>
@@ -375,7 +386,7 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
 
         {/* Quick Demo Identities */}
         <div className="pt-3 border-t border-zinc-800/80 space-y-2">
-          <div className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider text-center">
+          <div className="text-[11px] font-mono text-slate-300 font-semibold uppercase tracking-wider text-center">
             Or test with verified demo identities
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -385,11 +396,11 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
               disabled={loading}
               className="p-2.5 rounded-lg border border-zinc-800 bg-zinc-950 hover:bg-zinc-800/80 transition text-left flex flex-col gap-1 text-xs"
             >
-              <div className="flex items-center gap-1.5 text-amber-400 font-semibold text-[11px]">
+              <div className="flex items-center gap-1.5 text-amber-400 font-bold text-[11px]">
                 <UserCheck className="h-3.5 w-3.5" />
                 Faculty
               </div>
-              <span className="text-[10px] text-zinc-400">Dr. Evelyn Reed</span>
+              <span className="text-[10px] text-slate-200 font-medium">Dr. Evelyn Reed</span>
             </button>
 
             <button
@@ -398,11 +409,11 @@ export function LoginModal({ isOpen, onClose, onSuccess, onOpenKyc }: LoginModal
               disabled={loading}
               className="p-2.5 rounded-lg border border-zinc-800 bg-zinc-950 hover:bg-zinc-800/80 transition text-left flex flex-col gap-1 text-xs"
             >
-              <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px]">
+              <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]">
                 <GraduationCap className="h-3.5 w-3.5" />
                 Student
               </div>
-              <span className="text-[10px] text-zinc-400">Varad Dalvi (CS-2026-001)</span>
+              <span className="text-[10px] text-slate-200 font-medium">Varad Dalvi (CS-2026-001)</span>
             </button>
           </div>
         </div>

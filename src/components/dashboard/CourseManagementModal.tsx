@@ -76,13 +76,13 @@ export function CourseManagementModal({
               <BookOpen className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-zinc-100">Add New Class / Course</h3>
-              <p className="text-xs text-zinc-400">Save course to your profile for future lectures</p>
+              <h3 className="text-sm font-bold text-white">Add New Class / Course</h3>
+              <p className="text-xs text-slate-300">Save course to your profile for future lectures</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-zinc-500 hover:text-zinc-300 p-1.5 rounded-lg hover:bg-zinc-800 transition"
+            className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-zinc-800 transition"
           >
             <X className="h-4 w-4" />
           </button>
@@ -97,8 +97,8 @@ export function CourseManagementModal({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-zinc-300 mb-1.5 flex items-center gap-1.5">
-              <Hash className="h-3.5 w-3.5 text-zinc-500" /> Course Code
+            <label className="block text-xs font-semibold text-slate-200 mb-1.5 flex items-center gap-1.5">
+              <Hash className="h-3.5 w-3.5 text-purple-400" /> Course Code
             </label>
             <input
               type="text"
@@ -106,13 +106,13 @@ export function CourseManagementModal({
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
               required
-              className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-xs focus:outline-hidden focus:border-amber-500/60 font-mono uppercase"
+              className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700/80 text-white placeholder-slate-400 text-xs focus:outline-hidden focus:border-purple-500 font-mono uppercase"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-zinc-300 mb-1.5 flex items-center gap-1.5">
-              <BookOpen className="h-3.5 w-3.5 text-zinc-500" /> Course Title
+            <label className="block text-xs font-semibold text-slate-200 mb-1.5 flex items-center gap-1.5">
+              <BookOpen className="h-3.5 w-3.5 text-purple-400" /> Course Title
             </label>
             <input
               type="text"
@@ -120,27 +120,27 @@ export function CourseManagementModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 placeholder-zinc-500 text-xs focus:outline-hidden focus:border-amber-500/60"
+              className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700/80 text-white placeholder-slate-400 text-xs focus:outline-hidden focus:border-purple-500"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1.5 flex items-center gap-1.5">
-                <Building2 className="h-3.5 w-3.5 text-zinc-500" /> Department
+              <label className="block text-xs font-semibold text-slate-200 mb-1.5 flex items-center gap-1.5">
+                <Building2 className="h-3.5 w-3.5 text-purple-400" /> Department
               </label>
               <input
                 type="text"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
                 required
-                className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-hidden focus:border-amber-500/60"
+                className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700/80 text-white text-xs focus:outline-hidden focus:border-purple-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1.5 flex items-center gap-1.5">
-                <Users className="h-3.5 w-3.5 text-zinc-500" /> Student Limit
+              <label className="block text-xs font-semibold text-slate-200 mb-1.5 flex items-center gap-1.5">
+                <Users className="h-3.5 w-3.5 text-purple-400" /> Student Limit
               </label>
               <input
                 type="number"
@@ -149,16 +149,16 @@ export function CourseManagementModal({
                 value={studentLimit}
                 onChange={(e) => setStudentLimit(parseInt(e.target.value, 10) || 60)}
                 required
-                className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-hidden focus:border-amber-500/60 font-mono"
+                className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-700/80 text-white text-xs focus:outline-hidden focus:border-purple-500 font-mono"
               />
             </div>
           </div>
 
-          <div className="p-3 rounded-lg bg-zinc-950/70 border border-zinc-800/80 text-[11px] text-zinc-400 space-y-1">
-            <div className="flex items-center gap-1.5 text-zinc-300 font-medium">
+          <div className="p-3 rounded-lg bg-zinc-950/70 border border-zinc-800/80 text-[11px] text-slate-300 space-y-1">
+            <div className="flex items-center gap-1.5 text-white font-semibold">
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Automatic Student Discovery
             </div>
-            <p className="text-zinc-500">
+            <p className="text-slate-300">
               Students enrolled in this department will automatically have access to mark attendance when you launch an acoustic lecture beacon.
             </p>
           </div>

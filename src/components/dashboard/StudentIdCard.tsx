@@ -68,22 +68,22 @@ export function StudentIdCard({
             <GraduationCap className="h-5 w-5" />
           </div>
           <div>
-            <div className="text-[11px] font-bold tracking-wider uppercase text-slate-800 dark:text-slate-200 font-mono">
+            <div className="text-xs font-bold tracking-wider uppercase text-slate-800 dark:text-slate-100 font-mono">
               VIT University • Attendex Campus
             </div>
-            <div className="text-[10px] text-slate-500 dark:text-slate-400">Official Student Digital Identity</div>
+            <div className="text-xs font-medium text-slate-300 dark:text-slate-300">Official Student Digital Identity</div>
           </div>
         </div>
 
         {/* KYC Verification Badge */}
         {isVerified ? (
-          <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 px-2.5 py-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
-            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+          <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             <span>KYC Verified</span>
           </div>
         ) : (
-          <div className="flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 px-2.5 py-1 text-[11px] font-medium text-amber-700 dark:text-amber-300">
-            <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+          <div className="flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/40 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300">
+            <AlertTriangle className="h-4 w-4 text-amber-500" />
             <span>KYC Pending</span>
           </div>
         )}
@@ -102,90 +102,90 @@ export function StudentIdCard({
                 className="h-full w-full object-cover -scale-x-100"
               />
             ) : (
-              <div className="flex flex-col items-center justify-center text-zinc-500">
-                <span className="text-3xl font-bold text-zinc-300">{user.name.charAt(0)}</span>
-                <span className="text-[9px] mt-1 text-zinc-500 font-mono">NO PHOTO</span>
+              <div className="flex flex-col items-center justify-center text-slate-400">
+                <span className="text-3xl font-bold text-white">{user.name.charAt(0)}</span>
+                <span className="text-xs mt-1 text-slate-300 font-mono font-medium">NO PHOTO</span>
               </div>
             )}
 
             {/* Verification Watermark */}
             {isVerified && (
               <div className="absolute bottom-1 right-1 rounded-full bg-emerald-950/90 border border-emerald-500/40 p-1 text-emerald-400 shadow-xs">
-                <ShieldCheck className="h-3 w-3" />
+                <ShieldCheck className="h-3.5 w-3.5" />
               </div>
             )}
           </div>
 
           <div className="mt-2 text-center">
-            <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
+            <span className="text-xs font-mono text-slate-300 uppercase tracking-wider font-semibold">
               Batch 2024-2028
             </span>
           </div>
         </div>
 
         {/* Student Data Fields */}
-        <div className="sm:col-span-8 space-y-2 text-left">
+        <div className="sm:col-span-8 space-y-2.5 text-left">
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+            <div className="text-xs font-mono uppercase tracking-wider text-slate-300 font-semibold">
               Student Name
             </div>
-            <div className="text-base font-bold text-white tracking-tight leading-snug">
+            <div className="text-lg font-extrabold text-white tracking-tight leading-snug">
               {user.name}
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="grid grid-cols-2 gap-2 text-sm">
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+              <div className="text-xs font-mono uppercase tracking-wider text-slate-300 font-semibold">
                 Roll Number / ID
               </div>
-              <div className="font-mono font-semibold text-zinc-200 text-xs">
+              <div className="font-mono font-bold text-white text-sm">
                 {user.rollNumber || "CS-2026-001"}
               </div>
             </div>
 
             <div>
-              <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+              <div className="text-xs font-mono uppercase tracking-wider text-slate-300 font-semibold">
                 Status
               </div>
-              <div className="text-xs font-medium text-emerald-400 flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              <div className="text-sm font-semibold text-emerald-400 flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" />
                 Active Enrolled
               </div>
             </div>
           </div>
 
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+            <div className="text-xs font-mono uppercase tracking-wider text-slate-300 font-semibold">
               Academic Department
             </div>
-            <div className="text-xs text-zinc-300 flex items-center gap-1.5">
-              <Building2 className="h-3 w-3 text-zinc-500" />
+            <div className="text-sm text-slate-100 font-medium flex items-center gap-1.5">
+              <Building2 className="h-3.5 w-3.5 text-purple-400" />
               {user.department || "Computer Science & Engineering"}
             </div>
           </div>
 
           <div>
-            <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+            <div className="text-xs font-mono uppercase tracking-wider text-slate-300 font-semibold">
               Institutional Email
             </div>
-            <div className="text-xs text-zinc-400 font-mono truncate">{user.email}</div>
+            <div className="text-sm text-slate-200 font-mono font-medium truncate">{user.email}</div>
           </div>
         </div>
       </div>
 
       {/* Card Footer: Security Barcode & Action Buttons */}
-      <div className="mt-4 pt-3 border-t border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
+      <div className="mt-4 pt-3 border-t border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
         {/* Biometric Verification Status */}
         <div className="flex items-center gap-2">
           <Fingerprint
             className={`h-4 w-4 ${isVerified ? "text-emerald-400" : "text-amber-400"}`}
           />
           <div className="text-left">
-            <div className="text-zinc-400 font-medium">
+            <div className="text-slate-200 font-semibold text-xs sm:text-sm">
               {isVerified ? "Face Vector Hash Enrolled" : "Biometric KYC Not Done"}
             </div>
-            <div className="text-[10px] font-mono text-zinc-500">
+            <div className="text-xs font-mono text-slate-300 font-medium">
               {isVerified
                 ? `${biometricProfile.templateVectorHash?.substring(0, 16)}... • ${enrolledDateDisplay}`
                 : "Scan required to mark attendance"}
@@ -200,7 +200,7 @@ export function StudentIdCard({
               size="sm"
               variant="outline"
               onClick={onOpenProfileModal}
-              className="text-xs h-7 text-zinc-300 border-zinc-700 hover:bg-zinc-800 w-full sm:w-auto gap-1.5"
+              className="text-xs sm:text-sm text-slate-200 font-semibold border-zinc-700 hover:bg-zinc-800 w-full sm:w-auto gap-1.5"
             >
               <User className="h-3.5 w-3.5 text-amber-400" />
               Academic Profile
@@ -212,9 +212,9 @@ export function StudentIdCard({
               size="sm"
               variant="outline"
               onClick={onOpenKycModal}
-              className="text-xs h-7 text-zinc-300 border-zinc-700 hover:bg-zinc-800 w-full sm:w-auto gap-1"
+              className="text-xs sm:text-sm text-slate-200 font-semibold border-zinc-700 hover:bg-zinc-800 w-full sm:w-auto gap-1"
             >
-              <RefreshCw className="h-3 w-3" />
+              <RefreshCw className="h-3.5 w-3.5" />
               Re-scan Face
             </Button>
           ) : (
@@ -222,9 +222,9 @@ export function StudentIdCard({
               size="sm"
               variant="brand"
               onClick={onOpenKycModal}
-              className="text-xs h-8 font-semibold w-full sm:w-auto gap-1.5 shadow-sm"
+              className="text-xs sm:text-sm font-semibold w-full sm:w-auto gap-1.5 shadow-sm"
             >
-              <ScanFace className="h-3.5 w-3.5" />
+              <ScanFace className="h-4 w-4" />
               Complete Face KYC Now
             </Button>
           )}

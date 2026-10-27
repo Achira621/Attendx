@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { LoadingAnimation } from "@/components/ui/LoadingAnimation";
 import { downloadCsv } from "@/lib/exportCsv";
 import { CourseManagementModal } from "@/components/dashboard/CourseManagementModal";
 import {
@@ -257,28 +258,30 @@ export function CourseAnalyticsSection({
 
       {/* Selected Course Analytics View */}
       {loadingAnalytics ? (
-        <div className="p-12 text-center space-y-3 border border-zinc-800 rounded-2xl bg-zinc-900/20 animate-pulse">
-          <div className="w-8 h-8 rounded-full bg-zinc-800 mx-auto" />
-          <div className="h-4 w-48 bg-zinc-800 rounded mx-auto" />
-          <div className="h-3 w-64 bg-zinc-800/60 rounded mx-auto" />
+        <div className="p-12 text-center border border-slate-200 dark:border-slate-800 rounded-2xl bg-white/50 dark:bg-slate-900/40">
+          <LoadingAnimation
+            size="md"
+            message="Compiling Attendance Telemetry"
+            submessage="Aggregating roll call records, session stats, and student standing..."
+          />
         </div>
       ) : analytics ? (
         <div className="space-y-5">
           {/* Metrics Row */}
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3.5">
-            <Card className="border-zinc-800 bg-zinc-900/40 p-4 space-y-1">
-              <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-mono">Total Lectures Held</span>
-              <div className="text-2xl font-bold font-mono text-zinc-100">
+            <Card className="border-zinc-800 bg-zinc-900/60 p-4 space-y-1">
+              <span className="text-[11px] text-slate-300 uppercase tracking-wider font-mono font-semibold">Total Lectures Held</span>
+              <div className="text-2xl font-bold font-mono text-white">
                 {analytics.course.totalSessions}
               </div>
-              <p className="text-[10px] text-zinc-500">Live dual presence sessions</p>
+              <p className="text-[10px] text-slate-300 font-medium">Live dual presence sessions</p>
             </Card>
 
-            <Card className="border-zinc-800 bg-zinc-900/40 p-4 space-y-1">
-              <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-mono">Enrolled Students</span>
-              <div className="text-2xl font-bold font-mono text-zinc-100 flex items-center gap-2">
+            <Card className="border-zinc-800 bg-zinc-900/60 p-4 space-y-1">
+              <span className="text-[11px] text-slate-300 uppercase tracking-wider font-mono font-semibold">Enrolled Students</span>
+              <div className="text-2xl font-bold font-mono text-white flex items-center gap-2">
                 <span>{analytics.course.enrolledCount}</span>
-                <span className="text-xs text-zinc-500 font-normal">/ {analytics.course.studentLimit} Limit</span>
+                <span className="text-xs text-slate-300 font-medium">/ {analytics.course.studentLimit} Limit</span>
               </div>
               <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden mt-1">
                 <div
@@ -290,62 +293,62 @@ export function CourseAnalyticsSection({
               </div>
             </Card>
 
-            <Card className="border-zinc-800 bg-zinc-900/40 p-4 space-y-1">
-              <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-mono">Average Attendance</span>
+            <Card className="border-zinc-800 bg-zinc-900/60 p-4 space-y-1">
+              <span className="text-[11px] text-slate-300 uppercase tracking-wider font-mono font-semibold">Average Attendance</span>
               <div className="text-2xl font-bold font-mono text-emerald-400">
                 {analytics.course.averageAttendanceRate}%
               </div>
-              <p className="text-[10px] text-zinc-500">Across all completed lectures</p>
+              <p className="text-[10px] text-slate-300 font-medium">Across all completed lectures</p>
             </Card>
 
-            <Card className="border-zinc-800 bg-zinc-900/40 p-4 space-y-2 flex flex-col justify-between">
-              <span className="text-[11px] text-zinc-500 uppercase tracking-wider font-mono">Classroom Export</span>
+            <Card className="border-zinc-800 bg-zinc-900/60 p-4 space-y-2 flex flex-col justify-between">
+              <span className="text-[11px] text-slate-300 uppercase tracking-wider font-mono font-semibold">Classroom Export</span>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={handleExportCourseCsv}
-                className="w-full text-xs gap-1.5 h-8 text-zinc-200 border-zinc-700 bg-zinc-800/80 hover:bg-zinc-700"
+                className="w-full text-xs gap-1.5 h-8 text-white border-zinc-700 bg-zinc-800/80 hover:bg-zinc-700 font-medium"
               >
-                <Download className="h-3.5 w-3.5 text-zinc-400" />
+                <Download className="h-3.5 w-3.5 text-zinc-300" />
                 Download Master CSV
               </Button>
             </Card>
           </div>
 
           {/* Student Roster Table with Individual Record Inspection */}
-          <Card className="border-zinc-800 bg-zinc-900/30 overflow-hidden">
+          <Card className="border-zinc-800 bg-zinc-900/60 overflow-hidden">
             <div className="p-4 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h3 className="text-xs font-semibold text-zinc-200 uppercase tracking-wider flex items-center gap-1.5">
+                <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
                   <Users className="h-4 w-4 text-amber-400" />
                   Enrolled Students & Individual Attendance Records ({filteredStudents.length})
                 </h3>
-                <p className="text-[11px] text-zinc-500 mt-0.5">
+                <p className="text-[11px] text-slate-300 font-medium mt-0.5">
                   Click on any student row to inspect their complete verification timestamp history
                 </p>
               </div>
 
               {/* Student Search */}
               <div className="relative w-full sm:w-64">
-                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-zinc-500" />
+                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
                 <input
                   type="text"
                   placeholder="Search name, roll no..."
                   value={studentSearch}
                   onChange={(e) => setStudentSearch(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-hidden focus:border-amber-500/60"
+                  className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs text-white placeholder-slate-400 focus:outline-hidden focus:border-amber-500/60 font-medium"
                 />
               </div>
             </div>
 
             {filteredStudents.length === 0 ? (
-              <div className="p-8 text-center text-xs text-zinc-500">
+              <div className="p-8 text-center text-xs text-slate-300">
                 No students match your query.
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-zinc-950/70 border-b border-zinc-800 text-zinc-400 text-[11px] uppercase font-mono">
+                  <thead className="bg-zinc-950/80 border-b border-zinc-800 text-slate-200 text-[11px] uppercase font-mono font-semibold">
                     <tr>
                       <th className="py-2.5 px-4">Roll Number</th>
                       <th className="py-2.5 px-4">Student Name</th>
@@ -368,14 +371,14 @@ export function CourseAnalyticsSection({
                           }}
                           className="hover:bg-zinc-800/40 cursor-pointer transition group"
                         >
-                          <td className="py-3 px-4 font-mono font-medium text-zinc-300 group-hover:text-amber-400">
+                          <td className="py-3 px-4 font-mono font-bold text-slate-200 group-hover:text-amber-400">
                             {st.rollNumber}
                           </td>
                           <td className="py-3 px-4">
-                            <div className="font-medium text-zinc-100">{st.name}</div>
-                            <div className="text-[11px] text-zinc-500">{st.email}</div>
+                            <div className="font-bold text-white">{st.name}</div>
+                            <div className="text-[11px] text-slate-300 font-medium">{st.email}</div>
                           </td>
-                          <td className="py-3 px-4 font-mono text-zinc-300">
+                          <td className="py-3 px-4 font-mono text-slate-200 font-medium">
                             {st.attendedCount} / {st.totalSessions}
                           </td>
                           <td className="py-3 px-4 font-mono">

@@ -580,7 +580,7 @@ export function TeacherLiveSessionConsole() {
               {user?.name || "Dr. Arjun Mehta"}
             </Badge>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-200 dark:text-slate-200 font-medium mt-0.5">
             Classroom session management, course rosters, ultrasonic beacons, and student attendance analytics.
           </p>
         </div>
@@ -591,10 +591,10 @@ export function TeacherLiveSessionConsole() {
             <button
               type="button"
               onClick={() => setTeacherView("live_session")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                 teacherView === "live_session"
                   ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs"
-                  : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                  : "text-slate-300 hover:text-white dark:text-slate-300 dark:hover:text-white"
               }`}
             >
               <Radio className="h-3.5 w-3.5 text-[#FF7A59]" />
@@ -603,13 +603,13 @@ export function TeacherLiveSessionConsole() {
             <button
               type="button"
               onClick={() => setTeacherView("course_analytics")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                 teacherView === "course_analytics"
                   ? "bg-zinc-800 text-white shadow-xs"
-                  : "text-zinc-400 hover:text-zinc-200"
+                  : "text-slate-300 hover:text-white"
               }`}
             >
-              <BookOpen className="h-3.5 w-3.5 text-zinc-400" />
+              <BookOpen className="h-3.5 w-3.5 text-purple-400" />
               Course Directory & Analytics
             </button>
           </div>
@@ -618,7 +618,7 @@ export function TeacherLiveSessionConsole() {
             size="sm"
             variant="outline"
             onClick={() => setIsCreateCourseModalOpen(true)}
-            className="gap-1.5 text-xs text-zinc-300 border-zinc-700 hover:bg-zinc-800"
+            className="gap-1.5 text-xs text-slate-200 font-medium border-zinc-700 hover:bg-zinc-800 hover:text-white"
           >
             <Plus className="h-3.5 w-3.5 text-amber-400" />
             Add Class
@@ -629,7 +629,7 @@ export function TeacherLiveSessionConsole() {
             variant="outline"
             onClick={() => fetchSessions()}
             disabled={isRefreshing}
-            className="gap-1.5 text-xs text-zinc-400 hover:text-zinc-200"
+            className="gap-1.5 text-xs text-slate-200 font-medium hover:text-white"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
             Refresh
@@ -887,14 +887,14 @@ export function TeacherLiveSessionConsole() {
             <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs">
               <CardContent className="p-4 flex items-center justify-between">
                 <div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
+                  <div className="text-xs text-slate-600 dark:text-slate-300 font-medium flex items-center gap-1">
                     <span>○</span> Unmarked / Absent
                   </div>
-                  <div className="text-2xl font-bold text-slate-700 dark:text-slate-300 tracking-tight mt-1 tabular-nums">
+                  <div className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight mt-1 tabular-nums">
                     {notMarkedCount}
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/40 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/40 flex items-center justify-center text-slate-600 dark:text-slate-200 font-bold">
                   ○
                 </div>
               </CardContent>
@@ -953,39 +953,39 @@ export function TeacherLiveSessionConsole() {
 
             {/* Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
-                <thead className="bg-slate-50 dark:bg-slate-950/80 text-slate-500 font-mono uppercase text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800">
+              <table className="w-full text-left text-sm text-slate-800 dark:text-slate-100">
+                <thead className="bg-slate-50 dark:bg-slate-950/80 text-slate-600 dark:text-slate-200 font-mono font-bold uppercase text-xs tracking-wider border-b border-slate-200 dark:border-slate-800">
                   <tr>
-                    <th className="py-2.5 px-4 font-medium">Roll No</th>
-                    <th className="py-2.5 px-4 font-medium">Student</th>
-                    <th className="py-2.5 px-4 font-medium">Status</th>
-                    <th className="py-2.5 px-4 font-medium">Verified Time</th>
-                    <th className="py-2.5 px-4 font-medium">Verification Method</th>
-                    <th className="py-2.5 px-4 font-medium text-right">Confidence</th>
+                    <th className="py-3 px-4 font-bold">Roll No</th>
+                    <th className="py-3 px-4 font-bold">Student</th>
+                    <th className="py-3 px-4 font-bold">Status</th>
+                    <th className="py-3 px-4 font-bold">Verified Time</th>
+                    <th className="py-3 px-4 font-bold">Verification Method</th>
+                    <th className="py-3 px-4 font-bold text-right">Confidence</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800/50">
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60">
                   {filteredStudents.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-zinc-500 text-xs">
+                      <td colSpan={6} className="py-8 text-center text-slate-600 dark:text-slate-300 text-sm">
                         No students found matching your search.
                       </td>
                     </tr>
                   ) : (
                     filteredStudents.map((s) => (
-                      <tr key={s.id} className="hover:bg-zinc-800/20 transition-colors">
-                        <td className="py-3 px-4 font-mono text-zinc-400 font-medium">{s.rollNumber}</td>
-                        <td className="py-3 px-4 font-medium text-zinc-100">{s.name}</td>
-                        <td className="py-3 px-4">
+                      <tr key={s.id} className="hover:bg-slate-800/30 transition-colors">
+                        <td className="py-3.5 px-4 font-mono text-slate-700 dark:text-slate-200 font-bold">{s.rollNumber}</td>
+                        <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">{s.name}</td>
+                        <td className="py-3.5 px-4">
                           <StatusIndicator status={s.status} size="sm" />
                         </td>
-                        <td className="py-3 px-4 font-mono text-zinc-400 tabular-nums">
+                        <td className="py-3.5 px-4 font-mono text-slate-600 dark:text-slate-200 font-medium tabular-nums">
                           {s.verifiedAt || "—"}
                         </td>
-                        <td className="py-3 px-4 text-zinc-400">
+                        <td className="py-3.5 px-4 text-slate-600 dark:text-slate-200 font-medium">
                           {s.method || "Awaiting submission"}
                         </td>
-                        <td className="py-3 px-4 text-right font-mono tabular-nums text-zinc-300">
+                        <td className="py-3.5 px-4 text-right font-mono tabular-nums text-slate-900 dark:text-white font-bold">
                           {s.confidence ? `${(s.confidence * 100).toFixed(0)}%` : "—"}
                         </td>
                       </tr>
@@ -1003,8 +1003,8 @@ export function TeacherLiveSessionConsole() {
             <Radio className="h-6 w-6" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-zinc-100">No Active Attendance Session</h3>
-            <p className="text-xs text-zinc-400 max-w-md mx-auto mt-1 leading-relaxed">
+            <h3 className="text-base font-bold text-white">No Active Attendance Session</h3>
+            <p className="text-xs text-slate-300 max-w-md mx-auto mt-1 leading-relaxed">
               Launch an attendance window to start emitting classroom ultrasonic challenges and collect tamper-proof biometric verifications.
             </p>
           </div>

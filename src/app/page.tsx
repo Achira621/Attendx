@@ -7,6 +7,7 @@ import { AcousticDiagnosticLab } from "@/components/verification/AcousticDiagnos
 import { FaceDiagnosticLab } from "@/components/verification/FaceDiagnosticLab";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { useAuth } from "@/context/AuthContext";
+import { LoadingAnimation } from "@/components/ui/LoadingAnimation";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
@@ -80,7 +81,7 @@ export default function Home() {
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md font-medium transition-all ${
                   teacherTab === "teacher"
                     ? "bg-zinc-800 text-white shadow-xs"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    : "text-slate-300 hover:text-white"
                 }`}
               >
                 <LayoutDashboard className="h-3.5 w-3.5" />
@@ -92,7 +93,7 @@ export default function Home() {
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md font-medium transition-all ${
                   teacherTab === "acoustic_lab"
                     ? "bg-zinc-800 text-white shadow-xs"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    : "text-slate-300 hover:text-white"
                 }`}
               >
                 <Radio className="h-3.5 w-3.5 text-amber-400" />
@@ -104,7 +105,7 @@ export default function Home() {
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md font-medium transition-all ${
                   teacherTab === "face_lab"
                     ? "bg-zinc-800 text-white shadow-xs"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    : "text-slate-300 hover:text-white"
                 }`}
               >
                 <Camera className="h-3.5 w-3.5 text-emerald-400" />
@@ -116,7 +117,7 @@ export default function Home() {
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md font-medium transition-all ${
                   teacherTab === "architecture"
                     ? "bg-zinc-800 text-white shadow-xs"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    : "text-slate-300 hover:text-white"
                 }`}
               >
                 <FileText className="h-3.5 w-3.5" />
@@ -136,7 +137,7 @@ export default function Home() {
                   onClick={() => handleSwitchRole(user.role === "STUDENT" ? "TEACHER" : "STUDENT")}
                   disabled={switchingRole}
                   title={`Switch to ${user.role === "STUDENT" ? "Teacher" : "Student"} view`}
-                  className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-zinc-200 text-[11px] transition"
+                  className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-950 border border-zinc-800 hover:border-zinc-700 text-slate-300 hover:text-white text-[11px] transition"
                 >
                   <ArrowLeftRight className={`h-3 w-3 ${switchingRole ? "animate-spin" : ""}`} />
                   <span>Switch to {user.role === "STUDENT" ? "Teacher" : "Student"}</span>
@@ -150,8 +151,8 @@ export default function Home() {
                     <GraduationCap className="h-3.5 w-3.5 text-emerald-400" />
                   )}
                   <div className="flex flex-col text-left">
-                    <span className="font-medium text-zinc-100 text-[11px] leading-tight">{user.name}</span>
-                    <span className="text-[9px] font-mono text-zinc-400 leading-tight">
+                    <span className="font-semibold text-white text-[11px] leading-tight">{user.name}</span>
+                    <span className="text-[9px] font-mono text-slate-300 leading-tight">
                       {user.role === "STUDENT" ? user.rollNumber : "Faculty"}
                     </span>
                   </div>
@@ -161,7 +162,7 @@ export default function Home() {
                 <button
                   onClick={() => logout()}
                   title="Sign Out"
-                  className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-zinc-900 transition"
+                  className="p-1.5 rounded-lg text-slate-300 hover:text-rose-400 hover:bg-zinc-900 transition"
                 >
                   <LogOut className="h-4 w-4" />
                 </button>
@@ -197,7 +198,7 @@ export default function Home() {
             <button
               onClick={() => setTeacherTab("teacher")}
               className={`p-1.5 font-medium ${
-                teacherTab === "teacher" ? "text-amber-400 font-semibold" : "text-zinc-400"
+                teacherTab === "teacher" ? "text-amber-400 font-semibold" : "text-slate-300"
               }`}
             >
               Sessions
@@ -205,7 +206,7 @@ export default function Home() {
             <button
               onClick={() => setTeacherTab("acoustic_lab")}
               className={`p-1.5 font-medium ${
-                teacherTab === "acoustic_lab" ? "text-amber-400 font-semibold" : "text-zinc-400"
+                teacherTab === "acoustic_lab" ? "text-amber-400 font-semibold" : "text-slate-300"
               }`}
             >
               Acoustic
@@ -213,7 +214,7 @@ export default function Home() {
             <button
               onClick={() => setTeacherTab("face_lab")}
               className={`p-1.5 font-medium ${
-                teacherTab === "face_lab" ? "text-amber-400 font-semibold" : "text-zinc-400"
+                teacherTab === "face_lab" ? "text-amber-400 font-semibold" : "text-slate-300"
               }`}
             >
               Face Lab
@@ -221,7 +222,7 @@ export default function Home() {
             <button
               onClick={() => setTeacherTab("architecture")}
               className={`p-1.5 font-medium ${
-                teacherTab === "architecture" ? "text-amber-400 font-semibold" : "text-zinc-400"
+                teacherTab === "architecture" ? "text-amber-400 font-semibold" : "text-slate-300"
               }`}
             >
               Specs
@@ -233,9 +234,12 @@ export default function Home() {
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-6">
         {loading ? (
-          <div className="py-24 text-center space-y-3">
-            <div className="w-8 h-8 rounded-full border-2 border-amber-500 border-t-transparent animate-spin mx-auto" />
-            <p className="text-xs text-zinc-500 font-mono">Authenticating institutional session...</p>
+          <div className="py-20 text-center">
+            <LoadingAnimation
+              size="lg"
+              message="Attendex Secure Verification"
+              submessage="Authenticating institutional session & cryptography keys..."
+            />
           </div>
         ) : user ? (
           /* Logged In View */
@@ -251,32 +255,32 @@ export default function Home() {
               {teacherTab === "architecture" && (
                 <div className="space-y-6 max-w-4xl mx-auto">
                   <div className="border-b border-zinc-800 pb-4">
-                    <h2 className="text-xl font-bold text-zinc-100 flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
                       <ShieldCheck className="h-5 w-5 text-amber-400" />
                       Attendex Architecture Principles
                     </h2>
-                    <p className="text-xs text-zinc-400 mt-1">
+                    <p className="text-xs text-slate-300 mt-1">
                       Edge-First + Cloud-Backed + Event-Driven Dual Presence Verification
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/40 space-y-2">
-                      <div className="text-xs font-semibold text-zinc-200 flex items-center gap-1.5">
+                    <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/60 space-y-2">
+                      <div className="text-xs font-semibold text-white flex items-center gap-1.5">
                         <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                         Dual Presence Formula
                       </div>
-                      <p className="text-xs text-zinc-400 leading-relaxed font-mono text-[11px]">
+                      <p className="text-xs text-slate-200 leading-relaxed font-mono text-[11px]">
                         VALID SESSION + VALID STUDENT + PROXIMITY VERIFIED + FACE MATCH + LIVENESS PASS + UNIQUE ATTEMPT = ATTENDANCE ACCEPTED
                       </p>
                     </div>
 
-                    <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/40 space-y-2">
-                      <div className="text-xs font-semibold text-zinc-200 flex items-center gap-1.5">
+                    <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/60 space-y-2">
+                      <div className="text-xs font-semibold text-white flex items-center gap-1.5">
                         <Radio className="h-4 w-4 text-amber-400" />
                         Acoustic Beaconing (TIER_A)
                       </div>
-                      <p className="text-xs text-zinc-400 leading-relaxed">
+                      <p className="text-xs text-slate-200 leading-relaxed">
                         Near-ultrasonic 18.75 kHz rotating cryptographic acoustic challenges prevent GPS spoofing and remote proxies across walls.
                       </p>
                     </div>
@@ -379,7 +383,7 @@ export default function Home() {
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white" style={{ fontFamily: "var(--font-sora), sans-serif" }}>
                     Interactive Role Launchers
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-xs text-slate-600 dark:text-slate-300">
                     Jump directly into the student or teacher portal to experience dual presence live.
                   </p>
                 </div>
@@ -401,14 +405,14 @@ export default function Home() {
                       </h3>
                       <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-emerald-500 group-hover:translate-x-1 transition" />
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      Sign in as <span className="text-slate-900 dark:text-slate-200 font-medium">Varad Dalvi</span>. Scan classroom audio beacon & perform on-device biometric presence.
+                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                      Sign in as <span className="text-slate-900 dark:text-white font-semibold">Varad Dalvi</span>. Scan classroom audio beacon & perform on-device biometric presence.
                     </p>
                   </div>
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 text-[11px] text-slate-400 font-mono">
-                    <span className="text-emerald-600 dark:text-emerald-400">✓ Acoustic receiver</span>
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 text-[11px] text-slate-300 font-mono">
+                    <span className="text-emerald-600 dark:text-emerald-400 font-medium">✓ Acoustic receiver</span>
                     <span>•</span>
-                    <span className="text-emerald-600 dark:text-emerald-400">✓ On-device face scan</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-medium">✓ On-device face scan</span>
                   </div>
                 </div>
 
@@ -427,14 +431,14 @@ export default function Home() {
                       </h3>
                       <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-[#7C3AED] group-hover:translate-x-1 transition" />
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      Sign in as <span className="text-slate-900 dark:text-slate-200 font-medium">Dr. Arjun Mehta</span>. Broadcast ultrasonic beacon & track real-time attendance tally.
+                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                      Sign in as <span className="text-slate-900 dark:text-white font-semibold">Dr. Arjun Mehta</span>. Broadcast ultrasonic beacon & track real-time attendance tally.
                     </p>
                   </div>
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 text-[11px] text-slate-400 font-mono">
-                    <span className="text-[#7C3AED]">✓ Ultrasonic emitter</span>
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 text-[11px] text-slate-300 font-mono">
+                    <span className="text-[#7C3AED] font-medium">✓ Ultrasonic emitter</span>
                     <span>•</span>
-                    <span className="text-[#7C3AED]">✓ Real-time roster telemetry</span>
+                    <span className="text-[#7C3AED] font-medium">✓ Real-time roster telemetry</span>
                   </div>
                 </div>
               </div>
@@ -442,7 +446,7 @@ export default function Home() {
 
             {/* Quote / Footer Banner matching image footer */}
             <div className="text-center py-4 border-t border-slate-200 dark:border-slate-800">
-              <p className="text-xs italic text-slate-400 font-serif">
+              <p className="text-xs italic text-slate-600 dark:text-slate-300 font-serif font-medium">
                 &ldquo;Attendance isn&apos;t just a number, it&apos;s a step towards a brighter future.&rdquo;
               </p>
             </div>

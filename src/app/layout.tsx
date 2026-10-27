@@ -33,9 +33,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${sora.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`dark ${sora.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100 font-sans selection:bg-[#FF7A59]/20 selection:text-[#FF7A59] relative">
+      <body className="min-h-full flex flex-col bg-[#0B0F19] text-[#F8FAFC] font-sans selection:bg-[#FF7A59]/20 selection:text-[#FF7A59] relative">
         <AmbientCanvasBackground />
         <div className="relative z-10 flex flex-col flex-1">
           <GlobalBackButton />

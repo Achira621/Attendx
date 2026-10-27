@@ -471,14 +471,14 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
 
       {/* Step Views */}
       {step === "IDLE" && (
-        <Card className="border-zinc-800 bg-zinc-900/40 text-center py-6 px-5">
+        <Card className="border-zinc-800 bg-zinc-900/60 text-center py-6 px-5">
           {!isEnrolledKyc && (
             <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-left text-xs space-y-2 text-amber-200">
               <div className="flex items-center gap-2">
                 <ShieldAlert className="h-4 w-4 text-amber-400 shrink-0" />
-                <span className="font-semibold text-zinc-100">Face KYC Required</span>
+                <span className="font-bold text-white">Face KYC Required</span>
               </div>
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-[11px] text-amber-200/90">
                 Your Student ID requires an enrolled biometric face template to verify classroom attendance.
               </p>
               {onOpenKyc && (
@@ -492,8 +492,8 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
           <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-3 text-amber-400">
             <UserCheck className="h-6 w-6" />
           </div>
-          <h4 className="text-base font-semibold text-zinc-100">Ready to Mark Attendance</h4>
-          <p className="text-xs text-zinc-400 mt-2 max-w-[280px] mx-auto leading-relaxed">
+          <h4 className="text-base font-bold text-white">Ready to Mark Attendance</h4>
+          <p className="text-xs text-slate-300 mt-2 max-w-[280px] mx-auto leading-relaxed font-medium">
             Please ensure you are seated inside the classroom. Verification requires acoustic proximity and a single one-time face scan against your enrolled Student ID.
           </p>
 
@@ -507,32 +507,42 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
 
       {step === "PROXIMITY" && (
         <Card className="border-zinc-800 bg-zinc-900/40 text-center py-8 px-5 space-y-4">
-          <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
-            <div
-              className={`absolute inset-0 rounded-full border border-amber-500/30 ${
-                proximityStatus === "LISTENING" ? "animate-ping opacity-40" : ""
-              }`}
-            />
-            <div
-              className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${
-                proximityStatus === "DETECTED"
-                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50"
-                  : "bg-amber-500/10 text-amber-400 border border-amber-500/30"
-              }`}
-            >
-              {proximityStatus === "DETECTED" ? <CheckCircle2 className="h-7 w-7" /> : <Radio className="h-6 w-6" />}
+          {proximityStatus === "LISTENING" ? (
+            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
+              <div className="w-20 h-20 rounded-2xl overflow-hidden border border-purple-500/40 shadow-[0_0_20px_rgba(124,58,237,0.3)] bg-slate-950">
+                <video
+                  src="/loading-animation.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
+              <div
+                className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${
+                  proximityStatus === "DETECTED"
+                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/50"
+                    : "bg-amber-500/10 text-amber-400 border border-amber-500/30"
+                }`}
+              >
+                {proximityStatus === "DETECTED" ? <CheckCircle2 className="h-7 w-7" /> : <Radio className="h-6 w-6" />}
+              </div>
+            </div>
+          )}
 
           <div>
-            <h4 className="text-sm font-semibold text-zinc-100">
+            <h4 className="text-sm font-bold text-white">
               {proximityStatus === "DETECTED"
                 ? "Classroom Proximity Confirmed"
                 : proximityStatus === "TIMEOUT"
                 ? "Acoustic Signal Not Detected"
                 : "Verifying Classroom Proximity..."}
             </h4>
-            <p className="text-xs text-zinc-400 mt-1 max-w-[280px] mx-auto">
+            <p className="text-xs text-slate-300 mt-1 max-w-[280px] mx-auto font-medium">
               {proximityStatus === "DETECTED"
                 ? "Classroom acoustic presence verified. Moving to facial verification..."
                 : proximityStatus === "TIMEOUT"
@@ -544,12 +554,12 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
           {/* Real-time Audio Radar Signal Meter */}
           {proximityStatus === "LISTENING" && (
             <div className="max-w-[260px] mx-auto space-y-2 pt-1">
-              <div className="flex justify-between items-center text-[11px] text-zinc-400">
-                <span className="flex items-center gap-1.5">
+              <div className="flex justify-between items-center text-[11px] text-slate-200">
+                <span className="flex items-center gap-1.5 font-semibold">
                   <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                   Classroom Acoustic Radar
                 </span>
-                <span className="font-mono text-amber-400 font-semibold">{signalStrength}%</span>
+                <span className="font-mono text-amber-300 font-bold">{signalStrength}%</span>
               </div>
               <div className="h-2 w-full bg-zinc-800/80 rounded-full overflow-hidden border border-zinc-700/50">
                 <div
@@ -557,7 +567,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
                   style={{ width: `${Math.max(6, signalStrength)}%` }}
                 />
               </div>
-              <p className="text-[10px] text-zinc-500 font-mono">
+              <p className="text-[10px] text-slate-300 font-mono font-medium">
                 Monitoring 16.5 kHz dual-carrier & ultrasound
               </p>
             </div>
@@ -654,7 +664,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
             </div>
 
             <div className="absolute bottom-3 left-3 right-3">
-              <div className="bg-zinc-900/90 backdrop-blur-xs border border-zinc-700/60 px-3 py-1.5 rounded-full text-xs text-zinc-200 font-medium">
+              <div className="bg-zinc-900/95 backdrop-blur-xs border border-zinc-700/80 px-3 py-1.5 rounded-full text-xs text-white font-semibold">
                 {faceGuidance}
               </div>
             </div>
@@ -698,7 +708,7 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
                 <h4 className="text-xl font-extrabold text-slate-900 dark:text-white" style={{ fontFamily: "var(--font-sora), sans-serif" }}>
                   Attendance Marked!
                 </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-mono">
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 font-mono font-medium">
                   {courseCode} • {classroomDisplay}
                 </p>
               </div>
@@ -707,19 +717,19 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
               <div className="space-y-2 max-w-[280px] mx-auto text-left text-xs">
                 <div className="flex items-center gap-2.5 p-2 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
                   <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px] shrink-0">✓</span>
-                  <span className="font-medium">Proximity Verified</span>
+                  <span className="font-semibold">Proximity Verified</span>
                 </div>
                 <div className="flex items-center gap-2.5 p-2 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
                   <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px] shrink-0">✓</span>
-                  <span className="font-medium">Face Verified</span>
+                  <span className="font-semibold">Face Verified</span>
                 </div>
                 <div className="flex items-center gap-2.5 p-2 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
                   <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px] shrink-0">✓</span>
-                  <span className="font-medium">Liveness Verified</span>
+                  <span className="font-semibold">Liveness Verified</span>
                 </div>
                 <div className="flex items-center gap-2.5 p-2 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
                   <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px] shrink-0">✓</span>
-                  <span className="font-medium">Identity Matched ({result.studentName})</span>
+                  <span className="font-semibold">Identity Matched ({result.studentName})</span>
                 </div>
               </div>
 
@@ -742,8 +752,8 @@ export function StudentAttendanceFlow({ session, onSuccess, onAttendanceRecorded
               </div>
 
               <div>
-                <h4 className="text-base font-semibold text-zinc-100">Verification Incomplete</h4>
-                <p className="text-xs text-rose-300/90 mt-1 max-w-[280px] mx-auto">
+                <h4 className="text-base font-bold text-white">Verification Incomplete</h4>
+                <p className="text-xs text-rose-300 mt-1 max-w-[280px] mx-auto font-medium">
                   {result?.failure?.userMessage || "Unable to confirm attendance conditions."}
                 </p>
               </div>

@@ -70,11 +70,11 @@ export function FaceDiagnosticLab() {
             <Camera className="h-5 w-5 text-amber-400" />
             Face Verification & Liveness Diagnostic Lab
           </h2>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-300 mt-1 font-medium">
             Test on-device facial bounding, lighting thresholds, centering, and passive micro-liveness evaluation.
           </p>
         </div>
-        <Badge variant={cameraActive ? "success" : "neutral"}>
+        <Badge variant={cameraActive ? "success" : "neutral"} className="text-xs font-semibold">
           {cameraActive ? "Camera Streaming (Local)" : "Camera Offline"}
         </Badge>
       </div>
@@ -93,10 +93,10 @@ export function FaceDiagnosticLab() {
             />
 
             {!cameraActive && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-zinc-500">
-                <Camera className="h-10 w-10 mb-3 stroke-[1.5] text-zinc-600" />
-                <p className="text-sm font-medium text-zinc-300">Camera preview is standby</p>
-                <p className="text-xs text-zinc-500 mt-1 max-w-[240px]">
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-slate-300">
+                <Camera className="h-10 w-10 mb-3 stroke-[1.5] text-purple-400" />
+                <p className="text-base font-bold text-white">Camera preview is standby</p>
+                <p className="text-xs sm:text-sm text-slate-300 mt-1.5 max-w-[260px] font-medium">
                   Click &apos;Activate Camera&apos; to evaluate biometric alignment directly inside your browser.
                 </p>
               </div>
@@ -180,53 +180,53 @@ export function FaceDiagnosticLab() {
                 Zero pixels sent to cloud. Analyzed entirely inside client memory.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3.5 text-xs">
-              <div className="flex justify-between items-center py-1.5 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Face Detected:</span>
-                <span className="font-semibold text-zinc-200">
+            <CardContent className="space-y-3.5 text-sm">
+              <div className="flex justify-between items-center py-2 border-b border-zinc-800/60">
+                <span className="text-slate-300 font-medium">Face Detected:</span>
+                <span className="font-bold text-white">
                   {assessment?.detected ? "YES (1 face)" : "NO"}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center py-1.5 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Center Alignment:</span>
-                <span className={`font-semibold ${assessment?.isCentered ? "text-emerald-400" : "text-zinc-400"}`}>
+              <div className="flex justify-between items-center py-2 border-b border-zinc-800/60">
+                <span className="text-slate-300 font-medium">Center Alignment:</span>
+                <span className={`font-bold ${assessment?.isCentered ? "text-emerald-400" : "text-amber-400"}`}>
                   {assessment?.isCentered ? "PASSED" : "NEEDS ADJUSTMENT"}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center py-1.5 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Distance / Scale Ratio:</span>
-                <span className={`font-semibold ${assessment?.isProperSize ? "text-emerald-400" : "text-amber-400"}`}>
+              <div className="flex justify-between items-center py-2 border-b border-zinc-800/60">
+                <span className="text-slate-300 font-medium">Distance / Scale Ratio:</span>
+                <span className={`font-bold ${assessment?.isProperSize ? "text-emerald-400" : "text-amber-400"}`}>
                   {assessment?.isProperSize ? "OPTIMAL" : "OUT OF BOUNDS"}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center py-1.5 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Luminance (Ambient Light):</span>
-                <span className="font-mono text-zinc-200">
+              <div className="flex justify-between items-center py-2 border-b border-zinc-800/60">
+                <span className="text-slate-300 font-medium">Luminance (Ambient Light):</span>
+                <span className="font-mono text-white font-semibold">
                   {assessment ? `${Math.round(assessment.brightness)} / 255` : "—"}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center py-1.5 border-b border-zinc-800/60">
-                <span className="text-zinc-400">Passive Liveness (Micro-motion):</span>
+              <div className="flex justify-between items-center py-2 border-b border-zinc-800/60">
+                <span className="text-slate-300 font-medium">Passive Liveness (Micro-motion):</span>
                 <span
-                  className={`font-semibold ${
+                  className={`font-bold ${
                     liveness?.passed
                       ? "text-emerald-400"
                       : liveness?.attackDetected
                       ? "text-rose-400"
-                      : "text-zinc-400"
+                      : "text-amber-400"
                   }`}
                 >
                   {liveness?.passed ? "VERIFIED (LIVE)" : liveness?.attackDetected ? "STATIC ATTACK" : "EVALUATING..."}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center pt-1">
-                <span className="text-zinc-400">Quality Confidence:</span>
-                <span className="font-mono text-zinc-100 font-semibold">
+              <div className="flex justify-between items-center pt-1.5">
+                <span className="text-slate-300 font-medium">Quality Confidence:</span>
+                <span className="font-mono text-white font-bold text-base">
                   {assessment ? `${(assessment.qualityScore * 100).toFixed(0)}%` : "0%"}
                 </span>
               </div>
@@ -234,18 +234,18 @@ export function FaceDiagnosticLab() {
           </Card>
 
           {cameraError && (
-            <div className="p-3 rounded bg-rose-950/40 border border-rose-800/50 text-xs text-rose-300 flex items-start gap-2">
-              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <div className="p-3.5 rounded-lg bg-rose-950/40 border border-rose-800/50 text-xs sm:text-sm text-rose-300 flex items-start gap-2.5">
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-rose-400" />
               <div>
-                <div className="font-semibold">Camera Access Error</div>
-                <div className="text-[11px] text-rose-400/90 mt-0.5">{cameraError}</div>
+                <div className="font-bold text-white">Camera Access Error</div>
+                <div className="text-xs text-rose-300 mt-0.5">{cameraError}</div>
               </div>
             </div>
           )}
 
-          <div className="p-3.5 rounded-lg border border-zinc-800/80 bg-zinc-950 text-zinc-400 text-xs space-y-1">
-            <div className="font-medium text-zinc-300">Privacy Guarantee</div>
-            <p className="text-[11px] leading-relaxed">
+          <div className="p-3.5 rounded-xl border border-zinc-800/80 bg-zinc-950 text-slate-300 text-xs sm:text-sm space-y-1">
+            <div className="font-bold text-white">Privacy Guarantee</div>
+            <p className="text-xs text-slate-300 leading-relaxed font-medium">
               In accordance with our architectural rules, the video stream never leaves this device. Only an Ed25519-signed verification assertion is transmitted upon confirmation.
             </p>
           </div>

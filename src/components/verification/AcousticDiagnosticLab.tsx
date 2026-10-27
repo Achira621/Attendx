@@ -117,15 +117,15 @@ export function AcousticDiagnosticLab() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-zinc-800 pb-4">
         <div>
-          <h2 className="text-xl font-semibold text-zinc-100 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Radio className="h-5 w-5 text-amber-400" />
             Acoustic Proximity Diagnostic Lab
           </h2>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-300 mt-1 font-medium">
             Test and evaluate ultrasonic beacon emission and FFT receiver decoding on your physical hardware.
           </p>
         </div>
-        <Badge variant={emitterActive || receiverActive ? "success" : "neutral"}>
+        <Badge variant={emitterActive || receiverActive ? "success" : "neutral"} className="text-xs font-semibold">
           {emitterActive || receiverActive ? "Hardware Active" : "Standby"}
         </Badge>
       </div>
@@ -135,21 +135,21 @@ export function AcousticDiagnosticLab() {
         <Card className="border-zinc-800/80 bg-zinc-900/40">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <Volume2 className="h-4 w-4 text-zinc-400" />
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base font-bold text-white">
+                <Volume2 className="h-4 w-4 text-purple-400" />
                 Teacher Beacon Emitter (Classroom Speaker)
               </CardTitle>
-              <Badge variant={emitterActive ? "success" : "outline"}>
+              <Badge variant={emitterActive ? "success" : "outline"} className="text-xs font-semibold">
                 {emitterActive ? "Emitting Pulses" : "Off"}
               </Badge>
             </div>
-            <CardDescription>
+            <CardDescription className="text-slate-300 text-xs sm:text-sm font-medium">
               Broadcasts a repeating cryptographic challenge pulse over Web Audio API.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label className="text-xs text-zinc-400 font-medium">Carrier Frequency Preset</label>
+              <label className="text-xs sm:text-sm text-slate-200 font-semibold">Carrier Frequency Preset</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -157,14 +157,14 @@ export function AcousticDiagnosticLab() {
                     setEmitterFreq(18750);
                     setEmitterMode("ultrasonic");
                   }}
-                  className={`p-2.5 rounded border text-xs text-left transition-all ${
+                  className={`p-2.5 rounded-lg border text-xs sm:text-sm text-left transition-all ${
                     emitterFreq === 18750
-                      ? "border-amber-500/60 bg-amber-950/20 text-amber-200"
-                      : "border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700"
+                      ? "border-amber-500/60 bg-amber-950/20 text-amber-200 font-semibold"
+                      : "border-zinc-800 bg-zinc-900/60 text-slate-300 hover:border-zinc-700 hover:text-white"
                   }`}
                 >
-                  <div className="font-semibold text-zinc-200">18.75 kHz (Inaudible)</div>
-                  <div className="text-[10px] text-zinc-400 mt-0.5">Near-ultrasonic standard</div>
+                  <div className="font-bold text-white">18.75 kHz (Inaudible)</div>
+                  <div className="text-xs text-slate-300 mt-0.5 font-medium">Near-ultrasonic standard</div>
                 </button>
                 <button
                   type="button"
@@ -172,30 +172,30 @@ export function AcousticDiagnosticLab() {
                     setEmitterFreq(15000);
                     setEmitterMode("audible_fallback");
                   }}
-                  className={`p-2.5 rounded border text-xs text-left transition-all ${
+                  className={`p-2.5 rounded-lg border text-xs sm:text-sm text-left transition-all ${
                     emitterFreq === 15000
-                      ? "border-amber-500/60 bg-amber-950/20 text-amber-200"
-                      : "border-zinc-800 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700"
+                      ? "border-amber-500/60 bg-amber-950/20 text-amber-200 font-semibold"
+                      : "border-zinc-800 bg-zinc-900/60 text-slate-300 hover:border-zinc-700 hover:text-white"
                   }`}
                 >
-                  <div className="font-semibold text-zinc-200">15.00 kHz (Fallback)</div>
-                  <div className="text-[10px] text-zinc-400 mt-0.5">Audible test chirp</div>
+                  <div className="font-bold text-white">15.00 kHz (Fallback)</div>
+                  <div className="text-xs text-slate-300 mt-0.5 font-medium">Audible test chirp</div>
                 </button>
               </div>
             </div>
 
-            <div className="p-3 rounded bg-zinc-950/60 border border-zinc-800/80 text-xs space-y-1">
-              <div className="flex justify-between text-zinc-400">
-                <span>Active Frequency:</span>
-                <span className="text-zinc-200 font-mono tabular-nums">{emitterFreq} Hz</span>
+            <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800/80 text-xs sm:text-sm space-y-1.5">
+              <div className="flex justify-between text-slate-300">
+                <span className="font-medium">Active Frequency:</span>
+                <span className="text-white font-mono font-bold tabular-nums">{emitterFreq} Hz</span>
               </div>
-              <div className="flex justify-between text-zinc-400">
-                <span>Pulse Interval:</span>
-                <span className="text-zinc-200 font-mono">1500 ms (800ms pulse)</span>
+              <div className="flex justify-between text-slate-300">
+                <span className="font-medium">Pulse Interval:</span>
+                <span className="text-white font-mono font-semibold">1500 ms (800ms pulse)</span>
               </div>
-              <div className="flex justify-between text-zinc-400">
-                <span>Envelope:</span>
-                <span className="text-zinc-200 font-mono">Anti-click Hanning/Linear ramp</span>
+              <div className="flex justify-between text-slate-300">
+                <span className="font-medium">Envelope:</span>
+                <span className="text-white font-mono font-semibold">Anti-click Hanning/Linear ramp</span>
               </div>
             </div>
 
@@ -217,21 +217,21 @@ export function AcousticDiagnosticLab() {
         <Card className="border-zinc-800/80 bg-zinc-900/40">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <Mic className="h-4 w-4 text-zinc-400" />
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base font-bold text-white">
+                <Mic className="h-4 w-4 text-purple-400" />
                 Student Beacon Receiver (Device Microphone)
               </CardTitle>
-              <Badge variant={receiverActive ? "success" : "outline"}>
+              <Badge variant={receiverActive ? "success" : "outline"} className="text-xs font-semibold">
                 {receiverActive ? "Listening (FFT 2048)" : "Off"}
               </Badge>
             </div>
-            <CardDescription>
+            <CardDescription className="text-slate-300 text-xs sm:text-sm font-medium">
               Captures live ambient audio, computes FFT bins, and isolates target proximity carrier frequency.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label className="text-xs text-zinc-400 font-medium">Target Listening Band</label>
+              <label className="text-xs sm:text-sm text-slate-200 font-semibold">Target Listening Band</label>
               <div className="flex gap-2">
                 <Button
                   size="sm"
@@ -255,34 +255,34 @@ export function AcousticDiagnosticLab() {
             {/* FFT Canvas */}
             <div className="relative rounded bg-zinc-950 border border-zinc-800 overflow-hidden">
               <canvas ref={canvasRef} width={400} height={90} className="w-full h-[90px] block" />
-              <div className="absolute top-2 right-2 text-[10px] font-mono text-zinc-500">
+              <div className="absolute top-2 right-2 text-xs font-mono text-slate-300 font-semibold">
                 14 kHz – 22 kHz spectrum
               </div>
             </div>
 
             {receiverError && (
-              <div className="p-2.5 rounded bg-rose-950/40 border border-rose-800/50 text-xs text-rose-300 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 shrink-0" />
-                <span>{receiverError}</span>
+              <div className="p-2.5 rounded bg-rose-950/40 border border-rose-800/50 text-xs sm:text-sm text-rose-300 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 shrink-0 text-rose-400" />
+                <span className="font-medium">{receiverError}</span>
               </div>
             )}
 
             {detectedProof && (
-              <div className="p-3 rounded bg-emerald-950/40 border border-emerald-800/50 text-xs text-emerald-200 space-y-1">
-                <div className="flex items-center gap-1.5 font-semibold text-emerald-300">
+              <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-800/50 text-xs sm:text-sm text-emerald-200 space-y-1.5">
+                <div className="flex items-center gap-1.5 font-bold text-emerald-300">
                   <CheckCircle2 className="h-4 w-4" /> Proximity Verified (TIER_A)
                 </div>
-                <div className="flex justify-between text-zinc-400 mt-1">
+                <div className="flex justify-between text-slate-300 mt-1 font-medium">
                   <span>Detected Peak:</span>
-                  <span className="font-mono text-zinc-200">{String(detectedProof.metrics?.detectedFrequency ?? "—")} Hz</span>
+                  <span className="font-mono text-white font-bold">{String(detectedProof.metrics?.detectedFrequency ?? "—")} Hz</span>
                 </div>
-                <div className="flex justify-between text-zinc-400">
+                <div className="flex justify-between text-slate-300 font-medium">
                   <span>Signal-to-Noise Ratio:</span>
-                  <span className="font-mono text-zinc-200">+{String(detectedProof.metrics?.snrDb ?? "—")} dB</span>
+                  <span className="font-mono text-white font-bold">+{String(detectedProof.metrics?.snrDb ?? "—")} dB</span>
                 </div>
-                <div className="flex justify-between text-zinc-400">
+                <div className="flex justify-between text-slate-300 font-medium">
                   <span>Confidence:</span>
-                  <span className="font-mono text-zinc-200">{(detectedProof.confidence * 100).toFixed(0)}%</span>
+                  <span className="font-mono text-white font-bold">{(detectedProof.confidence * 100).toFixed(0)}%</span>
                 </div>
               </div>
             )}
@@ -305,19 +305,19 @@ export function AcousticDiagnosticLab() {
       {/* Real-time Detection Log */}
       <Card className="border-zinc-800/80 bg-zinc-900/30">
         <CardHeader className="py-3">
-          <CardTitle className="text-xs uppercase tracking-wider text-zinc-400 font-mono">
+          <CardTitle className="text-xs sm:text-sm uppercase tracking-wider text-slate-200 font-mono font-bold">
             Acoustic Signal Event Stream
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
-          <div className="font-mono text-[11px] space-y-1 bg-zinc-950 p-3 rounded border border-zinc-800/80 min-h-[90px]">
+          <div className="font-mono text-xs space-y-1 bg-zinc-950 p-3 rounded-lg border border-zinc-800/80 min-h-[90px]">
             {detectionLogs.length === 0 ? (
-              <div className="text-zinc-600">No detection events yet. Start both emitter and receiver to verify hardware.</div>
+              <div className="text-slate-400 font-medium">No detection events yet. Start both emitter and receiver to verify hardware.</div>
             ) : (
               detectionLogs.map((log, idx) => (
                 <div key={idx} className="text-emerald-400 flex items-center gap-2">
                   <span>▸</span>
-                  <span>{log}</span>
+                  <span className="text-slate-200 font-medium">{log}</span>
                 </div>
               ))
             )}
